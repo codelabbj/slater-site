@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -23,7 +24,7 @@ import { Badge } from "@/components/ui/badge"
 import { phoneApi, userAppIdApi, networkApi, platformApi } from "@/lib/api-client"
 import type { UserPhone, UserAppId, Network, Platform } from "@/lib/types"
 import { toast } from "react-hot-toast"
-import { Loader2, Phone, Plus, Trash2, Edit, Smartphone } from "lucide-react"
+import { Loader2, Phone, Plus, Trash2, Edit, Smartphone, ArrowLeft } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -99,6 +100,7 @@ type PhoneFormData = z.infer<typeof phoneSchema>
 type AppIdFormData = z.infer<typeof appIdSchema>
 
 export default function PhonesPage() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [userPhones, setUserPhones] = useState<UserPhone[]>([])
   const [userAppIds, setUserAppIds] = useState<UserAppId[]>([])
@@ -361,6 +363,19 @@ export default function PhonesPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Back Button */}
+      <div className="flex items-center justify-start">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push("/dashboard")}
+          className="flex items-center gap-2 h-10 px-4 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour au tableau de bord
+        </Button>
+      </div>
+
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
           <Phone className="h-6 w-6 sm:h-8 sm:w-8" />

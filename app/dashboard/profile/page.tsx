@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, User, Save, Eye, EyeOff, Lock } from "lucide-react"
+import { Loader2, User, Save, Eye, EyeOff, Lock, ArrowLeft } from "lucide-react"
 import { authApi } from "@/lib/api-client"
 import type { User } from "@/lib/types"
 import { toast } from "react-hot-toast"
@@ -152,29 +152,95 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
-          <User className="h-6 w-6 sm:h-8 sm:w-8" />
-          Mon profil
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-          Gérez vos informations personnelles
-        </p>
+    <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-8">
+      {/* Back Button */}
+      <div className="flex items-center justify-start">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push("/dashboard")}
+          className="flex items-center gap-2 h-10 px-4 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour au tableau de bord
+        </Button>
       </div>
 
+      {/* Hero Section */}
+      <Card className="border-0 floating-card overflow-hidden rounded-2xl sm:rounded-3xl">
+        <CardContent className="p-5 sm:p-6 relative z-10">
+          <div className="absolute -top-10 right-2 h-28 w-28 rounded-full bg-primary/20 blur-3xl" />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold leading-tight flex items-center gap-3">
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/15 text-primary glow-primary">
+                    <User className="h-6 w-6 sm:h-7 sm:w-7" />
+                  </div>
+                  Mon profil
+                </h1>
+                <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
+                  Gérez vos informations personnelles et mettez à jour vos paramètres de sécurité
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Account Summary */}
+      <Card className="glass-panel border-primary/15 rounded-2xl sm:rounded-3xl">
+        <CardContent className="p-5 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/20">
+                  <User className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                  {profile?.first_name} {profile?.last_name}
+                </h3>
+                <p className="text-sm text-muted-foreground">{profile?.email}</p>
+                <p className="text-sm text-muted-foreground">
+                  Membre depuis {profile?.created_at ? format(new Date(profile.created_at), 'MMMM yyyy', { locale: fr }) : ''}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 rounded-xl border border-green-500/20">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm font-medium text-green-700">Compte actif</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-medium text-blue-700">Vérifié</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Profile Information Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base sm:text-lg">Informations personnelles</CardTitle>
-          <CardDescription className="text-xs sm:text-sm">
-            Modifiez vos informations de profil
+      <Card className="glass-panel border-primary/15 rounded-2xl sm:rounded-3xl">
+        <CardHeader className="p-5 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
+              <User className="h-4 w-4" />
+            </div>
+            Informations personnelles
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground mt-2">
+            Modifiez vos informations de profil pour les maintenir à jour
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <CardContent className="p-5 sm:p-6 pt-0">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 sm:space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               <div className="space-y-2">
                 <Label htmlFor="first_name" className="text-sm sm:text-base">
                   Prénom
@@ -185,7 +251,7 @@ export default function ProfilePage() {
                   placeholder="Votre prénom"
                   {...register("first_name")}
                   disabled={isSubmitting}
-                  className="h-11 sm:h-10 text-base sm:text-sm"
+                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
                 />
                 {errors.first_name && (
                   <p className="text-xs sm:text-sm text-destructive">
@@ -204,7 +270,7 @@ export default function ProfilePage() {
                   placeholder="Votre nom"
                   {...register("last_name")}
                   disabled={isSubmitting}
-                  className="h-11 sm:h-10 text-base sm:text-sm"
+                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
                 />
                 {errors.last_name && (
                   <p className="text-xs sm:text-sm text-destructive">
@@ -222,7 +288,7 @@ export default function ProfilePage() {
                 placeholder="votre@email.com"
                 {...register("email")}
                 disabled={isSubmitting}
-                className="h-11 sm:h-10 text-base sm:text-sm"
+                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
               />
               {errors.email && (
                 <p className="text-xs sm:text-sm text-destructive">{errors.email.message}</p>
@@ -237,7 +303,7 @@ export default function ProfilePage() {
                 placeholder="+225 01 02 03 04 05"
                 {...register("phone")}
                 disabled={isSubmitting}
-                className="h-11 sm:h-10 text-base sm:text-sm"
+                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
               />
               {errors.phone && (
                 <p className="text-xs sm:text-sm text-destructive">{errors.phone.message}</p>
@@ -250,11 +316,15 @@ export default function ProfilePage() {
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-initial h-11 sm:h-10 text-sm"
+                className="flex-1 sm:flex-initial h-12 sm:h-11 text-sm border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10 rounded-xl sm:rounded-2xl"
               >
                 Annuler
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="flex-1 sm:flex-initial h-11 sm:h-10 text-sm">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 sm:flex-initial h-12 sm:h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg glow-primary rounded-xl sm:rounded-2xl"
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -273,18 +343,20 @@ export default function ProfilePage() {
       </Card>
 
       {/* Change Password Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-            <Lock className="h-4 w-4 sm:h-5 sm:w-5" />
+      <Card className="glass-panel border-primary/15 rounded-2xl sm:rounded-3xl">
+        <CardHeader className="p-5 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
+              <Lock className="h-4 w-4" />
+            </div>
             Changer le mot de passe
           </CardTitle>
-          <CardDescription className="text-xs sm:text-sm">
+          <CardDescription className="text-sm text-muted-foreground mt-2">
             Modifiez votre mot de passe pour sécuriser votre compte
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-4 sm:space-y-5">
+        <CardContent className="p-5 sm:p-6 pt-0">
+          <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-5 sm:space-y-6">
             <div className="space-y-2">
               <Label htmlFor="old_password" className="text-sm sm:text-base">
                 Ancien mot de passe
@@ -296,13 +368,13 @@ export default function ProfilePage() {
                   placeholder="••••••••"
                   {...registerPassword("old_password")}
                   disabled={isChangingPassword}
-                  className="h-11 sm:h-10 text-base sm:text-sm pr-10"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-11 sm:h-10 w-10 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-10 hover:bg-transparent"
                   onClick={() => setShowOldPassword(!showOldPassword)}
                   disabled={isChangingPassword}
                 >
@@ -331,13 +403,13 @@ export default function ProfilePage() {
                   placeholder="••••••••"
                   {...registerPassword("new_password")}
                   disabled={isChangingPassword}
-                  className="h-11 sm:h-10 text-base sm:text-sm pr-10"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-11 sm:h-10 w-10 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-10 hover:bg-transparent"
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   disabled={isChangingPassword}
                 >
@@ -366,13 +438,13 @@ export default function ProfilePage() {
                   placeholder="••••••••"
                   {...registerPassword("confirm_new_password")}
                   disabled={isChangingPassword}
-                  className="h-11 sm:h-10 text-base sm:text-sm pr-10"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-11 sm:h-10 w-10 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-10 hover:bg-transparent"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   disabled={isChangingPassword}
                 >
@@ -390,7 +462,7 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button
                 type="button"
                 variant="outline"
@@ -401,14 +473,14 @@ export default function ProfilePage() {
                   setShowConfirmPassword(false)
                 }}
                 disabled={isChangingPassword}
-                className="flex-1 sm:flex-initial h-11 sm:h-10 text-sm"
+                className="w-full sm:flex-initial h-12 sm:h-11 text-sm border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10 rounded-xl sm:rounded-2xl"
               >
                 Annuler
               </Button>
               <Button
                 type="submit"
                 disabled={isChangingPassword}
-                className="flex-1 sm:flex-initial h-11 sm:h-10 text-sm"
+                className="w-full sm:flex-initial h-12 sm:h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg glow-primary rounded-xl sm:rounded-2xl"
               >
                 {isChangingPassword ? (
                   <>
@@ -418,7 +490,8 @@ export default function ProfilePage() {
                 ) : (
                   <>
                     <Lock className="mr-2 h-4 w-4" />
-                    Modifier le mot de passe
+                    <span className="hidden sm:inline">Modifier le mot de passe</span>
+                    <span className="sm:hidden">Modifier</span>
                   </>
                 )}
               </Button>

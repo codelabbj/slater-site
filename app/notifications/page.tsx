@@ -224,45 +224,56 @@ export default function NotificationsPage() {
   const unreadCount = allNotifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      <div className="space-y-6">
-        {/* Header with Back Button */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <div className="space-y-6 sm:space-y-8">
+      {/* Hero Section */}
+      <Card className="border-0 floating-card overflow-hidden rounded-2xl sm:rounded-3xl">
+        <CardContent className="p-5 sm:p-6 relative z-10">
+          <div className="absolute -top-10 right-2 h-28 w-28 rounded-full bg-primary/20 blur-3xl" />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => router.back()}
-              className="flex items-center gap-2"
+                  className="flex items-center gap-2 h-10 w-10 rounded-xl hover:bg-primary/10"
             >
               <ArrowLeft className="h-4 w-4" />
-              Retour
             </Button>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Bell className="h-6 w-6" />
-                <h1 className="text-3xl font-bold">Notifications</h1>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold leading-tight flex items-center gap-3">
+                    <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/15 text-primary glow-primary">
+                      <Bell className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
-              <p className="text-muted-foreground">
-                Votre centre de notifications
+                    Notifications
+                  </h1>
+                  <p className="text-sm sm:text-base text-muted-foreground mt-2">
+                    Votre centre de notifications et mises à jour importantes.
               </p>
             </div>
           </div>
-          
           {unreadCount > 0 && (
-            <Badge variant="secondary" className="text-lg px-3 py-1">
-              {unreadCount} non {unreadCount === 1 ? 'lue' : 'lues'}
+                <Badge className="bg-primary text-primary-foreground px-3 py-1 text-sm font-semibold">
+                  {unreadCount} non lu{unreadCount > 1 ? 's' : ''}
             </Badge>
           )}
         </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Refresh Button */}
-        <div className="flex justify-end">
+      {/* Controls Section */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg sm:text-xl font-semibold section-title flex items-center gap-2">
+          <div className="w-1.5 h-6 bg-primary rounded-full" />
+          Toutes les notifications
+        </h2>
           <Button
             variant="outline"
             size="sm"
             onClick={() => fetchNotifications()}
             disabled={isRefreshing}
+          className="h-10 px-4 bg-primary/10 border-primary/30 text-foreground hover:bg-primary/15"
           >
             {isRefreshing ? (
               <>
@@ -280,61 +291,80 @@ export default function NotificationsPage() {
 
         {/* Loading State */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
+        <Card className="glass-panel rounded-2xl sm:rounded-3xl">
+          <CardContent className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </CardContent>
+        </Card>
+      ) : allNotifications.length === 0 ? (
+        <Card className="glass-panel rounded-2xl sm:rounded-3xl">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+              <Bell className="h-8 w-8 text-primary" />
           </div>
-        ) : allNotifications.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Bell className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground text-center">
-                Aucune notification pour le moment
+            <p className="text-foreground font-semibold">Aucune notification</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Vous serez notifié dès qu'il y aura du nouveau
               </p>
             </CardContent>
           </Card>
         ) : (
           <>
             {/* Notifications List */}
-            <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
               {allNotifications.map((notification) => {
                 const isFCM = 'is_fcm' in notification && notification.is_fcm;
                 
                 return (
                   <Card
                     key={notification.id}
-                    className={`transition-all hover:shadow-md ${
-                      !notification.is_read ? 'border-primary/50' : ''
-                    } ${isFCM ? 'border-blue-500/30' : ''}`}
+                  className={`glass-panel transition-all duration-200 hover:shadow-lg border-primary/10 rounded-2xl sm:rounded-3xl overflow-hidden ${
+                    !notification.is_read ? 'ring-1 ring-primary/30' : ''
+                  } ${isFCM ? 'bg-gradient-to-r from-blue-500/5 to-transparent' : ''}`}
                   >
-                    <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-5">
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            {isFCM && (
-                              <MessageSquare className="h-4 w-4 text-blue-500" />
+                      <div className="flex items-start gap-4 flex-1 min-w-0">
+                        <div className="flex-shrink-0">
+                          <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${
+                            isFCM ? 'bg-blue-500/15 text-blue-600' : 'bg-primary/15 text-primary'
+                          }`}>
+                            {isFCM ? (
+                              <MessageSquare className="h-5 w-5" />
+                            ) : (
+                              <Bell className="h-5 w-5" />
                             )}
-                            <h3 className="font-semibold text-lg">
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold text-base sm:text-lg text-foreground truncate">
                               {notification.title}
                             </h3>
                             {!notification.is_read && (
-                              <span className="h-2 w-2 rounded-full bg-primary" />
+                                  <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
                             )}
+                              </div>
                             {isFCM && (
-                              <Badge variant="outline" className="text-xs">
-                                Notification push
+                                <Badge className="bg-blue-500/10 text-blue-700 border border-blue-500/20 text-xs font-medium px-2 py-0.5 mb-2">
+                                  Push
                               </Badge>
                             )}
+                            </div>
                           </div>
                           
-                          <p className="text-muted-foreground">
+                          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                             {notification.content}
                           </p>
                           
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
                             <span>{formatDate(notification.created_at)}</span>
                             {'reference' in notification && notification.reference && (
-                              <span>Réf. : {notification.reference}</span>
+                              <span className="font-mono">#{notification.reference}</span>
                             )}
+                          </div>
                           </div>
                         </div>
                         
@@ -343,10 +373,10 @@ export default function NotificationsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => markAsRead(notification.id)}
-                            className="flex items-center gap-2"
+                          className="flex items-center gap-2 h-9 px-3 text-xs hover:bg-primary/10 flex-shrink-0"
                           >
-                            <Check className="h-4 w-4" />
-                            <span className="hidden sm:inline">Marquer comme lu</span>
+                          <Check className="h-3 w-3" />
+                          <span className="hidden sm:inline">Lu</span>
                           </Button>
                         )}
                       </div>
@@ -358,21 +388,25 @@ export default function NotificationsPage() {
 
             {/* Pagination */}
             {(hasNext || hasPrevious) && (
-              <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-3 mt-6">
                 <Button
                   variant="outline"
                   onClick={() => fetchNotifications(page - 1)}
                   disabled={!hasPrevious || isLoading}
+                className="h-10 px-4 border-primary/30 bg-primary/5 hover:bg-primary/10"
                 >
                   Précédent
                 </Button>
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-xl">
+                <span className="text-sm font-semibold text-primary">
                   Page {page}
                 </span>
+              </div>
                 <Button
                   variant="outline"
                   onClick={() => fetchNotifications(page + 1)}
                   disabled={!hasNext || isLoading}
+                className="h-10 px-4 border-primary/30 bg-primary/5 hover:bg-primary/10"
                 >
                   Suivant
                 </Button>
@@ -380,7 +414,6 @@ export default function NotificationsPage() {
             )}
           </>
         )}
-      </div>
     </div>
   );
 }

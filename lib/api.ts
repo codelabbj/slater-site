@@ -1,13 +1,39 @@
 import axios from "axios"
 import { toast } from "react-hot-toast"
 
+// Normalize base URL from env so it always has protocol + trailing slash
+const rawBaseUrl = process.env.NEXT_PUBLIC_BASE_URL
+const normalizedBaseUrl =
+  rawBaseUrl
+    ? (() => {
+        let url = rawBaseUrl.trim()
+        // If protocol is missing, assume https
+        if (!/^https?:\/\//i.test(url)) {
+          url = `https://${url}`
+        }
+        // Ensure trailing slash for safe string concatenation
+        if (!url.endsWith("/")) {
+          url += "/"
+        }
+        return url
+      })()
+    : undefined
+
+if (process.env.NODE_ENV !== "production" && !normalizedBaseUrl) {
+  // Helpful warning in dev when env is missing
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[API] NEXT_PUBLIC_BASE_URL is not defined. API calls will use relative URLs and may fail in production.",
+  )
+}
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+  baseURL: normalizedBaseUrl,
   headers: {
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
-  }
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    Pragma: "no-cache",
+    Expires: "0",
+  },
 })
 
 function detectLang(text: string) {
@@ -54,7 +80,8 @@ api.interceptors.response.use(
       original._retry = true
       try {
         const refresh = localStorage.getItem("refresh_token")
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}auth/refresh`, { refresh })
+        const refreshUrl = `${normalizedBaseUrl ?? ""}auth/refresh`
+        const res = await axios.post(refreshUrl, { refresh })
         const newToken = res.data.access
         localStorage.setItem("access_token", newToken)
         original.headers.Authorization = `Bearer ${newToken}`

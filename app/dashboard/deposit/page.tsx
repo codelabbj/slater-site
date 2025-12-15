@@ -15,8 +15,9 @@ import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { extractTimeErrorMessage } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ChevronLeft, Copy } from "lucide-react"
+import { ChevronLeft, Copy, ArrowDownToLine } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -353,38 +354,51 @@ export default function DepositPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto w-full px-3 sm:px-4">
-      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Effectuer un dépôt</h1>
-      </div>
-
-        {/* Progress Bar */}
-        <TransactionProgressBar 
-          currentStep={currentStep} 
-          totalSteps={totalSteps}
-          type="deposit"
-        />
-
-        {/* Current Step */}
-        <div className="min-h-[250px] sm:min-h-[300px] lg:min-h-[400px] overflow-x-hidden">
-          {renderCurrentStep()}
-              </div>
-
-        {/* Navigation - Show Previous button for steps 2-5 */}
-        {currentStep > 1 && currentStep <= 5 && (
-          <div className="flex justify-start pt-4 sm:pt-6">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              className="flex items-center gap-2 w-full sm:w-auto h-11 sm:h-10"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span className="text-sm sm:text-base">Précédent</span>
-            </Button>
+    <div className="space-y-6 sm:space-y-8">
+      {/* Back Button */}
+      <div className="flex items-center justify-start">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push("/dashboard")}
+          className="flex items-center gap-2 h-10 px-4 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour au tableau de bord
+        </Button>
           </div>
-        )}
+
+      {/* Progress Section */}
+      <Card className="glass-panel rounded-2xl sm:rounded-3xl">
+        <CardContent className="p-5 sm:p-6">
+          <TransactionProgressBar
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+            type="deposit"
+          />
+        </CardContent>
+      </Card>
+
+      {/* Current Step */}
+      <Card className="glass-panel rounded-2xl sm:rounded-3xl min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]">
+        <CardContent className="p-5 sm:p-6">
+          {renderCurrentStep()}
+        </CardContent>
+      </Card>
+
+      {/* Navigation - Show Previous button for steps 2-5 */}
+      {currentStep > 1 && currentStep <= 5 && (
+        <div className="flex justify-start">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            className="flex items-center gap-2 h-11 sm:h-12 px-6 border-primary/30 bg-primary/5 hover:bg-primary/10 text-sm sm:text-base font-semibold"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Précédent
+          </Button>
+        </div>
+      )}
 
         {/* Confirmation Dialog */}
         <ConfirmationDialog
@@ -516,7 +530,6 @@ export default function DepositPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-              </div>
     </div>
   )
 }

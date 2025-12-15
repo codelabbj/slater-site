@@ -16,14 +16,14 @@ Complete setup guide for Firebase integration with Next.js web app and mobile ap
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Click "Create a project"
-3. Enter project name (e.g., "Turaincash-app")
+3. Enter project name (e.g., "Slater-app")
 4. Enable Google Analytics (optional)
 5. Create project
 
 ### Configure Web App
 
 1. In Firebase Console, click "Add app" → Web
-2. Register app with nickname (e.g., "Turaincash-web")
+2. Register app with nickname (e.g., "Slater-web")
 3. Copy the Firebase configuration object
 4. Note down the configuration values for environment variables
 
@@ -125,7 +125,7 @@ firebase init
 1. **Add Android App to Firebase**:
    - Go to Firebase Console → Project Settings
    - Click "Add app" → Android
-   - Enter package name (e.g., `com.Turaincash.app`)
+   - Enter package name (e.g., `com.Slater.app`)
    - Download `google-services.json`
 
 2. **Configure Android App**:
@@ -150,7 +150,7 @@ firebase init
 1. **Add iOS App to Firebase**:
    - Go to Firebase Console → Project Settings
    - Click "Add app" → iOS
-   - Enter bundle ID (e.g., `com.Turaincash.app`)
+   - Enter bundle ID (e.g., `com.Slater.app`)
    - Download `GoogleService-Info.plist`
 
 2. **Configure iOS App**:
@@ -214,7 +214,7 @@ firebase init
            "apps": [],
            "details": [
                {
-                   "appID": "TEAM_ID.com.Turaincash.app",
+                   "appID": "TEAM_ID.com.Slater.app",
                    "paths": ["*"]
                }
            ]

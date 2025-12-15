@@ -15,7 +15,7 @@ const inter = Inter({ subsets: ["latin"] })
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Turaincash - Gestion de Dépôts et Retraits",
+  title: "Slater - Gestion de Dépôts et Retraits",
   description: "Plateforme de gestion de transactions pour paris sportifs",
 }
 
@@ -26,15 +26,19 @@ export default function RootLayout({
 }>): React.JSX.Element {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen flex flex-col">
-            <div className="flex-1 flex flex-col">
+          <div className="relative min-h-screen flex flex-col overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 -z-10">
+              <div className="absolute inset-0 opacity-60 blur-3xl" style={{ background: "radial-gradient(120% 60% at 20% 0%, rgba(50, 251, 255, 0.35) 0%, transparent 55%)" }} />
+              <div className="absolute inset-0 opacity-70 blur-[120px]" style={{ background: "radial-gradient(80% 70% at 80% 10%, rgba(23, 161, 255, 0.24) 0%, transparent 55%)" }} />
+            </div>
+            <div className="flex-1 flex flex-col relative">
               <AuthProvider>
                 {/* <ErudaLoader /> */}
                 <Suspense fallback={null}>

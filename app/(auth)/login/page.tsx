@@ -25,7 +25,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>
 
 const APK_DOWNLOAD_URL = "/app-v1.0.5.apk"
-const APK_FILE_NAME = "TurainCash-v1.0.5.apk"
+const APK_FILE_NAME = "Slater-v1.0.5.apk"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -380,20 +380,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <Card className="border-border/50 shadow-xl">
-        <CardHeader className="space-y-1 px-4 sm:px-6 pt-6 sm:pt-6">
-          <CardTitle className="text-xl sm:text-2xl font-bold text-center">
+    <div className="space-y-5 sm:space-y-6">
+      <Card className="glass-panel border border-primary/15 shadow-xl shadow-primary/10">
+        <CardHeader className="space-y-1 px-4 sm:px-6 pt-6 sm:pt-6 text-center">
+          <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-[0.2em]">
+            {isForgotPassword ? "Sécurité" : "Connexion sécurisée"}
+          </div>
+          <CardTitle className="text-xl sm:text-2xl font-bold">
             {isForgotPassword ? "Réinitialiser le mot de passe" : "Connexion"}
           </CardTitle>
-          <CardDescription className="text-center text-sm sm:text-base">
+          <CardDescription className="text-sm sm:text-base text-muted-foreground">
             {isForgotPassword 
               ? forgotPasswordStep === 1 
                 ? "Entrez votre adresse email pour recevoir un code de vérification"
                 : forgotPasswordStep === 2
                 ? "Entrez le code de vérification envoyé à votre email"
                 : "Entrez votre nouveau mot de passe"
-              : "Entrez vos identifiants pour accéder à votre compte"
+              : "Accédez à votre espace client en toute sécurité"
             }
           </CardDescription>
         </CardHeader>
@@ -462,7 +465,7 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   variant="link"
-                  className="px-0 text-sm h-auto"
+                  className="px-0 text-sm h-auto text-primary"
                   onClick={() => {
                     setIsForgotPassword(true)
                     setForgotPasswordStep(1)
@@ -473,7 +476,11 @@ export default function LoginPage() {
                 </Button>
               </div>
 
-              <Button type="submit" className="w-full h-11 sm:h-10 text-base sm:text-sm font-medium" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full h-11 sm:h-10 text-base sm:text-sm font-medium bg-primary text-primary-foreground glow-primary"
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -499,10 +506,10 @@ export default function LoginPage() {
       <Button
         asChild
         variant="outline"
-        className="w-full h-11 sm:h-10 text-base sm:text-sm font-medium flex items-center justify-center gap-2"
+        className="w-full h-11 sm:h-10 text-base sm:text-sm font-medium flex items-center justify-center gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-foreground"
       >
         <a href={APK_DOWNLOAD_URL} download={APK_FILE_NAME} className="flex items-center gap-2">
-          <Download className="h-4 w-4" />
+          <Download className="h-4 w-4 text-primary" />
           Télécharger l'application mobile
         </a>
       </Button>

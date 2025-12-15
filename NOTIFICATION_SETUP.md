@@ -15,9 +15,9 @@ This guide explains how to receive Firebase Cloud Messaging (FCM) notifications 
 Your `.env.local` file is configured with:
 ```
 NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDj4CbDhlN_dxQ1exeCtPTgSZZfN8IAddM
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=turaincash-57c48.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=turaincash-57c48
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=turaincash-57c48.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=Slater-57c48.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=Slater-57c48
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=Slater-57c48.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=665076337085
 NEXT_PUBLIC_FIREBASE_APP_ID=1:665076337085:web:850ace1ccae6ff90292ad4
 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-SWVTK18YGF
@@ -30,7 +30,7 @@ The `public/firebase-messaging-sw.js` file contains your Firebase configuration 
 ### 3. Add VAPID Key (Required)
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select your project: **turaincash-57c48**
+2. Select your project: **Slater-57c48**
 3. Go to **Project Settings** → **Cloud Messaging** tab
 4. Under **Web configuration**, click **Generate key pair**
 5. Copy the generated key

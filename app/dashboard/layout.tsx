@@ -20,13 +20,16 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { settingsApi } from "@/lib/api-client"
 
-const baseNavigation = [
-  { name: "Acceuil", href: "/dashboard", icon: Home },
-  // { name: "Dépôt", href: "/dashboard/deposit", icon: ArrowDownToLine },
-  // { name: "Retrait", href: "/dashboard/withdrawal", icon: ArrowUpFromLine },
+const coreNavigation = [
+  { name: "Accueil", href: "/dashboard", icon: Home },
   { name: "Coupon", href: "/dashboard/coupon", icon: Ticket },
   { name: "Mes numéros", href: "/dashboard/phones", icon: Phone },
   { name: "Notifications", href: "/notifications", icon: Bell },
+]
+
+const financeNavigation = [
+  { name: "Dépôt", href: "/dashboard/deposit", icon: ArrowDownToLine },
+  { name: "Retrait", href: "/dashboard/withdrawal", icon: ArrowUpFromLine },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -35,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, isLoading, logout } = useAuth()
   const [referralBonusEnabled, setReferralBonusEnabled] = useState(false)
   const [isLoadingSettings, setIsLoadingSettings] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -55,16 +59,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const navigation = referralBonusEnabled
     ? [
-        ...baseNavigation,
+        ...coreNavigation,
         { name: "Bonus", href: "/dashboard/bonus", icon: Gift },
       ]
-    : baseNavigation
+    : coreNavigation
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login")
     }
   }, [user, isLoading, router])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    // Avoid SSR/client mismatch during hydration
+    return <div className="min-h-screen bg-background" />
+  }
 
   if (isLoading) {
     return (
@@ -81,112 +94,131 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const userInitials = `${user.first_name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase()
 
   return (
-    <div className="flex-1 flex flex-col bg-background">
+    <div className="relative flex-1 flex flex-col bg-background">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary/15 via-primary/8 to-transparent blur-3xl" />
+
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full bg-transparent">
         <div className="container mx-auto px-3 sm:px-4">
+          <div className="mt-3 sm:mt-4 mb-3 sm:mb-4 rounded-2xl glass-panel shadow-lg">
           {/* Top row with logo and user menu */}
-          <div className="flex h-14 sm:h-16 items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
+              <div className="flex items-center gap-3 sm:gap-4">
               <Link href="/dashboard" className="flex items-center gap-2">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 ring-1 ring-primary/30 glow-primary overflow-hidden">
                 <Image
-                  src="/Turaincash-logo.png"
-                  alt="TurainCash Logo"
-                  width={40}
-                  height={13}
-                  className="h-auto w-auto max-w-[120px]"
+                      src="/Slater-logo.png"
+                      alt="Slater Logo"
+                      width={48}
+                      height={16}
+                      className="h-8 w-auto object-contain"
                   priority
                 />
+                  </div>
+                  <div className="hidden sm:flex flex-col leading-tight">
+                    <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Slater</span>
+                    <span className="text-sm font-semibold text-foreground">Espace client</span>
+                  </div>
               </Link>
             </div>
 
-            {/* Theme toggle and User menu */}
+              {/* Theme toggle, notifications, and User menu */}
             <div className="flex items-center gap-1 sm:gap-2">
               <ThemeToggle />
+                <Button asChild variant="ghost" className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full glow-primary">
+                  <Link href="/notifications" className="flex items-center justify-center">
+                    <Bell className="h-4 w-4" />
+                    <span className="sr-only">Notifications</span>
+                  </Link>
+                </Button>
               <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full">
-                  <Avatar className="h-9 w-9 sm:h-10 sm:w-10">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs sm:text-sm">{userInitials}</AvatarFallback>
+                    <Button
+                      variant="ghost"
+                      className="relative h-12 w-12 sm:h-14 sm:w-14 p-0 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 border border-primary/30 shadow-lg shadow-primary/20 glow-primary hover:shadow-primary/30 hover:scale-105 transition-all duration-200"
+                    >
+                      <div className="relative flex items-center justify-center w-full h-full">
+                        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-primary/40 ring-offset-1 ring-offset-background">
+                          <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-sm sm:text-base font-bold">
+                            {userInitials}
+                          </AvatarFallback>
                   </Avatar>
+                      </div>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
+                  <DropdownMenuContent
+                    className="w-64 p-0 glass-panel border-primary/20 shadow-2xl shadow-primary/10 rounded-2xl overflow-hidden"
+                    align="end"
+                    forceMount
+                    sideOffset={8}
+                  >
+                    {/* Profile Header */}
+                    <div className="bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 p-4 border-b border-primary/20">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 ring-2 ring-primary/30">
+                          <AvatarFallback className="bg-primary text-primary-foreground font-bold text-base">
+                            {userInitials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground text-sm truncate">
                       {user.first_name} {user.last_name}
                     </p>
-                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="p-2">
+                      <DropdownMenuItem asChild className="rounded-xl px-3 py-3 hover:bg-primary/10 focus:bg-primary/10 transition-colors">
+                        <Link href="/dashboard/profile" className="flex items-center gap-3">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary">
+                            <User className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <span className="font-medium">Mon Profil</span>
+                            <p className="text-xs text-muted-foreground">Gérer mes informations</p>
                   </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard/profile" className="flex items-center">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profil</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Déconnexion</span>
+
+                      <DropdownMenuSeparator className="my-2" />
+
+                      <DropdownMenuItem
+                        onClick={logout}
+                        className="rounded-xl px-3 py-3 hover:bg-destructive/10 focus:bg-destructive/10 text-destructive focus:text-destructive transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-destructive/15 text-destructive">
+                            <LogOut className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <span className="font-medium">Déconnexion</span>
+                            <p className="text-xs text-muted-foreground">Se déconnecter du compte</p>
+                          </div>
+                        </div>
                 </DropdownMenuItem>
+                    </div>
               </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 pb-4">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
+          </div>
         </div>
       </header>
 
       {/* Main content */}
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-20 lg:pb-6">{children}</main>
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:hidden safe-area-inset-bottom">
-        <div className="flex items-center justify-around h-16 px-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 flex-1 h-full px-1 py-1.5 min-w-0 transition-colors active:bg-muted/50 rounded-lg",
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground",
-                )}
-              >
-                <item.icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-primary")} />
-                <span className="text-[10px] sm:text-xs font-medium truncate w-full text-center leading-tight">{item.name}</span>
-              </Link>
-            )
-          })}
+      <main className="container mx-auto px-3 sm:px-4 pb-24 lg:pb-10">
+        <div className="relative isolate">
+          <div className="absolute inset-0 -z-10 rounded-3xl blur-3xl opacity-40" style={{ background: "radial-gradient(80% 65% at 50% 0%, rgba(50, 251, 255, 0.20), transparent 60%)" }} />
+          <div className="rounded-3xl bg-gradient-to-b from-white/70 via-white/80 to-white/40 dark:from-white/5 dark:via-white/5 dark:to-white/0 border border-border/70 shadow-[0_20px_60px_-30px_rgba(5,12,22,0.45)] p-3 sm:p-5">
+            {children}
+          </div>
         </div>
-      </nav>
+      </main>
+
     </div>
   )
 }

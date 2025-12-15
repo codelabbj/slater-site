@@ -10,15 +10,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { ArrowDownToLine, ArrowUpFromLine, Wallet, Loader2, ArrowRight, RefreshCw, MessageSquare, Send, Smartphone, Download } from "lucide-react"
+import { ArrowDownToLine, ArrowUpFromLine, Wallet, Loader2, ArrowRight, RefreshCw, MessageCircle, Send, Smartphone, Download, Ticket, Bell, Gift, MessageCircleCode, Copy, Check, Coins } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { transactionApi, advertisementApi, settingsApi } from "@/lib/api-client"
-import type { Transaction, Advertisement, Settings } from "@/lib/types"
+import { transactionApi, advertisementApi, settingsApi, authApi } from "@/lib/api-client"
+import type { Transaction, Advertisement, Settings, User } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
-import { formatPhoneNumberForDisplay } from "@/lib/utils"
+import { formatPhoneNumberForDisplay, cn } from "@/lib/utils"
 import {
   Carousel,
   CarouselContent,
@@ -37,6 +37,9 @@ export default function DashboardPage() {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>()
   const [isCarouselPaused, setIsCarouselPaused] = useState(false)
   const [settings, setSettings] = useState<Settings | null>(null)
+  const [referralBonusEnabled, setReferralBonusEnabled] = useState(false)
+  const [userProfile, setUserProfile] = useState<User | null>(null)
+  const [copiedReferralCode, setCopiedReferralCode] = useState(false)
 
   const fetchRecentTransactions = async () => {
     try {
@@ -82,10 +85,21 @@ export default function DashboardPage() {
     try {
       const settingsData = await settingsApi.get()
       setSettings(settingsData)
+      setReferralBonusEnabled(settingsData?.referral_bonus === true)
     } catch (error) {
       console.error("Error fetching settings:", error)
-      // Set default values on error
       setSettings({ whatsapp_phone: "0594811767", telegram: "0594811767" })
+      setReferralBonusEnabled(false)
+    }
+  }
+
+  const fetchUserProfile = async () => {
+    try {
+      const profileData = await authApi.getProfile()
+      setUserProfile(profileData)
+      console.log("Fetched user profile:", profileData)
+    } catch (error) {
+      console.error("Error fetching user profile:", error)
     }
   }
 
@@ -94,6 +108,7 @@ export default function DashboardPage() {
       fetchRecentTransactions()
       fetchAdvertisement()
       fetchSettings()
+      fetchUserProfile()
     }
   }, [user])
 
@@ -153,106 +168,160 @@ export default function DashboardPage() {
     )
   }
 
+  const copyReferralCode = async () => {
+    const referralCode = userProfile?.referral_code || user?.referral_code
+    if (referralCode) {
+      try {
+        await navigator.clipboard.writeText(referralCode)
+        setCopiedReferralCode(true)
+        toast.success("Code de parrainage copié!")
+        setTimeout(() => setCopiedReferralCode(false), 2000)
+      } catch (error) {
+        toast.error("Erreur lors de la copie")
+      }
+    }
+  }
+
   return (
     <>
-    <div className="space-y-6 sm:space-y-8">
-      {/* Welcome section */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Bienvenue, {user?.first_name} {user?.last_name}
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">Gérez vos dépôts et retraits en toute simplicité</p>
-      </div>
-
-      {/* Mobile App Download */}
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/20">
-                <Smartphone className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-base sm:text-lg">Téléchargez l'application mobile</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                  Accédez à vos services depuis votre téléphone
+    <div className="space-y-5 sm:space-y-8">
+      {/* Hero */}
+      <Card className="border-0 floating-card overflow-hidden rounded-2xl sm:rounded-3xl">
+        <CardContent className="p-4 sm:p-6 relative z-10">
+          <div className="absolute -top-10 right-2 h-28 w-28 rounded-full bg-primary/20 blur-3xl" />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 text-left">
+              <div className="space-y-2">
+                <h1 className="text-2xl sm:text-3xl font-bold leading-tight break-words">
+                  Bonjour, {user?.first_name} {user?.last_name}
+                </h1>
+                <p className="text-sm sm:text-base text-muted-foreground max-w-xl">
+                  Votre hub pour suivre vos dépôts, retraits et notifications en un clin d'œil.
                 </p>
               </div>
             </div>
-            <Button
-              asChild
-              size="sm"
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              <a
-                href="/app-v1.0.5.apk"
-                download="TurainCash-v1.0.5.apk"
-                className="flex items-center gap-2"
+
+            {/* Referral Code and Bonus Balance */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {/* Referral Code */}
+              <Card className="glass-panel border-primary/15 rounded-xl sm:rounded-2xl">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/15 text-primary flex-shrink-0">
+                        <Gift className="h-4 w-4 sm:h-5 sm:w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm text-muted-foreground">Code de parrainage</p>
+                        <p className="text-sm sm:text-base font-mono font-semibold text-foreground truncate">
+                          {userProfile?.referral_code || user?.referral_code || "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={copyReferralCode}
+                      className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 rounded-lg hover:bg-primary/10"
+                    >
+                      {copiedReferralCode ? (
+                        <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+                      ) : (
+                        <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Bonus Balance */}
+              <Card className="glass-panel border-primary/15 rounded-xl sm:rounded-2xl">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/15 text-primary flex-shrink-0">
+                      <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Bonus disponible</p>
+                      <p className="text-sm sm:text-base font-semibold text-foreground">
+                        {(userProfile?.bonus_available || user?.bonus_available || 0).toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "XOF",
+                          minimumFractionDigits: 0,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Primary actions */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <Button
+                asChild
+                className="h-12 sm:h-12 justify-between bg-primary text-primary-foreground shadow-lg glow-primary rounded-xl sm:rounded-2xl"
               >
-                <Download className="h-4 w-4" />
-                <span className="text-xs sm:text-sm font-medium">Télécharger</span>
-              </a>
-            </Button>
+                <Link href="/dashboard/deposit" className="flex items-center justify-between w-full gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-background/20">
+                      <ArrowDownToLine className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </span>
+                    <div className="text-left min-w-0">
+                      <span className="text-xs sm:text-sm font-semibold">Dépôt</span>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                </Link>
+              </Button>
+
+              <Button
+                asChild
+                variant="outline"
+                className="h-12 sm:h-12 justify-between border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10 rounded-xl sm:rounded-2xl"
+              >
+                <Link href="/dashboard/withdrawal" className="flex items-center justify-between w-full gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                      <ArrowUpFromLine className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </span>
+                    <div className="text-left min-w-0">
+                      <span className="text-xs sm:text-sm font-semibold">Retrait</span>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                </Link>
+              </Button>
+            </div>
+
+            {/* Quick access pills */}
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              <Button asChild size="sm" variant="ghost" className="h-10 sm:h-10 px-3 sm:px-4 rounded-full border border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10">
+                <Link href="/dashboard/coupon" className="flex items-center gap-2">
+                  <Ticket className="h-4 w-4" />
+                  <span className="text-sm font-semibold">Coupons</span>
+                </Link>
+              </Button>
+              {referralBonusEnabled && (
+                <Button asChild size="sm" variant="ghost" className="h-10 sm:h-10 px-3 sm:px-4 rounded-full border border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10">
+                  <Link href="/dashboard/bonus" className="flex items-center gap-2">
+                    <Gift className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Bonus</span>
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Balance card */}
-      {/* <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-0">
-        <CardHeader>
-          <CardDescription className="text-primary-foreground/80">Solde disponible</CardDescription>
-          <CardTitle className="text-4xl font-bold">
-            {user?.balance?.toLocaleString("fr-FR", {
-              style: "currency",
-              currency: "XOF",
-              minimumFractionDigits: 0,
-            }) || "0 FCFA"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-3">
-            <Button asChild variant="secondary" size="sm" className="text-deposit border-deposit hover:bg-green-500/10">
-              <Link href="/dashboard/deposit">
-                <ArrowDownToLine className="mr-2 h-4 w-4 text-deposit" />
-                Déposer
-              </Link>
-            </Button>
-            <Button asChild variant="secondary" size="sm" className="text-withdrawal border-withdrawal hover:bg-blue-500/10">
-              <Link href="/dashboard/withdrawal">
-                <ArrowUpFromLine className="mr-2 h-4 w-4 text-withdrawal" />
-                Retirer
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card> */}
-
-      {/* Quick actions */}
-      <div>
-        {/* <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Actions rapides</h2> */}
-        <div className="flex flex-wrap gap-2 sm:gap-3">
-          <Button asChild size="sm" className="flex-1 sm:flex-initial min-w-[120px] sm:min-w-[140px] h-10 sm:h-9 bg-[#16a34a] hover:bg-[#15803d] text-white">
-            <Link href="/dashboard/deposit" className="flex items-center justify-center gap-2">
-              <ArrowDownToLine className="h-4 w-4" />
-              <span className="text-xs sm:text-sm font-medium">Dépôt</span>
-            </Link>
-          </Button>
-          <Button asChild size="sm" className="flex-1 sm:flex-initial min-w-[120px] sm:min-w-[140px] h-10 sm:h-9 bg-[#2563eb] hover:bg-[#1d4ed8] text-white">
-            <Link href="/dashboard/withdrawal" className="flex items-center justify-center gap-2">
-              <ArrowUpFromLine className="h-4 w-4" />
-              <span className="text-xs sm:text-sm font-medium">Retrait</span>
-            </Link>
-          </Button>
-        </div>
-      </div>
-
       {/* Advertisement Section */}
       <div className="w-full">
-        <Card className="overflow-hidden border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50 transition-colors p-0 py-0">
+        <Card className="overflow-hidden border border-primary/20 glass-panel p-0 py-0 rounded-2xl sm:rounded-3xl">
           <CardContent className="p-0">
             {isLoadingAd ? (
-              <div className="relative w-full aspect-[16/9] sm:aspect-[17/9] lg:aspect-[18/9] bg-muted/30 flex items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30 flex items-center justify-center rounded-2xl sm:rounded-3xl">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             ) : advertisements.length > 0 ? (
               <Carousel
@@ -278,12 +347,12 @@ export default function DashboardPage() {
                     
                     return (
                       <CarouselItem key={adId} className="pl-0">
-                        <div className="relative w-full aspect-[16/9] sm:aspect-[17/9] lg:aspect-[18/9] bg-muted/30">
+                        <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30 rounded-2xl sm:rounded-3xl overflow-hidden">
                           <Image
                             src={imageUrl}
                             alt={ad.title || "Publicité"}
                             fill
-                            className={link ? "object-cover cursor-pointer" : "object-cover"}
+                            className={link ? "object-cover cursor-pointer transition-transform duration-300 hover:scale-105" : "object-cover"}
                             style={{ objectFit: 'cover' }}
                             onError={() => handleAdImageError(adId)}
                           />
@@ -303,10 +372,10 @@ export default function DashboardPage() {
                 </CarouselContent>
               </Carousel>
             ) : (
-              <div className="relative w-full aspect-[16/9] sm:aspect-[17/9] lg:aspect-[18/9] bg-muted/30 flex items-center justify-center">
-                <div className="text-center p-4">
-                  <p className="text-sm sm:text-base text-muted-foreground font-medium">Espace publicitaire</p>
-                  <p className="text-xs text-muted-foreground/70 mt-1">Publicité</p>
+              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-primary/5 flex items-center justify-center rounded-2xl sm:rounded-3xl">
+                <div className="text-center p-4 text-muted-foreground">
+                  <p className="text-sm sm:text-base font-semibold text-foreground/80">Espace publicitaire</p>
+                  <p className="text-xs text-muted-foreground mt-1">Vos campagnes apparaîtront ici</p>
                 </div>
               </div>
             )}
@@ -314,22 +383,41 @@ export default function DashboardPage() {
         </Card>
       </div>
 
+      {/* Mobile App Download */}
+      <Card className="glass-panel border border-primary/15 rounded-2xl sm:rounded-3xl">
+        <CardContent className="p-4 sm:p-5">
+          <Button
+            asChild
+            className="w-full h-12 sm:h-12 justify-center bg-primary text-primary-foreground glow-primary text-sm sm:text-base font-semibold"
+          >
+            <a
+              href="/app-v1.0.5.apk"
+              download="Slater-v1.0.5.apk"
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>Téléchargez l'application mobile</span>
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Recent activity */}
       <div>
         <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <h2 className="text-lg sm:text-xl font-semibold">Activité récente</h2>
+          <h2 className="text-lg sm:text-xl font-semibold section-title">Activité récente</h2>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Button 
               variant="outline" 
               size="sm"
               onClick={fetchRecentTransactions}
               disabled={isLoadingTransactions}
-              className="h-8 w-8 sm:h-9 sm:w-auto p-0 sm:px-3"
+              className="h-9 sm:h-10 sm:w-auto px-3 bg-primary/10 border-primary/30 text-foreground hover:bg-primary/15"
             >
               <RefreshCw className={`h-4 w-4 ${isLoadingTransactions ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline ml-2">Actualiser</span>
             </Button>
-            <Button asChild variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm">
+            <Button asChild variant="ghost" size="sm" className="h-9 sm:h-10 text-xs sm:text-sm hover:bg-primary/10">
               <Link href="/dashboard/history" className="flex items-center gap-1 sm:gap-2">
                 <span className="hidden sm:inline">Voir tout</span>
                 <span className="sm:hidden">Tout</span>
@@ -340,66 +428,75 @@ export default function DashboardPage() {
         </div>
         
         {isLoadingTransactions ? (
-          <Card>
-            <CardContent className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </CardContent>
-          </Card>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
         ) : recentTransactions.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground text-center">Aucune transaction récente</p>
+          <Card className="glass-panel rounded-2xl sm:rounded-3xl">
+            <CardContent className="flex flex-col items-center justify-center py-10 sm:py-12">
+              <Wallet className="h-12 w-12 text-primary mb-4" />
+              <p className="text-foreground font-semibold text-center">Aucune transaction récente</p>
               <p className="text-sm text-muted-foreground text-center mt-1">Vos transactions apparaîtront ici</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-2 sm:space-y-3">
-            {recentTransactions.map((transaction) => (
-              <Card key={transaction.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-                      <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${
-                        transaction.type_trans === "deposit" 
-                          ? "bg-green-500/10 text-green-500" 
-                          : "bg-blue-500/10 text-blue-500"
-                      }`}>
-                        {transaction.type_trans === "deposit" ? (
-                          <ArrowDownToLine className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        ) : (
-                          <ArrowUpFromLine className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
-                          <h3 className="font-semibold text-sm sm:text-base truncate">#{transaction.reference}</h3>
-                          {getTypeBadge(transaction.type_trans)}
-                          {getStatusBadge(transaction.status)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3.5">
+            {recentTransactions.map((transaction) => {
+              const isDeposit = transaction.type_trans === "deposit"
+              return (
+                <Card
+                  key={transaction.id}
+                  className={cn(
+                    "glass-panel hover:shadow-lg transition-all duration-200 border-primary/10 rounded-2xl sm:rounded-3xl",
+                    "relative overflow-hidden"
+                  )}
+                >
+                  <div className="absolute inset-x-0 top-0 h-1.5" style={{ background: isDeposit ? "linear-gradient(90deg, rgba(50,251,255,0.35), rgba(23,161,255,0.25))" : "linear-gradient(90deg, rgba(15,34,55,0.35), rgba(50,251,255,0.15))" }} />
+                  <CardContent className="p-3.5 sm:p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div
+                          className={cn(
+                            "p-2 rounded-xl flex-shrink-0",
+                            isDeposit ? "bg-primary/15 text-primary" : "bg-secondary/20 text-foreground"
+                          )}
+                        >
+                          {isDeposit ? (
+                            <ArrowDownToLine className="h-4 w-4" />
+                          ) : (
+                            <ArrowUpFromLine className="h-4 w-4" />
+                          )}
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                          {transaction.app_details?.name || transaction.app} • {formatPhoneNumberForDisplay(transaction.phone_number)}
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <h3 className="font-semibold text-sm sm:text-base truncate">#{transaction.reference}</h3>
+                            {getTypeBadge(transaction.type_trans)}
+                            {getStatusBadge(transaction.status)}
+                          </div>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                            {transaction.app_details?.name || transaction.app} • {formatPhoneNumberForDisplay(transaction.phone_number)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-base sm:text-lg font-semibold">
+                          {transaction.amount.toLocaleString("fr-FR", {
+                            style: "currency",
+                            currency: "XOF",
+                            minimumFractionDigits: 0,
+                          })}
+                        </p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          {format(new Date(transaction.created_at), "dd MMM à HH:mm", {
+                            locale: fr,
+                          })}
                         </p>
                       </div>
                     </div>
-                    <div className="text-left sm:text-right flex-shrink-0">
-                      <p className="text-base sm:text-lg font-semibold">
-                        {transaction.amount.toLocaleString("fr-FR", {
-                          style: "currency",
-                          currency: "XOF",
-                          minimumFractionDigits: 0,
-                        })}
-                      </p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        {format(new Date(transaction.created_at), "dd MMM à HH:mm", {
-                          locale: fr,
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </div>
@@ -408,10 +505,13 @@ export default function DashboardPage() {
     <Popover open={isChatPopoverOpen} onOpenChange={setIsChatPopoverOpen}>
       <PopoverTrigger asChild>
         <Button
-          className="fixed right-4 bottom-24 sm:bottom-10 sm:right-8 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition transform hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          className="fixed right-4 bottom-24 sm:bottom-10 sm:right-8 h-16 w-16 p-0 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground shadow-xl shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 transform hover:-translate-y-2 hover:scale-110 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary border border-primary/30"
           aria-label="Ouvrir le chat"
         >
-          <MessageSquare className="h-6 w-6" />
+          <div className="relative flex items-center justify-center w-full h-full">
+            <MessageCircleCode className="h-7 w-7" />
+            <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-green-500 border-2 border-background animate-pulse shadow-sm" />
+          </div>
           <span className="sr-only">Ouvrir le chat</span>
         </Button>
       </PopoverTrigger>

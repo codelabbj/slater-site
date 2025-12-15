@@ -5,9 +5,9 @@ importScripts('https://www.gstatic.com/firebasejs/11.0.0/firebase-messaging-comp
 // Firebase configuration - REPLACE WITH YOUR CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDj4CbDhlN_dxQ1exeCtPTgSZZfN8IAddM",
-  authDomain: "turaincash-57c48.firebaseapp.com",
-  projectId: "turaincash-57c48",
-  storageBucket: "turaincash-57c48.firebasestorage.app",
+  authDomain: "Slater-57c48.firebaseapp.com",
+  projectId: "Slater-57c48",
+  storageBucket: "Slater-57c48.firebasestorage.app",
   messagingSenderId: "665076337085",
   appId: "1:665076337085:web:850ace1ccae6ff90292ad4",
   measurementId: "G-SWVTK18YGF"

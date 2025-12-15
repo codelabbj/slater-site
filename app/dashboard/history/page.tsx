@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, Search, Filter, RefreshCw } from "lucide-react"
+import { Loader2, Search, Filter, RefreshCw, ArrowLeft } from "lucide-react"
 import { transactionApi } from "@/lib/api-client"
 import type { Transaction } from "@/lib/types"
 import { toast } from "react-hot-toast"
@@ -16,6 +17,7 @@ import { fr } from "date-fns/locale"
 import { formatPhoneNumberForDisplay } from "@/lib/utils"
 
 export default function TransactionHistoryPage() {
+  const router = useRouter()
   const { user } = useAuth()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -118,6 +120,19 @@ export default function TransactionHistoryPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+        {/* Back Button */}
+        <div className="flex items-center justify-start">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push("/dashboard")}
+            className="flex items-center gap-2 h-10 px-4 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour au tableau de bord
+          </Button>
+        </div>
+
         {/* Header */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Historique des transactions</h1>
