@@ -65,7 +65,7 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config
-    
+
     // Handle network errors (no response from server)
     if (!error.response) {
       const networkErrorMsg = "Erreur de connexion. Vérifiez votre connexion internet et réessayez."
@@ -75,7 +75,25 @@ api.interceptors.response.use(
       }
       return Promise.reject(error)
     }
-    
+
+    const status = error.response.status
+
+    // Handle specific status codes with default French messages
+    let defaultErrorMsg = ""
+    if (status >= 500) {
+      // Server errors (500+)
+      defaultErrorMsg = "Erreur serveur. Notre équipe technique a été notifiée. Veuillez réessayer plus tard."
+    } else if (status === 404) {
+      // Not found
+      defaultErrorMsg = "Ressource introuvable. Vérifiez l'URL ou contactez le support si le problème persiste."
+    } else if (status >= 400 && status < 500) {
+      // Client errors (400-499) except 404 - use backend message if available
+      defaultErrorMsg = ""
+    } else {
+      // Any other unrecognized status codes
+      defaultErrorMsg = "Erreur inattendue. Veuillez réessayer ou contacter le support."
+    }
+
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
       try {
@@ -97,18 +115,20 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    const defaultLang = "fr"
-    const fallback =
-      defaultLang === "fr" ? "Une erreur est survenue. Veuillez réessayer." : "An unexpected error occurred."
+    // If we have a default message for this status code, use it
+    if (defaultErrorMsg && !original?._silent) {
+      toast.error(defaultErrorMsg, { style: { direction: "ltr" } })
+      return Promise.reject(error)
+    }
 
+    // For other cases, try to get backend message
     const backendMsg =
       error.response?.data?.details ||
       error.response?.data?.detail ||
       error.response?.data?.error ||
       error.response?.data?.message ||
-      (typeof error.response?.data === "string" ? error.response.data : fallback)
+      (typeof error.response?.data === "string" ? error.response.data : "Une erreur est survenue. Veuillez réessayer.")
 
-    const lang = detectLang(backendMsg)
     // Only show toast if not a silent request
     if (!original?._silent) {
       toast.error(backendMsg, { style: { direction: "ltr" } })

@@ -17,7 +17,7 @@ import { extractTimeErrorMessage } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ChevronLeft, Copy, ArrowDownToLine } from "lucide-react"
+import { ChevronLeft, Copy, ArrowDownToLine, ArrowLeft } from "lucide-react"
 import {
   Dialog,
   DialogContent,
