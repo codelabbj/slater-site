@@ -388,15 +388,18 @@ export default function DashboardPage() {
         <CardContent className="p-4 sm:p-5">
           <Button
             asChild
-            className="w-full h-12 sm:h-12 justify-center bg-primary text-primary-foreground glow-primary text-sm sm:text-base font-semibold"
+            className="w-full h-12 sm:h-12 justify-center bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary text-sm sm:text-base font-bold rounded-xl hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02]"
           >
             <a
-              href="/app-v1.0.5.apk"
-              download="Slater-v1.0.5.apk"
-              className="flex items-center gap-2"
+              href="https://slaterci-mobile-app.vercel.app/releases/app-v1.0.2.apk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3"
             >
-              <Download className="h-4 w-4" />
-              <span>Téléchargez l'application mobile</span>
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20">
+                <Download className="h-4 w-4" />
+              </div>
+              📱 Télécharger Slater Mobile (v1.0.2)
             </a>
           </Button>
         </CardContent>

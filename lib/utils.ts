@@ -48,7 +48,7 @@ export function extractTimeErrorMessage(error: any): string | null {
   if (match) {
     const minutes = parseInt(match[1], 10)
     const seconds = parseInt(match[2], 10)
-    
+
     const parts: string[] = []
     if (minutes > 0) {
       parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`)
@@ -56,7 +56,7 @@ export function extractTimeErrorMessage(error: any): string | null {
     if (seconds > 0) {
       parts.push(`${seconds} seconde${seconds > 1 ? 's' : ''}`)
     }
-    
+
     if (parts.length > 0) {
       return `Veuillez patienter ${parts.join(' et ')} avant de réessayer.`
     }
@@ -64,4 +64,68 @@ export function extractTimeErrorMessage(error: any): string | null {
 
   // Fallback: return the original message if parsing fails
   return `Veuillez patienter ${timeString} avant de réessayer.`
+}
+
+/**
+ * Handles field-specific errors from API responses and sets them on a form
+ * @param error - The error object from the API call
+ * @param setError - The setError function from react-hook-form
+ * @param fieldMappings - Optional mapping of API field names to form field names
+ */
+export function handleFieldErrors(
+  error: any,
+  setError: (field: string, error: { type: string; message: string }) => void,
+  fieldMappings: Record<string, string> = {}
+) {
+  if (!error.response?.data || typeof error.response.data !== 'object') {
+    return
+  }
+
+  const fieldErrors = error.response.data
+
+  // Common field mappings (API field name -> form field name)
+  const defaultMappings = {
+    email_or_phone: 'email_or_phone',
+    email: 'email',
+    phone: 'phone',
+    first_name: 'first_name',
+    last_name: 'last_name',
+    password: 'password',
+    re_password: 're_password',
+    confirm_new_password: 'confirm_new_password',
+    new_password: 'new_password',
+    old_password: 'old_password',
+    referral_code: 'referral_code',
+    otp: 'otp',
+    ...fieldMappings
+  }
+
+  // Handle field-specific errors
+  Object.entries(defaultMappings).forEach(([apiField, formField]) => {
+    if (fieldErrors[apiField] && Array.isArray(fieldErrors[apiField])) {
+      setError(formField, {
+        type: "server",
+        message: fieldErrors[apiField][0]
+      })
+    }
+  })
+
+  // Handle non-field errors (like "Invalid credentials", "User with this email already exists")
+  if (fieldErrors.non_field_errors && Array.isArray(fieldErrors.non_field_errors)) {
+    // Set the error on the first field of the form
+    const firstField = Object.keys(defaultMappings)[0] || 'email'
+    setError(firstField, {
+      type: "server",
+      message: fieldErrors.non_field_errors[0]
+    })
+  }
+
+  // Handle detail errors
+  if (fieldErrors.detail && typeof fieldErrors.detail === 'string') {
+    const firstField = Object.keys(defaultMappings)[0] || 'email'
+    setError(firstField, {
+      type: "server",
+      message: fieldErrors.detail
+    })
+  }
 }

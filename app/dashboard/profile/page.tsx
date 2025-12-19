@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, User, Save, Eye, EyeOff, Lock, ArrowLeft } from "lucide-react"
 import { authApi } from "@/lib/api-client"
+import { handleFieldErrors } from "@/lib/utils"
 import type { User } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { format } from "date-fns"
@@ -54,6 +55,7 @@ export default function ProfilePage() {
     handleSubmit,
     formState: { errors },
     reset,
+    setError,
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
   })
@@ -63,6 +65,7 @@ export default function ProfilePage() {
     handleSubmit: handleSubmitPassword,
     formState: { errors: passwordErrors },
     reset: resetPassword,
+    setError: setPasswordError,
   } = useForm<PasswordFormData>({
     resolver: zodResolver(passwordSchema),
   })
@@ -99,7 +102,7 @@ export default function ProfilePage() {
     try {
       const updatedUser = await authApi.updateProfile(data)
       setProfile(updatedUser)
-      
+
       // Update auth context with new user data
       if (authUser) {
         login(
@@ -108,11 +111,13 @@ export default function ProfilePage() {
           updatedUser
         )
       }
-      
+
       toast.success("Profil mis à jour avec succès!")
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating profile:", error)
-      toast.error("Erreur lors de la mise à jour du profil")
+
+      // Handle field-specific errors from backend
+      handleFieldErrors(error, setError)
     } finally {
       setIsSubmitting(false)
     }
@@ -131,9 +136,11 @@ export default function ProfilePage() {
       setShowOldPassword(false)
       setShowNewPassword(false)
       setShowConfirmPassword(false)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error changing password:", error)
-      toast.error("Erreur lors de la modification du mot de passe")
+
+      // Handle field-specific errors from backend
+      handleFieldErrors(error, setPasswordError)
     } finally {
       setIsChangingPassword(false)
     }
@@ -238,42 +245,42 @@ export default function ProfilePage() {
             Modifiez vos informations de profil pour les maintenir à jour
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-5 sm:p-6 pt-0">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 sm:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+        <CardContent className="p-6 sm:p-8 pt-0">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
               <div className="space-y-2">
-                <Label htmlFor="first_name" className="text-sm sm:text-base">
-                  Prénom
+                <Label htmlFor="first_name" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
+                  👤 Prénom complet
                 </Label>
                 <Input
                   id="first_name"
                   type="text"
-                  placeholder="Votre prénom"
+                  placeholder="Saisissez votre prénom officiel"
                   {...register("first_name")}
                   disabled={isSubmitting}
-                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
+                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 {errors.first_name && (
-                  <p className="text-xs sm:text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive font-medium">
                     {errors.first_name.message}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="last_name" className="text-sm sm:text-base">
-                  Nom
+                <Label htmlFor="last_name" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
+                  👤 Nom de famille
                 </Label>
                 <Input
                   id="last_name"
                   type="text"
-                  placeholder="Votre nom"
+                  placeholder="Saisissez votre nom de famille"
                   {...register("last_name")}
                   disabled={isSubmitting}
-                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
+                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 {errors.last_name && (
-                  <p className="text-xs sm:text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive font-medium">
                     {errors.last_name.message}
                   </p>
                 )}
@@ -281,32 +288,36 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
+              <Label htmlFor="email" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
+                📧 Adresse e-mail
+              </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="votre@email.com"
+                placeholder="votre.adresse.email@exemple.com"
                 {...register("email")}
                 disabled={isSubmitting}
-                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
+                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               {errors.email && (
-                <p className="text-xs sm:text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-xs sm:text-sm text-destructive font-medium">{errors.email.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm sm:text-base">Téléphone</Label>
+              <Label htmlFor="phone" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
+                📱 Numéro de téléphone
+              </Label>
               <Input
                 id="phone"
                 type="tel"
-                placeholder="+225 01 02 03 04 05"
+                placeholder="+225 XX XX XX XX XX"
                 {...register("phone")}
                 disabled={isSubmitting}
-                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
+                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               {errors.phone && (
-                <p className="text-xs sm:text-sm text-destructive">{errors.phone.message}</p>
+                <p className="text-xs sm:text-sm text-destructive font-medium">{errors.phone.message}</p>
               )}
             </div>
 
@@ -355,26 +366,26 @@ export default function ProfilePage() {
             Modifiez votre mot de passe pour sécuriser votre compte
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-5 sm:p-6 pt-0">
-          <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-5 sm:space-y-6">
+        <CardContent className="p-6 sm:p-8 pt-0">
+          <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-6 sm:space-y-7">
             <div className="space-y-2">
-              <Label htmlFor="old_password" className="text-sm sm:text-base">
-                Ancien mot de passe
+              <Label htmlFor="old_password" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
+                🔒 Ancien mot de passe
               </Label>
               <div className="relative">
                 <Input
                   id="old_password"
                   type={showOldPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="Saisissez votre mot de passe actuel"
                   {...registerPassword("old_password")}
                   disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-10 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
                   onClick={() => setShowOldPassword(!showOldPassword)}
                   disabled={isChangingPassword}
                 >
@@ -386,30 +397,30 @@ export default function ProfilePage() {
                 </Button>
               </div>
               {passwordErrors.old_password && (
-                <p className="text-xs sm:text-sm text-destructive">
+                <p className="text-xs sm:text-sm text-destructive font-medium">
                   {passwordErrors.old_password.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="new_password" className="text-sm sm:text-base">
-                Nouveau mot de passe
+              <Label htmlFor="new_password" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
+                🛡️ Nouveau mot de passe sécurisé
               </Label>
               <div className="relative">
                 <Input
                   id="new_password"
                   type={showNewPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="Au moins 6 caractères avec majuscules et chiffres"
                   {...registerPassword("new_password")}
                   disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-10 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   disabled={isChangingPassword}
                 >
@@ -421,30 +432,30 @@ export default function ProfilePage() {
                 </Button>
               </div>
               {passwordErrors.new_password && (
-                <p className="text-xs sm:text-sm text-destructive">
+                <p className="text-xs sm:text-sm text-destructive font-medium">
                   {passwordErrors.new_password.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirm_new_password" className="text-sm sm:text-base">
-                Confirmer le nouveau mot de passe
+              <Label htmlFor="confirm_new_password" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
+                ✅ Confirmer le nouveau mot de passe
               </Label>
               <div className="relative">
                 <Input
                   id="confirm_new_password"
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="Répétez exactement le nouveau mot de passe"
                   {...registerPassword("confirm_new_password")}
                   disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-10 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   disabled={isChangingPassword}
                 >
@@ -456,7 +467,7 @@ export default function ProfilePage() {
                 </Button>
               </div>
               {passwordErrors.confirm_new_password && (
-                <p className="text-xs sm:text-sm text-destructive">
+                <p className="text-xs sm:text-sm text-destructive font-medium">
                   {passwordErrors.confirm_new_password.message}
                 </p>
               )}

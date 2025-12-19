@@ -13,19 +13,21 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/lib/auth-context"
 import { authApi } from "@/lib/api-client"
+import { handleFieldErrors } from "@/lib/utils"
 import { toast } from "react-hot-toast"
 import { Loader2, Eye, EyeOff, Download, ArrowLeft } from "lucide-react"
+import Image from "next/image"
 import { setupNotifications } from "@/lib/fcm-helper"
 
 const loginSchema = z.object({
-  email_or_phone: z.string().min(1, "Email ou téléphone requis"),
-  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+  email_or_phone: z.string().min(1, "Adresse e-mail ou numéro de téléphone requis"),
+  password: z.string().min(6, "Le mot de passe doit contenir au minimum 6 caractères"),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
 
-const APK_DOWNLOAD_URL = "/app-v1.0.5.apk"
-const APK_FILE_NAME = "Slater-v1.0.5.apk"
+const APK_DOWNLOAD_URL = "https://slaterci-mobile-app.vercel.app/releases/app-v1.0.2.apk"
+const APK_FILE_NAME = "Slater-v1.0.2.apk"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -47,6 +49,7 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
     setValue,
+    setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   })
@@ -113,9 +116,43 @@ export default function LoginPage() {
       // Wait a bit more to ensure notification prompt completes if shown
       await new Promise(resolve => setTimeout(resolve, 300))
       router.push("/dashboard")
-    } catch (error) {
-      // Error is handled by api interceptor
+    } catch (error: any) {
       console.error("Login error:", error)
+
+      // Handle field-specific errors from backend
+      if (error.response?.data && typeof error.response.data === 'object') {
+        const fieldErrors = error.response.data
+
+        // Check for field-specific errors and set them on form
+        if (fieldErrors.email_or_phone && Array.isArray(fieldErrors.email_or_phone)) {
+          setError("email_or_phone", {
+            type: "server",
+            message: fieldErrors.email_or_phone[0]
+          })
+        }
+
+        if (fieldErrors.password && Array.isArray(fieldErrors.password)) {
+          setError("password", {
+            type: "server",
+            message: fieldErrors.password[0]
+          })
+        }
+
+        // Handle non-field errors (like "Invalid credentials")
+        if (fieldErrors.non_field_errors && Array.isArray(fieldErrors.non_field_errors)) {
+          setError("email_or_phone", {
+            type: "server",
+            message: fieldErrors.non_field_errors[0]
+          })
+        }
+
+        if (fieldErrors.detail && typeof fieldErrors.detail === 'string') {
+          setError("email_or_phone", {
+            type: "server",
+            message: fieldErrors.detail
+          })
+        }
+      }
     } finally {
       setIsLoading(false)
     }
@@ -128,14 +165,18 @@ export default function LoginPage() {
         toast.error("Veuillez entrer une adresse email valide")
         return
       }
-      
+
       setIsLoading(true)
       try {
         await authApi.sendOtp(forgotPasswordEmail)
         toast.success("OTP a été envoyé à votre email")
         setForgotPasswordStep(2)
-      } catch (error) {
+      } catch (error: any) {
         console.error("Send OTP error:", error)
+        // Handle field-specific errors for email
+        if (error.response?.data?.email && Array.isArray(error.response.data.email)) {
+          toast.error(error.response.data.email[0])
+        }
       } finally {
         setIsLoading(false)
       }
@@ -153,22 +194,22 @@ export default function LoginPage() {
         toast.error("Le mot de passe doit contenir au moins 6 caractères")
         return
       }
-      
+
       if (newPassword !== confirmNewPassword) {
         toast.error("Les mots de passe ne correspondent pas")
         return
       }
-      
+
       // Validate password strength
       const hasUpperCase = /[A-Z]/.test(newPassword)
       const hasLowerCase = /[a-z]/.test(newPassword)
       const hasDigit = /\d/.test(newPassword)
-      
+
       if (!hasUpperCase || !hasLowerCase || !hasDigit) {
         toast.error("Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre")
         return
       }
-      
+
       setIsLoading(true)
       try {
         await authApi.resetPassword({
@@ -177,7 +218,7 @@ export default function LoginPage() {
           confirm_new_password: confirmNewPassword,
         })
         toast.success("Mot de passe réinitialisé avec succès!")
-        
+
         // Reset forgot password state
         setIsForgotPassword(false)
         setForgotPasswordStep(1)
@@ -185,8 +226,17 @@ export default function LoginPage() {
         setForgotPasswordOtp("")
         setNewPassword("")
         setConfirmNewPassword("")
-      } catch (error) {
+      } catch (error: any) {
         console.error("Reset password error:", error)
+        // Handle field-specific errors for password reset
+        if (error.response?.data && typeof error.response.data === 'object') {
+          const fieldErrors = error.response.data
+          if (fieldErrors.new_password && Array.isArray(fieldErrors.new_password)) {
+            toast.error(fieldErrors.new_password[0])
+          } else if (fieldErrors.otp && Array.isArray(fieldErrors.otp)) {
+            toast.error(fieldErrors.otp[0])
+          }
+        }
       } finally {
         setIsLoading(false)
       }
@@ -198,15 +248,15 @@ export default function LoginPage() {
       return (
         <div className="space-y-4 sm:space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="forgot_email" className="text-sm sm:text-base">Email</Label>
+            <Label htmlFor="forgot_email" className="text-sm sm:text-base font-medium text-foreground">Adresse e-mail de récupération</Label>
             <Input
               id="forgot_email"
               type="email"
-              placeholder="exemple@email.com"
+              placeholder="votre.email@exemple.com"
               value={forgotPasswordEmail}
               onChange={(e) => setForgotPasswordEmail(e.target.value)}
               disabled={isLoading}
-              className="h-11 sm:h-10 text-base sm:text-sm"
+              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
             />
           </div>
           
@@ -242,19 +292,19 @@ export default function LoginPage() {
       return (
         <div className="space-y-4 sm:space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="otp" className="text-sm sm:text-base">Code de vérification</Label>
+            <Label htmlFor="otp" className="text-sm sm:text-base font-medium text-foreground">Code de vérification à 6 chiffres</Label>
             <Input
               id="otp"
               type="text"
-              placeholder="Entrez le code OTP"
+              placeholder="123456"
               value={forgotPasswordOtp}
               onChange={(e) => setForgotPasswordOtp(e.target.value)}
               disabled={isLoading}
-              className="h-11 sm:h-10 text-base sm:text-sm"
+              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10 text-center font-mono tracking-widest"
               maxLength={6}
             />
-            <p className="text-xs text-muted-foreground">
-              Entrez le code de vérification envoyé à {forgotPasswordEmail}
+            <p className="text-xs text-muted-foreground font-medium">
+              Code envoyé à votre adresse : {forgotPasswordEmail}
             </p>
           </div>
           
@@ -290,22 +340,22 @@ export default function LoginPage() {
       return (
         <div className="space-y-4 sm:space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="new_password" className="text-sm sm:text-base">Nouveau mot de passe</Label>
+            <Label htmlFor="new_password" className="text-sm sm:text-base font-medium text-foreground">Nouveau mot de passe sécurisé</Label>
             <div className="relative">
               <Input
                 id="new_password"
                 type={showNewPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="Minimum 6 caractères avec majuscules et chiffres"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={isLoading}
-                className="h-11 sm:h-10 text-base sm:text-sm pr-10"
+                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 h-11 sm:h-10 w-10 hover:bg-transparent"
+                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
                 onClick={() => setShowNewPassword(!showNewPassword)}
                 disabled={isLoading}
               >
@@ -317,24 +367,24 @@ export default function LoginPage() {
               </Button>
             </div>
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="confirm_new_password" className="text-sm sm:text-base">Confirmer le nouveau mot de passe</Label>
+            <Label htmlFor="confirm_new_password" className="text-sm sm:text-base font-medium text-foreground">Confirmer le mot de passe</Label>
             <div className="relative">
               <Input
                 id="confirm_new_password"
                 type={showConfirmNewPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="Répétez le même mot de passe"
                 value={confirmNewPassword}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
                 disabled={isLoading}
-                className="h-11 sm:h-10 text-base sm:text-sm pr-10"
+                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 h-11 sm:h-10 w-10 hover:bg-transparent"
+                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
                 onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
                 disabled={isLoading}
               >
@@ -381,59 +431,80 @@ export default function LoginPage() {
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <Card className="glass-panel border border-primary/15 shadow-xl shadow-primary/10">
-        <CardHeader className="space-y-1 px-4 sm:px-6 pt-6 sm:pt-6 text-center">
-          <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-[0.2em]">
-            {isForgotPassword ? "Sécurité" : "Connexion sécurisée"}
+      <Card className="glass-panel border border-primary/20 shadow-2xl shadow-primary/20 rounded-2xl sm:rounded-3xl overflow-hidden">
+        <CardHeader className="space-y-4 px-6 sm:px-8 pt-8 sm:pt-10 text-center relative">
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <div className="relative">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-xl shadow-primary/20">
+                <Image
+                  src="/Slater-logo.png"
+                  alt="Slater Logo"
+                  width={80}
+                  height={20}
+                  className="w-16 h-auto object-contain drop-shadow-sm"
+                  priority
+                />
+              </div>
+              {/* <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background flex items-center justify-center shadow-sm">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              </div> */}
+            </div>
           </div>
-          <CardTitle className="text-xl sm:text-2xl font-bold">
-            {isForgotPassword ? "Réinitialiser le mot de passe" : "Connexion"}
+
+          {/* <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+            <div className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/15 to-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-[0.15em] shadow-lg">
+              {isForgotPassword ? "🔒 Sécurité" : "🔐 Connexion sécurisée"}
+            </div>
+          </div> */}
+          <CardTitle className="text-2xl sm:text-3xl font-bold text-foreground mt-4">
+            {isForgotPassword ? "Récupération de compte" : "Bienvenue sur Slater"}
           </CardTitle>
-          <CardDescription className="text-sm sm:text-base text-muted-foreground">
-            {isForgotPassword 
-              ? forgotPasswordStep === 1 
-                ? "Entrez votre adresse email pour recevoir un code de vérification"
+          <CardDescription className="text-base sm:text-lg text-muted-foreground max-w-sm mx-auto leading-relaxed">
+            {isForgotPassword
+              ? forgotPasswordStep === 1
+                ? "Saisissez votre adresse e-mail pour recevoir un code de vérification sécurisé"
                 : forgotPasswordStep === 2
-                ? "Entrez le code de vérification envoyé à votre email"
-                : "Entrez votre nouveau mot de passe"
-              : "Accédez à votre espace client en toute sécurité"
+                ? "Vérifiez votre boîte de réception et saisissez le code à 6 chiffres"
+                : "Créez un nouveau mot de passe fort pour sécuriser votre compte"
+              : "Connectez-vous à votre espace personnel pour gérer vos transactions"
             }
           </CardDescription>
         </CardHeader>
-        <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+        <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8">
           {isForgotPassword ? (
             renderForgotPasswordForm()
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-7">
               <div className="space-y-2">
-                <Label htmlFor="email_or_phone" className="text-sm sm:text-base">Email ou Téléphone</Label>
+                <Label htmlFor="email_or_phone" className="text-sm sm:text-base font-medium text-foreground">Adresse e-mail ou téléphone</Label>
                 <Input
                   id="email_or_phone"
                   type="text"
-                  placeholder="exemple@email.com ou +225..."
+                  placeholder="votre.email@exemple.com ou +225 01 23 45 67"
                   {...register("email_or_phone")}
                   disabled={isLoading}
-                  className="h-11 sm:h-10 text-base sm:text-sm"
+                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
-                {errors.email_or_phone && <p className="text-xs sm:text-sm text-destructive">{errors.email_or_phone.message}</p>}
+                {errors.email_or_phone && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.email_or_phone.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm sm:text-base">Mot de passe</Label>
+                <Label htmlFor="password" className="text-sm sm:text-base font-medium text-foreground">Mot de passe sécurisé</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Entrez votre mot de passe"
                     {...register("password")}
                     disabled={isLoading}
-                    className="h-11 sm:h-10 text-base sm:text-sm pr-10"
+                    className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-11 sm:h-10 w-10 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
@@ -444,41 +515,42 @@ export default function LoginPage() {
                     )}
                   </Button>
                 </div>
-                {errors.password && <p className="text-xs sm:text-sm text-destructive">{errors.password.message}</p>}
+                {errors.password && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.password.message}</p>}
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <Checkbox
                     id="remember_me"
                     checked={rememberMe}
                     onCheckedChange={(checked) => setRememberMe(checked === true)}
                     disabled={isLoading}
+                    className="border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                   />
                   <Label
                     htmlFor="remember_me"
-                    className="text-sm font-normal cursor-pointer"
+                    className="text-sm font-medium cursor-pointer text-foreground"
                   >
-                    Se souvenir de moi
+                    Rester connecté
                   </Label>
                 </div>
                 <Button
                   type="button"
                   variant="link"
-                  className="px-0 text-sm h-auto text-primary"
+                  className="px-0 text-sm h-auto text-primary hover:text-primary/80 font-medium hover:underline"
                   onClick={() => {
                     setIsForgotPassword(true)
                     setForgotPasswordStep(1)
                   }}
                   disabled={isLoading}
                 >
-                  Mot de passe oublié?
+                  Mot de passe oublié ?
                 </Button>
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-11 sm:h-10 text-base sm:text-sm font-medium bg-primary text-primary-foreground glow-primary"
+                className="w-full h-12 sm:h-11 text-base sm:text-sm font-bold bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary hover:shadow-primary/50 rounded-xl transition-all duration-300 transform hover:scale-[1.02]"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -487,7 +559,9 @@ export default function LoginPage() {
                     Connexion en cours...
                   </>
                 ) : (
-                  "Se connecter"
+                  <>
+                    🔐 Se connecter maintenant
+                  </>
                 )}
               </Button>
             </form>
@@ -503,16 +577,7 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
 
-      <Button
-        asChild
-        variant="outline"
-        className="w-full h-11 sm:h-10 text-base sm:text-sm font-medium flex items-center justify-center gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-foreground"
-      >
-        <a href={APK_DOWNLOAD_URL} download={APK_FILE_NAME} className="flex items-center gap-2">
-          <Download className="h-4 w-4 text-primary" />
-          Télécharger l'application mobile
-        </a>
-      </Button>
+      
     </div>
   )
 }
