@@ -133,7 +133,7 @@ export default function SignupPage() {
                 priority
               />
             </div>
-            {/*  */}
+          
           </div>
         </div>
 
@@ -143,7 +143,7 @@ export default function SignupPage() {
           </div>
         </div> */}
         <CardTitle className="text-2xl sm:text-3xl font-bold text-foreground mt-4">Rejoignez la communauté Slater</CardTitle>
-        <CardDescription className="text-base sm:text-lg text-muted-foreground max-w-sm mx-auto leading-relaxed">Créez votre compte sécurisé en quelques étapes simples</CardDescription>
+        
       </CardHeader>
       <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-7">

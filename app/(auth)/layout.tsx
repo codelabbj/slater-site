@@ -36,10 +36,10 @@ export default function AuthLayout({
         className="w-full h-12 sm:h-11 text-base sm:text-sm font-bold flex items-center justify-center gap-3 border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/15 text-foreground rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
       >
         <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary">
+          {/* <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary">
             <Download className="h-4 w-4" />
-          </div>
-          📱 Télécharger l'application mobile (v1.0.2)
+          </div> */}
+          📱 Télécharger l'application mobile
         </a>
       </Button>
       </div>
