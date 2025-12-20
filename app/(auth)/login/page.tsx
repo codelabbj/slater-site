@@ -256,7 +256,7 @@ export default function LoginPage() {
               value={forgotPasswordEmail}
               onChange={(e) => setForgotPasswordEmail(e.target.value)}
               disabled={isLoading}
-              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
             />
           </div>
           
@@ -300,7 +300,7 @@ export default function LoginPage() {
               value={forgotPasswordOtp}
               onChange={(e) => setForgotPasswordOtp(e.target.value)}
               disabled={isLoading}
-              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10 text-center font-mono tracking-widest"
+              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10 text-center font-mono tracking-widest"
               maxLength={6}
             />
             <p className="text-xs text-muted-foreground font-medium">
@@ -349,13 +349,13 @@ export default function LoginPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={isLoading}
-                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
+                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5"
                 onClick={() => setShowNewPassword(!showNewPassword)}
                 disabled={isLoading}
               >
@@ -378,13 +378,13 @@ export default function LoginPage() {
                 value={confirmNewPassword}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
                 disabled={isLoading}
-                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
+                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5"
                 onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
                 disabled={isLoading}
               >
@@ -484,7 +484,7 @@ export default function LoginPage() {
                   placeholder="votre.email@exemple.com ou +225 01 23 45 67"
                   {...register("email_or_phone")}
                   disabled={isLoading}
-                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 {errors.email_or_phone && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.email_or_phone.message}</p>}
               </div>
@@ -498,13 +498,13 @@ export default function LoginPage() {
                     placeholder="Entrez votre mot de passe"
                     {...register("password")}
                     disabled={isLoading}
-                    className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                    className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
+                    className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
@@ -525,7 +525,6 @@ export default function LoginPage() {
                     checked={rememberMe}
                     onCheckedChange={(checked) => setRememberMe(checked === true)}
                     disabled={isLoading}
-                    className="border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                   />
                   <Label
                     htmlFor="remember_me"
@@ -550,7 +549,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full h-12 sm:h-11 text-base sm:text-sm font-bold bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary hover:shadow-primary/50 rounded-xl transition-all duration-300 transform hover:scale-[1.02]"
+                className="w-full h-12 sm:h-11 text-base sm:text-sm font-bold bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02]"
                 disabled={isLoading}
               >
                 {isLoading ? (

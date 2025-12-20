@@ -82,7 +82,7 @@ export function PlatformStep({ selectedPlatform, onSelect, onNext }: PlatformSte
                   <SafeImage
                     src={platform.image}
                     alt={platform.name}
-                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border-2 border-border group-hover:border-primary/30 transition-colors"
+                    className="w-14 h-14 sm:w-16 sm:h-16  object-cover border-2 border-border group-hover:border-primary/30 transition-colors"
                     fallbackText={platform.name.charAt(0).toUpperCase()}
                   />
                   {selectedPlatform?.id === platform.id && (

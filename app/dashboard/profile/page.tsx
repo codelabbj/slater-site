@@ -166,7 +166,7 @@ export default function ProfilePage() {
           variant="ghost"
           size="sm"
           onClick={() => router.push("/dashboard")}
-          className="flex items-center gap-2 h-10 px-4 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-2 h-10 px-4  hover:bg-primary/10 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour au tableau de bord
@@ -174,14 +174,14 @@ export default function ProfilePage() {
       </div>
 
       {/* Hero Section */}
-      <Card className="border-0 floating-card overflow-hidden rounded-2xl sm:rounded-3xl">
+      <Card className="border-0 floating-card overflow-hidden  sm:rounded-3xl">
         <CardContent className="p-5 sm:p-6 relative z-10">
           <div className="absolute -top-10 right-2 h-28 w-28 rounded-full bg-primary/20 blur-3xl" />
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold leading-tight flex items-center gap-3">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/15 text-primary glow-primary">
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14  bg-primary/15 text-primary glow-primary">
                     <User className="h-6 w-6 sm:h-7 sm:w-7" />
                   </div>
                   Mon profil
@@ -196,12 +196,12 @@ export default function ProfilePage() {
       </Card>
 
       {/* Account Summary */}
-      <Card className="glass-panel border-primary/15 rounded-2xl sm:rounded-3xl">
+      <Card className="glass-panel border-primary/15  sm:rounded-3xl">
         <CardContent className="p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/20">
+                <div className="w-16 h-16 sm:w-20 sm:h-20  bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/20">
                   <User className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
@@ -219,11 +219,11 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 rounded-xl border border-green-500/20">
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10  border border-green-500/20">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span className="text-sm font-medium text-green-700">Compte actif</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
+              <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10  border border-blue-500/20">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 <span className="text-sm font-medium text-blue-700">Vérifié</span>
               </div>
@@ -233,10 +233,10 @@ export default function ProfilePage() {
       </Card>
 
       {/* Profile Information Card */}
-      <Card className="glass-panel border-primary/15 rounded-2xl sm:rounded-3xl">
+      <Card className="glass-panel border-primary/15  sm:rounded-3xl">
         <CardHeader className="p-5 sm:p-6">
           <CardTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
+            <div className="flex items-center justify-center w-8 h-8  bg-primary/15 text-primary">
               <User className="h-4 w-4" />
             </div>
             Informations personnelles
@@ -258,7 +258,7 @@ export default function ProfilePage() {
                   placeholder="Saisissez votre prénom officiel"
                   {...register("first_name")}
                   disabled={isSubmitting}
-                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 {errors.first_name && (
                   <p className="text-xs sm:text-sm text-destructive font-medium">
@@ -277,7 +277,7 @@ export default function ProfilePage() {
                   placeholder="Saisissez votre nom de famille"
                   {...register("last_name")}
                   disabled={isSubmitting}
-                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 {errors.last_name && (
                   <p className="text-xs sm:text-sm text-destructive font-medium">
@@ -297,7 +297,7 @@ export default function ProfilePage() {
                 placeholder="votre.adresse.email@exemple.com"
                 {...register("email")}
                 disabled={isSubmitting}
-                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               {errors.email && (
                 <p className="text-xs sm:text-sm text-destructive font-medium">{errors.email.message}</p>
@@ -314,7 +314,7 @@ export default function ProfilePage() {
                 placeholder="+225 XX XX XX XX XX"
                 {...register("phone")}
                 disabled={isSubmitting}
-                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               {errors.phone && (
                 <p className="text-xs sm:text-sm text-destructive font-medium">{errors.phone.message}</p>
@@ -327,14 +327,14 @@ export default function ProfilePage() {
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-initial h-12 sm:h-11 text-sm border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10 rounded-xl sm:rounded-2xl"
+                className="flex-1 sm:flex-initial h-12 sm:h-11 text-sm border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10  "
               >
                 Annuler
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-initial h-12 sm:h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg glow-primary rounded-xl sm:rounded-2xl"
+                className="flex-1 sm:flex-initial h-12 sm:h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg glow-primary  "
               >
                 {isSubmitting ? (
                   <>
@@ -354,10 +354,10 @@ export default function ProfilePage() {
       </Card>
 
       {/* Change Password Card */}
-      <Card className="glass-panel border-primary/15 rounded-2xl sm:rounded-3xl">
+      <Card className="glass-panel border-primary/15  sm:rounded-3xl">
         <CardHeader className="p-5 sm:p-6">
           <CardTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/15 text-primary">
+            <div className="flex items-center justify-center w-8 h-8  bg-primary/15 text-primary">
               <Lock className="h-4 w-4" />
             </div>
             Changer le mot de passe
@@ -379,13 +379,13 @@ export default function ProfilePage() {
                   placeholder="Saisissez votre mot de passe actuel"
                   {...registerPassword("old_password")}
                   disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 "
                   onClick={() => setShowOldPassword(!showOldPassword)}
                   disabled={isChangingPassword}
                 >
@@ -414,13 +414,13 @@ export default function ProfilePage() {
                   placeholder="Au moins 6 caractères avec majuscules et chiffres"
                   {...registerPassword("new_password")}
                   disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 "
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   disabled={isChangingPassword}
                 >
@@ -449,13 +449,13 @@ export default function ProfilePage() {
                   placeholder="Répétez exactement le nouveau mot de passe"
                   {...registerPassword("confirm_new_password")}
                   disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
+                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 "
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   disabled={isChangingPassword}
                 >
@@ -484,14 +484,14 @@ export default function ProfilePage() {
                   setShowConfirmPassword(false)
                 }}
                 disabled={isChangingPassword}
-                className="w-full sm:flex-initial h-12 sm:h-11 text-sm border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10 rounded-xl sm:rounded-2xl"
+                className="w-full sm:flex-initial h-12 sm:h-11 text-sm border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10  "
               >
                 Annuler
               </Button>
               <Button
                 type="submit"
                 disabled={isChangingPassword}
-                className="w-full sm:flex-initial h-12 sm:h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg glow-primary rounded-xl sm:rounded-2xl"
+                className="w-full sm:flex-initial h-12 sm:h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg glow-primary  "
               >
                 {isChangingPassword ? (
                   <>

@@ -150,13 +150,13 @@ export default function SignupPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div className="space-y-2">
               <Label htmlFor="first_name" className="text-sm sm:text-base font-medium text-foreground">Prénom complet</Label>
-              <Input id="first_name" type="text" placeholder="Votre prénom (ex: Jean-Marie)" {...register("first_name")} disabled={isLoading} className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10" />
+              <Input id="first_name" type="text" placeholder="Votre prénom (ex: Jean-Marie)" {...register("first_name")} disabled={isLoading} className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10" />
               {errors.first_name && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.first_name.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="last_name" className="text-sm sm:text-base font-medium text-foreground">Nom de famille</Label>
-              <Input id="last_name" type="text" placeholder="Votre nom (ex: Kouassi)" {...register("last_name")} disabled={isLoading} className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10" />
+              <Input id="last_name" type="text" placeholder="Votre nom (ex: Kouassi)" {...register("last_name")} disabled={isLoading} className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10" />
               {errors.last_name && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.last_name.message}</p>}
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function SignupPage() {
               placeholder="votre.email.principal@exemple.com"
               {...register("email")}
               disabled={isLoading}
-              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
             />
             {errors.email && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.email.message}</p>}
           </div>
@@ -182,7 +182,7 @@ export default function SignupPage() {
               placeholder="+225 01 23 45 67 89"
               {...register("phone")}
               disabled={isLoading}
-              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+              className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
             />
             {errors.phone && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.phone.message}</p>}
           </div>
@@ -196,13 +196,13 @@ export default function SignupPage() {
                 placeholder="Au moins 6 caractères avec chiffres et majuscules"
                 {...register("password")}
                 disabled={isLoading}
-                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
+                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
               >
@@ -225,13 +225,13 @@ export default function SignupPage() {
                 placeholder="Répétez exactement le même mot de passe"
                 {...register("re_password")}
                 disabled={isLoading}
-                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 rounded-lg"
+                className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 disabled={isLoading}
               >
@@ -254,13 +254,13 @@ export default function SignupPage() {
                 placeholder="Code fourni par votre parrain (ex: SLATER2024)"
                 {...register("referral_code")}
                 disabled={isLoading}
-                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/10 uppercase font-mono"
+                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50 transition-all duration-200 focus:ring-2 focus:ring-primary/10 uppercase font-mono"
               />
               {errors.referral_code && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.referral_code.message}</p>}
             </div>
           )}
 
-          <Button type="submit" className="w-full h-12 sm:h-11 text-base sm:text-sm font-bold bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary hover:shadow-primary/50 rounded-xl transition-all duration-300 transform hover:scale-[1.02]" disabled={isLoading}>
+          <Button type="submit" className="w-full h-12 sm:h-11 text-base sm:text-sm font-bold bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02]" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

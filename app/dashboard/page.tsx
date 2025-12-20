@@ -186,7 +186,7 @@ export default function DashboardPage() {
     <>
     <div className="space-y-5 sm:space-y-8">
       {/* Hero */}
-      <Card className="border-0 floating-card overflow-hidden rounded-2xl sm:rounded-3xl">
+      <Card className="border-0 floating-card overflow-hidden  sm:rounded-3xl">
         <CardContent className="p-4 sm:p-6 relative z-10">
           <div className="absolute -top-10 right-2 h-28 w-28 rounded-full bg-primary/20 blur-3xl" />
           <div className="flex flex-col gap-4">
@@ -204,11 +204,11 @@ export default function DashboardPage() {
             {/* Referral Code and Bonus Balance */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {/* Referral Code */}
-              <Card className="glass-panel border-primary/15 rounded-xl sm:rounded-2xl">
+              <Card className="glass-panel border-primary/15  ">
                 <CardContent className="p-3 sm:p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                      <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/15 text-primary flex-shrink-0">
+                      <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
                         <Gift className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div className="min-w-0">
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                       variant="ghost"
                       size="sm"
                       onClick={copyReferralCode}
-                      className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 rounded-lg hover:bg-primary/10"
+                      className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0  hover:bg-primary/10"
                     >
                       {copiedReferralCode ? (
                         <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
@@ -235,10 +235,10 @@ export default function DashboardPage() {
               </Card>
 
               {/* Bonus Balance */}
-              <Card className="glass-panel border-primary/15 rounded-xl sm:rounded-2xl">
+              <Card className="glass-panel border-primary/15  ">
                 <CardContent className="p-3 sm:p-4">
                   <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/15 text-primary flex-shrink-0">
+                    <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
                       <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
                     <div className="min-w-0">
@@ -260,11 +260,11 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <Button
                 asChild
-                className="h-12 sm:h-12 justify-between bg-primary text-primary-foreground shadow-lg glow-primary rounded-xl sm:rounded-2xl"
+                className="h-12 sm:h-12 justify-between bg-primary text-primary-foreground shadow-lg glow-primary  "
               >
                 <Link href="/dashboard/deposit" className="flex items-center justify-between w-full gap-2 sm:gap-3">
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-background/20">
+                    <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center  bg-background/20">
                       <ArrowDownToLine className="h-4 w-4 sm:h-5 sm:w-5" />
                     </span>
                     <div className="text-left min-w-0">
@@ -278,11 +278,11 @@ export default function DashboardPage() {
               <Button
                 asChild
                 variant="outline"
-                className="h-12 sm:h-12 justify-between border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10 rounded-xl sm:rounded-2xl"
+                className="h-12 sm:h-12 justify-between border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10  "
               >
                 <Link href="/dashboard/withdrawal" className="flex items-center justify-between w-full gap-2 sm:gap-3">
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                    <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center  bg-primary/15 text-primary">
                       <ArrowUpFromLine className="h-4 w-4 sm:h-5 sm:w-5" />
                     </span>
                     <div className="text-left min-w-0">
@@ -317,10 +317,10 @@ export default function DashboardPage() {
 
       {/* Advertisement Section */}
       <div className="w-full">
-        <Card className="overflow-hidden border border-primary/20 glass-panel p-0 py-0 rounded-2xl sm:rounded-3xl">
+        <Card className="overflow-hidden border border-primary/20 glass-panel p-0 py-0  sm:rounded-3xl">
           <CardContent className="p-0">
             {isLoadingAd ? (
-              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30 flex items-center justify-center rounded-2xl sm:rounded-3xl">
+              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30 flex items-center justify-center  sm:rounded-3xl">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             ) : advertisements.length > 0 ? (
@@ -347,7 +347,7 @@ export default function DashboardPage() {
                     
                     return (
                       <CarouselItem key={adId} className="pl-0">
-                        <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30 rounded-2xl sm:rounded-3xl overflow-hidden">
+                        <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30  sm:rounded-3xl overflow-hidden">
                           <Image
                             src={imageUrl}
                             alt={ad.title || "Publicité"}
@@ -372,7 +372,7 @@ export default function DashboardPage() {
                 </CarouselContent>
               </Carousel>
             ) : (
-              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-primary/5 flex items-center justify-center rounded-2xl sm:rounded-3xl">
+              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-primary/5 flex items-center justify-center  sm:rounded-3xl">
                 <div className="text-center p-4 text-muted-foreground">
                   <p className="text-sm sm:text-base font-semibold text-foreground/80">Espace publicitaire</p>
                   <p className="text-xs text-muted-foreground mt-1">Vos campagnes apparaîtront ici</p>
@@ -384,11 +384,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Mobile App Download */}
-      <Card className="glass-panel border border-primary/15 rounded-2xl sm:rounded-3xl">
+      <Card className="glass-panel border border-primary/15  sm:rounded-3xl">
         <CardContent className="p-4 sm:p-5">
           <Button
             asChild
-            className="w-full h-12 sm:h-12 justify-center bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary text-sm sm:text-base font-bold rounded-xl hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02]"
+            className="w-full h-12 sm:h-12 justify-center bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary text-sm sm:text-base font-bold  hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02]"
           >
             <a
               href="https://slaterci-mobile-app.vercel.app/releases/app-v1.0.2.apk"
@@ -396,7 +396,7 @@ export default function DashboardPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3"
             >
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20">
+              <div className="flex items-center justify-center w-8 h-8  bg-primary/20">
                 <Download className="h-4 w-4" />
               </div>
               📱 Télécharger Slater Mobile (v1.0.2)
@@ -435,7 +435,7 @@ export default function DashboardPage() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : recentTransactions.length === 0 ? (
-          <Card className="glass-panel rounded-2xl sm:rounded-3xl">
+          <Card className="glass-panel  sm:rounded-3xl">
             <CardContent className="flex flex-col items-center justify-center py-10 sm:py-12">
               <Wallet className="h-12 w-12 text-primary mb-4" />
               <p className="text-foreground font-semibold text-center">Aucune transaction récente</p>
@@ -450,7 +450,7 @@ export default function DashboardPage() {
                 <Card
                   key={transaction.id}
                   className={cn(
-                    "glass-panel hover:shadow-lg transition-all duration-200 border-primary/10 rounded-2xl sm:rounded-3xl",
+                    "glass-panel hover:shadow-lg transition-all duration-200 border-primary/10  sm:rounded-3xl",
                     "relative overflow-hidden"
                   )}
                 >
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                       <div className="flex items-start gap-3 min-w-0">
                         <div
                           className={cn(
-                            "p-2 rounded-xl flex-shrink-0",
+                            "p-2  flex-shrink-0",
                             isDeposit ? "bg-primary/15 text-primary" : "bg-secondary/20 text-foreground"
                           )}
                         >
@@ -508,7 +508,7 @@ export default function DashboardPage() {
     <Popover open={isChatPopoverOpen} onOpenChange={setIsChatPopoverOpen}>
       <PopoverTrigger asChild>
         <Button
-          className="fixed right-4 bottom-24 sm:bottom-10 sm:right-8 h-16 w-16 p-0 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground shadow-xl shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 transform hover:-translate-y-2 hover:scale-110 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary border border-primary/30"
+          className="fixed right-4 bottom-24 sm:bottom-10 sm:right-8 h-16 w-16 p-0  bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground shadow-xl shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 transform hover:-translate-y-2 hover:scale-110 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary border border-primary/30"
           aria-label="Ouvrir le chat"
         >
           <div className="relative flex items-center justify-center w-full h-full">

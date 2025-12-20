@@ -77,7 +77,7 @@ export function NetworkStep({ selectedNetwork, onSelect, onNext, type }: Network
                   <SafeImage
                     src={network.image}
                     alt={network.name}
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
+                    className="w-10 h-10 sm:w-12 sm:h-12  object-cover flex-shrink-0"
                     fallbackText={network.public_name.charAt(0).toUpperCase()}
                   />
                   <div className="flex-1 min-w-0">

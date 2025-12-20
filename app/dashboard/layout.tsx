@@ -122,15 +122,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             </div>
 
-              {/* Theme toggle, notifications, and User menu */}
-            <div className="flex items-center gap-1 sm:gap-2">
-              <ThemeToggle />
-                <Button asChild variant="ghost" className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full glow-primary">
-                  <Link href="/notifications" className="flex items-center justify-center">
-                    <Bell className="h-4 w-4" />
-                    <span className="sr-only">Notifications</span>
-                  </Link>
-                </Button>
+              {/* Mobile: Show "Slater" title in center, Desktop: Theme toggle, notifications, and User menu */}
+              <div className="flex items-center gap-1 sm:gap-2">
+                {/* Mobile: Slater title in center */}
+                <div className="sm:hidden absolute left-1/2 transform -translate-x-1/2 flex flex-col leading-tight">
+                  <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Slater</span>
+                  <span className="text-sm font-semibold text-foreground">Espace client</span>
+                </div>
+
+                {/* Desktop: Theme toggle and notifications */}
+                <div className="hidden sm:flex items-center gap-1 sm:gap-2">
+                  <ThemeToggle />
+                  <Button asChild variant="ghost" className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full glow-primary">
+                    <Link href="/notifications" className="flex items-center justify-center">
+                      <Bell className="h-4 w-4" />
+                      <span className="sr-only">Notifications</span>
+                    </Link>
+                  </Button>
+                </div>
+
+
               <DropdownMenu>
               <DropdownMenuTrigger asChild>
                     <Button
@@ -183,7 +194,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </Link>
                 </DropdownMenuItem>
 
-                      <DropdownMenuSeparator className="my-2" />
+                      {/* Mobile: Theme toggle and notifications in dropdown */}
+                      <div className="sm:hidden">
+                        <DropdownMenuSeparator className="my-2" />
+                        <DropdownMenuItem asChild className="rounded-xl px-3 py-3 hover:bg-primary/10 focus:bg-primary/10 transition-colors">
+                          <Link href="/notifications" className="flex items-center gap-3">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary">
+                              <Bell className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <span className="font-medium">Notifications</span>
+                              <p className="text-xs text-muted-foreground">Voir mes notifications</p>
+                            </div>
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <div className="px-3 py-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Thème</span>
+                            <ThemeToggle />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Changer le thème sombre/clair</p>
+                        </div>
+
+                        <DropdownMenuSeparator className="my-2" />
+                      </div>
+
+                      {/* Desktop: Separator only */}
+                      <div className="hidden sm:block">
+                        <DropdownMenuSeparator className="my-2" />
+                      </div>
 
                       <DropdownMenuItem
                         onClick={logout}

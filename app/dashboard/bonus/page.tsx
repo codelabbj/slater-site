@@ -99,7 +99,7 @@ export default function BonusPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => router.push("/dashboard")}
-                  className="flex items-center gap-2 h-10 w-10 rounded-xl hover:bg-primary/10"
+                  className="flex items-center gap-2 h-10 w-10  hover:bg-primary/10"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -151,7 +151,7 @@ export default function BonusPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-start gap-4 flex-1 min-w-0">
                       <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 border border-green-500/30">
+                        <div className="flex items-center justify-center w-12 h-12  bg-gradient-to-br from-green-500/20 to-green-600/20 border border-green-500/30">
                           <Gift className="h-6 w-6 text-green-600" />
                         </div>
                       </div>

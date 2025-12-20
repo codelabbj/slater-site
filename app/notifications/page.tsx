@@ -236,7 +236,7 @@ export default function NotificationsPage() {
               variant="ghost"
               size="sm"
               onClick={() => router.back()}
-                  className="flex items-center gap-2 h-10 w-10 rounded-xl hover:bg-primary/10"
+                  className="flex items-center gap-2 h-10 w-10  hover:bg-primary/10"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -326,7 +326,7 @@ export default function NotificationsPage() {
                       <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4 flex-1 min-w-0">
                         <div className="flex-shrink-0">
-                          <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${
+                          <div className={`flex items-center justify-center w-10 h-10  ${
                             isFCM ? 'bg-blue-500/15 text-blue-600' : 'bg-primary/15 text-primary'
                           }`}>
                             {isFCM ? (
@@ -397,7 +397,7 @@ export default function NotificationsPage() {
                 >
                   Précédent
                 </Button>
-              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-xl">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 ">
                 <span className="text-sm font-semibold text-primary">
                   Page {page}
                 </span>

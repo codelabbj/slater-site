@@ -91,7 +91,7 @@ export default function CouponPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => router.push("/dashboard")}
-                  className="flex items-center gap-2 h-10 w-10 rounded-xl hover:bg-primary/10"
+                  className="flex items-center gap-2 h-10 w-10  hover:bg-primary/10"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>

@@ -177,7 +177,7 @@ export default function WithdrawalPage() {
           variant="ghost"
           size="sm"
           onClick={() => router.push("/dashboard")}
-          className="flex items-center gap-2 h-10 px-4 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-2 h-10 px-4  hover:bg-primary/10 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour au tableau de bord

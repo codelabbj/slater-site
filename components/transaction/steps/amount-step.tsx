@@ -208,7 +208,7 @@ export function AmountStep({
             </div>
             
             {amount > 0 && (
-              <div className="p-3 bg-muted rounded-lg">
+              <div className="p-3 bg-muted ">
                 <p className="text-xs sm:text-sm text-muted-foreground">Montant saisi:</p>
                 <p className="text-base sm:text-lg font-semibold break-words">
                   {amount.toLocaleString("fr-FR", {
