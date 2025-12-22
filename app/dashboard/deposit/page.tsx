@@ -52,9 +52,9 @@ export default function DepositPage() {
   const [isMoovUssdModalOpen, setIsMoovUssdModalOpen] = useState(false)
   const [moovUssdCode, setMoovUssdCode] = useState<string | null>(null)
   const [moovMerchantPhone, setMoovMerchantPhone] = useState<string | null>(null)
-  const [isOrangeUssdModalOpen, setIsOrangeUssdModalOpen] = useState(false)
-  const [orangeUssdCode, setOrangeUssdCode] = useState<string | null>(null)
-  const [orangeMerchantPhone, setOrangeMerchantPhone] = useState<string | null>(null)
+  // const [isOrangeUssdModalOpen, setIsOrangeUssdModalOpen] = useState(false)
+  // const [orangeUssdCode, setOrangeUssdCode] = useState<string | null>(null)
+  // const [orangeMerchantPhone, setOrangeMerchantPhone] = useState<string | null>(null)
   const [isMtnUssdModalOpen, setIsMtnUssdModalOpen] = useState(false)
   const [mtnUssdCode, setMtnUssdCode] = useState<string | null>(null)
   const [mtnMerchantPhone, setMtnMerchantPhone] = useState<string | null>(null)
@@ -130,39 +130,39 @@ export default function DepositPage() {
     }
   }
 
-  const handleOrangeUssdFlow = async (amountValue: number) => {
-    if (!selectedNetwork || selectedNetwork.name?.toLowerCase() !== "orange") {
-      return false
-    }
+  // const handleOrangeUssdFlow = async (amountValue: number) => {
+  //   if (!selectedNetwork || selectedNetwork.name?.toLowerCase() !== "orange") {
+  //     return false
+  //   }
 
-    // Check if deposit_api is "connect"
-    if (!selectedNetwork.deposit_api || selectedNetwork.deposit_api.toLowerCase() !== "connect") {
-      return false
-    }
+  //   // Check if deposit_api is "connect"
+  //   if (!selectedNetwork.deposit_api || selectedNetwork.deposit_api.toLowerCase() !== "connect") {
+  //     return false
+  //   }
 
-    try {
-      const settings = await settingsApi.get()
-      const orangePhone = settings.moov_merchant_phone || settings.moov_marchand_phone
+  //   try {
+  //     const settings = await settingsApi.get()
+  //     const orangePhone = settings.moov_merchant_phone || settings.moov_marchand_phone
 
-      if (!orangePhone) {
-        return false
-      }
+  //     if (!orangePhone) {
+  //       return false
+  //     }
 
-      const ussdAmount = Math.max(1, Math.floor(amountValue))
-      const ussdCode = `*144*2*1*${orangePhone}*${ussdAmount}#`
+  //     const ussdAmount = Math.max(1, Math.floor(amountValue))
+  //     const ussdCode = `*144*2*1*${orangePhone}*${ussdAmount}#`
 
-      setOrangeMerchantPhone(orangePhone)
-      setOrangeUssdCode(ussdCode)
-      setIsOrangeUssdModalOpen(true)
+  //     setOrangeMerchantPhone(orangePhone)
+  //     setOrangeUssdCode(ussdCode)
+  //     setIsOrangeUssdModalOpen(true)
 
-      attemptDialerRedirect(ussdCode)
+  //     attemptDialerRedirect(ussdCode)
 
-      return true
-    } catch (error) {
-      console.error("Erreur lors de la récupération des paramètres Orange:", error)
-      return false
-    }
-  }
+  //     return true
+  //   } catch (error) {
+  //     console.error("Erreur lors de la récupération des paramètres Orange:", error)
+  //     return false
+  //   }
+  // }
 
   const handleMtnUssdFlow = async (amountValue: number) => {
     if (!selectedNetwork || selectedNetwork.name?.toLowerCase() !== "mtn") {
@@ -202,17 +202,17 @@ export default function DepositPage() {
     }
   }
 
-  const handleCopyOrangeUssdCode = async () => {
-    if (!orangeUssdCode) return
+  // const handleCopyOrangeUssdCode = async () => {
+  //   if (!orangeUssdCode) return
 
-    try {
-      await navigator.clipboard.writeText(orangeUssdCode)
-      toast.success("Code USSD copié")
-    } catch (error) {
-      console.error("Impossible de copier le code USSD:", error)
-      toast.error("Copie impossible, copiez manuellement le code.")
-    }
-  }
+  //   try {
+  //     await navigator.clipboard.writeText(orangeUssdCode)
+  //     toast.success("Code USSD copié")
+  //   } catch (error) {
+  //     console.error("Impossible de copier le code USSD:", error)
+  //     toast.error("Copie impossible, copiez manuellement le code.")
+  //   }
+  // }
 
   const handleCopyMtnUssdCode = async () => {
     if (!mtnUssdCode) return
@@ -236,15 +236,15 @@ export default function DepositPage() {
     }
   }
 
-  const handleOrangeModalClose = (open: boolean) => {
-    if (!open) {
-      // Only navigate to dashboard when user closes the modal
-      setIsOrangeUssdModalOpen(false)
-      router.push("/dashboard")
-    } else {
-      setIsOrangeUssdModalOpen(true)
-    }
-  }
+  // const handleOrangeModalClose = (open: boolean) => {
+  //   if (!open) {
+  //     // Only navigate to dashboard when user closes the modal
+  //     setIsOrangeUssdModalOpen(false)
+  //     router.push("/dashboard")
+  //   } else {
+  //     setIsOrangeUssdModalOpen(true)
+  //   }
+  // }
 
   const handleMtnModalClose = (open: boolean) => {
     if (!open) {
@@ -281,20 +281,21 @@ export default function DepositPage() {
         setIsTransactionLinkModalOpen(true)
         setIsConfirmationOpen(false)
       } else {
-        // Handle Orange network logic
-        if (selectedNetwork?.name?.toLowerCase() === "orange" &&
-            selectedNetwork.deposit_api?.toLowerCase() === "connect") {
-          if (selectedNetwork.payment_by_link === false) {
-            // Use USSD code for Orange when payment_by_link is false
-            const handled = await handleOrangeUssdFlow(amount)
-            if (!handled) {
-              router.push("/dashboard")
-            }
-          } else {
-            // payment_by_link is true, but no transaction_link in response, redirect to dashboard
-            router.push("/dashboard")
-          }
-        } else if (selectedNetwork?.name?.toLowerCase() === "mtn" &&
+        // Handle Orange network logic - COMMENTED OUT
+        // if (selectedNetwork?.name?.toLowerCase() === "orange" &&
+        //     selectedNetwork.deposit_api?.toLowerCase() === "connect") {
+        //   if (selectedNetwork.payment_by_link === false) {
+        //     // Use USSD code for Orange when payment_by_link is false
+        //     const handled = await handleOrangeUssdFlow(amount)
+        //     if (!handled) {
+        //       router.push("/dashboard")
+        //     }
+        //   } else {
+        //     // payment_by_link is true, but no transaction_link in response, redirect to dashboard
+        //     router.push("/dashboard")
+        //   }
+        // } else
+        if (selectedNetwork?.name?.toLowerCase() === "mtn" &&
                    selectedNetwork.deposit_api?.toLowerCase() === "connect") {
           if (selectedNetwork.payment_by_link === false) {
             // Use USSD code for MTN when payment_by_link is false
@@ -551,8 +552,8 @@ export default function DepositPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Orange USSD fallback modal */}
-        <Dialog open={isOrangeUssdModalOpen} onOpenChange={handleOrangeModalClose}>
+        {/* Orange USSD fallback modal - COMMENTED OUT */}
+        {/* <Dialog open={isOrangeUssdModalOpen} onOpenChange={handleOrangeModalClose}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Finaliser la transaction Orange</DialogTitle>
@@ -592,7 +593,7 @@ export default function DepositPage() {
               <Button onClick={() => handleOrangeModalClose(false)}>J&apos;ai compris</Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
 
         {/* MTN USSD fallback modal */}
         <Dialog open={isMtnUssdModalOpen} onOpenChange={handleMtnModalClose}>
