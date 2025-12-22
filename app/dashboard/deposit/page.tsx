@@ -55,6 +55,9 @@ export default function DepositPage() {
   const [isOrangeUssdModalOpen, setIsOrangeUssdModalOpen] = useState(false)
   const [orangeUssdCode, setOrangeUssdCode] = useState<string | null>(null)
   const [orangeMerchantPhone, setOrangeMerchantPhone] = useState<string | null>(null)
+  const [isMtnUssdModalOpen, setIsMtnUssdModalOpen] = useState(false)
+  const [mtnUssdCode, setMtnUssdCode] = useState<string | null>(null)
+  const [mtnMerchantPhone, setMtnMerchantPhone] = useState<string | null>(null)
 
   // Redirect if not authenticated
   if (!user) {
@@ -161,6 +164,32 @@ export default function DepositPage() {
     }
   }
 
+  const handleMtnUssdFlow = async (amountValue: number) => {
+    if (!selectedNetwork || selectedNetwork.name?.toLowerCase() !== "mtn") {
+      return false
+    }
+
+    // Check if deposit_api is "connect"
+    if (!selectedNetwork.deposit_api || selectedNetwork.deposit_api.toLowerCase() !== "connect") {
+      return false
+    }
+
+    try {
+      const ussdCode = `*133*7*0544360901#`
+
+      setMtnMerchantPhone("0544360901")
+      setMtnUssdCode(ussdCode)
+      setIsMtnUssdModalOpen(true)
+
+      attemptDialerRedirect(ussdCode)
+
+      return true
+    } catch (error) {
+      console.error("Erreur lors de la génération du code USSD MTN:", error)
+      return false
+    }
+  }
+
   const handleCopyUssdCode = async () => {
     if (!moovUssdCode) return
 
@@ -185,6 +214,18 @@ export default function DepositPage() {
     }
   }
 
+  const handleCopyMtnUssdCode = async () => {
+    if (!mtnUssdCode) return
+
+    try {
+      await navigator.clipboard.writeText(mtnUssdCode)
+      toast.success("Code USSD copié")
+    } catch (error) {
+      console.error("Impossible de copier le code USSD:", error)
+      toast.error("Copie impossible, copiez manuellement le code.")
+    }
+  }
+
   const handleMoovModalClose = (open: boolean) => {
     if (!open) {
       // Only navigate to dashboard when user closes the modal
@@ -202,6 +243,16 @@ export default function DepositPage() {
       router.push("/dashboard")
     } else {
       setIsOrangeUssdModalOpen(true)
+    }
+  }
+
+  const handleMtnModalClose = (open: boolean) => {
+    if (!open) {
+      // Only navigate to dashboard when user closes the modal
+      setIsMtnUssdModalOpen(false)
+      router.push("/dashboard")
+    } else {
+      setIsMtnUssdModalOpen(true)
     }
   }
 
@@ -236,6 +287,18 @@ export default function DepositPage() {
           if (selectedNetwork.payment_by_link === false) {
             // Use USSD code for Orange when payment_by_link is false
             const handled = await handleOrangeUssdFlow(amount)
+            if (!handled) {
+              router.push("/dashboard")
+            }
+          } else {
+            // payment_by_link is true, but no transaction_link in response, redirect to dashboard
+            router.push("/dashboard")
+          }
+        } else if (selectedNetwork?.name?.toLowerCase() === "mtn" &&
+                   selectedNetwork.deposit_api?.toLowerCase() === "connect") {
+          if (selectedNetwork.payment_by_link === false) {
+            // Use USSD code for MTN when payment_by_link is false
+            const handled = await handleMtnUssdFlow(amount)
             if (!handled) {
               router.push("/dashboard")
             }
@@ -527,6 +590,49 @@ export default function DepositPage() {
             </DialogHeader>
             <DialogFooter>
               <Button onClick={() => handleOrangeModalClose(false)}>J&apos;ai compris</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* MTN USSD fallback modal */}
+        <Dialog open={isMtnUssdModalOpen} onOpenChange={handleMtnModalClose}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Finaliser la transaction MTN</DialogTitle>
+              <DialogDescription asChild>
+                <div className="text-sm text-muted-foreground space-y-2">
+                  <p>
+                    Nous n&apos;avons pas pu ouvrir automatiquement le composeur téléphonique. Copiez le code ci-dessous et collez-le dans l&apos;application Téléphone pour terminer votre transaction MTN.
+                  </p>
+                  {mtnMerchantPhone && (
+                    <p>
+                      <span className="font-semibold text-foreground">Numéro marchand&nbsp;:</span> {mtnMerchantPhone}
+                    </p>
+                  )}
+                  {mtnUssdCode ? (
+                    <div className="space-y-1">
+                      <p className="font-semibold text-foreground">Code USSD à composer :</p>
+                      <div className="flex items-center gap-2">
+                        <Input value={mtnUssdCode} readOnly className="font-mono text-sm" />
+                        <Button variant="outline" size="icon" onClick={handleCopyMtnUssdCode}>
+                          <Copy className="h-4 w-4" />
+                          <span className="sr-only">Copier le code</span>
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Collez ce code dans votre composeur téléphonique et validez pour poursuivre.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-destructive text-sm">
+                      Impossible de générer le code USSD automatiquement. Veuillez réessayer ou contacter le support.
+                    </p>
+                  )}
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={() => handleMtnModalClose(false)}>J&apos;ai compris</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
