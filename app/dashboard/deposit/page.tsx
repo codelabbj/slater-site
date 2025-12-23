@@ -81,18 +81,37 @@ export default function DepositPage() {
 
   const attemptDialerRedirect = (ussdCode: string) => {
     try {
-      const link = document.createElement("a")
-      link.href = `tel:${ussdCode}`
-      link.style.display = "none"
-      document.body.appendChild(link)
-      link.click()
-      setTimeout(() => {
-        if (document.body.contains(link)) {
-          document.body.removeChild(link)
-        }
-      }, 100)
+      console.log("Attempting to dial USSD code:", ussdCode)
+
+      // For better USSD support on mobile devices, try multiple approaches
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        // On mobile devices, use window.location.href which works better for USSD
+        console.log("Using mobile dialing method")
+        window.location.href = `tel:${ussdCode}`
+      } else {
+        // Desktop fallback
+        console.log("Using desktop dialing method")
+        const link = document.createElement("a")
+        link.href = `tel:${ussdCode}`
+        link.style.display = "none"
+        document.body.appendChild(link)
+
+        setTimeout(() => {
+          try {
+            link.click()
+            console.log("Dial link clicked successfully")
+          } catch (clickError) {
+            console.warn("Click failed:", clickError)
+          }
+          // Clean up
+          if (document.body.contains(link)) {
+            document.body.removeChild(link)
+          }
+        }, 100)
+      }
     } catch (error) {
       console.error("Impossible d'ouvrir automatiquement le composeur:", error)
+      toast.error("Impossible d'ouvrir le composeur. Copiez le code manuellement.")
     }
   }
 
@@ -116,6 +135,8 @@ export default function DepositPage() {
 
       const ussdAmount = Math.max(1, Math.floor(amountValue))
       const ussdCode = `*155*1*1*${moovPhone}*${ussdAmount}#`
+
+      console.log("Generated Moov USSD code:", ussdCode)
 
       setMoovMerchantPhone(moovPhone)
       setMoovUssdCode(ussdCode)
@@ -183,6 +204,8 @@ export default function DepositPage() {
       }
 
       const ussdCode = `*133*7*${mtnPhone}#`
+
+      console.log("Generated MTN USSD code:", ussdCode)
 
       setMtnMerchantPhone(mtnPhone)
       setMtnUssdCode(ussdCode)
