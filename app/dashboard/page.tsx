@@ -528,8 +528,8 @@ export default function DashboardPage() {
             variant="ghost"
             className="w-full justify-start gap-3 h-auto py-3"
             onClick={() => {
-              const whatsappNumber = settings?.whatsapp_phone || "0594811767"
-              window.open(`https://wa.me/message/${whatsappNumber}`, "_blank")
+              const whatsappNumber = settings?.whatsapp_phone || "0544360901"
+              window.open(`https://wa.me/${whatsappNumber}`, "_blank")
               setIsChatPopoverOpen(false)
             }}
           >
