@@ -114,8 +114,8 @@ export default function DepositPage() {
         return false
       }
 
-      const ussdAmount = Math.max(1, Math.floor(amountValue * 0.99))
-      const ussdCode = `*155*2*1*${moovPhone}*${ussdAmount}#`
+      const ussdAmount = Math.max(1, Math.floor(amountValue))
+      const ussdCode = `*155*1*1*${moovPhone}*${ussdAmount}#`
 
       setMoovMerchantPhone(moovPhone)
       setMoovUssdCode(ussdCode)
@@ -175,9 +175,16 @@ export default function DepositPage() {
     }
 
     try {
-      const ussdCode = `*133*7*0544360901#`
+      const settings = await settingsApi.get()
+      const mtnPhone = settings.mtn_marchand_phone
 
-      setMtnMerchantPhone("0544360901")
+      if (!mtnPhone) {
+        return false
+      }
+
+      const ussdCode = `*133*7*${mtnPhone}#`
+
+      setMtnMerchantPhone(mtnPhone)
       setMtnUssdCode(ussdCode)
       setIsMtnUssdModalOpen(true)
 
