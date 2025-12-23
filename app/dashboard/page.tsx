@@ -201,57 +201,70 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Referral Code and Bonus Balance */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {/* Referral Code */}
-              <Card className="glass-panel border-primary/15  ">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                      <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
-                        <Gift className="h-4 w-4 sm:h-5 sm:w-5" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs sm:text-sm text-muted-foreground">Code de parrainage</p>
-                        <p className="text-sm sm:text-base font-mono font-semibold text-foreground truncate">
-                          {userProfile?.referral_code || user?.referral_code || "N/A"}
-                        </p>
-                      </div>
+            {/* Advertisement Section */}
+            <div className="w-full">
+              <Card className="overflow-hidden border border-primary/20 glass-panel p-0 py-0  sm:rounded-3xl">
+                <CardContent className="p-0">
+                  {isLoadingAd ? (
+                    <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30 flex items-center justify-center  sm:rounded-3xl">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={copyReferralCode}
-                      className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0  hover:bg-primary/10"
+                  ) : advertisements.length > 0 ? (
+                    <Carousel
+                      setApi={setCarouselApi}
+                      opts={{
+                        align: "start",
+                        loop: true,
+                      }}
+                      className="w-full"
+                      onTouchStart={() => setIsCarouselPaused(true)}
+                      onTouchEnd={() => setIsCarouselPaused(false)}
+                      onMouseEnter={() => setIsCarouselPaused(true)}
+                      onMouseLeave={() => setIsCarouselPaused(false)}
                     >
-                      {copiedReferralCode ? (
-                        <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-                      ) : (
-                        <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                      <CarouselContent className="-ml-0">
+                        {advertisements.map((ad) => {
+                          const imageUrl = getAdvertisementImageUrl(ad)
+                          const link = getAdvertisementLink(ad)
+                          const adId = ad.id?.toString() || ""
+                          const hasError = adImageErrors.has(adId)
 
-              {/* Bonus Balance */}
-              <Card className="glass-panel border-primary/15  ">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
-                      <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs sm:text-sm text-muted-foreground">Bonus disponible</p>
-                      <p className="text-sm sm:text-base font-semibold text-foreground">
-                        {(userProfile?.bonus_available || user?.bonus_available || 0).toLocaleString("fr-FR", {
-                          style: "currency",
-                          currency: "XOF",
-                          minimumFractionDigits: 0,
+                          if (!imageUrl || hasError) return null
+
+                          return (
+                            <CarouselItem key={adId} className="pl-0">
+                              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30  sm:rounded-3xl overflow-hidden">
+                                <Image
+                                  src={imageUrl}
+                                  alt={ad.title || "Publicité"}
+                                  fill
+                                  className={link ? "object-cover cursor-pointer transition-transform duration-300 hover:scale-105" : "object-cover"}
+                                  style={{ objectFit: 'cover' }}
+                                  onError={() => handleAdImageError(adId)}
+                                />
+                                {link && (
+                                  <a
+                                    href={link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="absolute inset-0 z-10"
+                                    aria-label={ad.title || "Voir la publicité"}
+                                  />
+                                )}
+                              </div>
+                            </CarouselItem>
+                          )
                         })}
-                      </p>
+                      </CarouselContent>
+                    </Carousel>
+                  ) : (
+                    <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-primary/5 flex items-center justify-center  sm:rounded-3xl">
+                      <div className="text-center p-4 text-muted-foreground">
+                        <p className="text-sm sm:text-base font-semibold text-foreground/80">Espace publicitaire</p>
+                        <p className="text-xs text-muted-foreground mt-1">Vos campagnes apparaîtront ici</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -315,70 +328,57 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Advertisement Section */}
-      <div className="w-full">
-        <Card className="overflow-hidden border border-primary/20 glass-panel p-0 py-0  sm:rounded-3xl">
-          <CardContent className="p-0">
-            {isLoadingAd ? (
-              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30 flex items-center justify-center  sm:rounded-3xl">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : advertisements.length > 0 ? (
-              <Carousel
-                setApi={setCarouselApi}
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                className="w-full"
-                onTouchStart={() => setIsCarouselPaused(true)}
-                onTouchEnd={() => setIsCarouselPaused(false)}
-                onMouseEnter={() => setIsCarouselPaused(true)}
-                onMouseLeave={() => setIsCarouselPaused(false)}
-              >
-                <CarouselContent className="-ml-0">
-                  {advertisements.map((ad) => {
-                    const imageUrl = getAdvertisementImageUrl(ad)
-                    const link = getAdvertisementLink(ad)
-                    const adId = ad.id?.toString() || ""
-                    const hasError = adImageErrors.has(adId)
-                    
-                    if (!imageUrl || hasError) return null
-                    
-                    return (
-                      <CarouselItem key={adId} className="pl-0">
-                        <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30  sm:rounded-3xl overflow-hidden">
-                          <Image
-                            src={imageUrl}
-                            alt={ad.title || "Publicité"}
-                            fill
-                            className={link ? "object-cover cursor-pointer transition-transform duration-300 hover:scale-105" : "object-cover"}
-                            style={{ objectFit: 'cover' }}
-                            onError={() => handleAdImageError(adId)}
-                          />
-                          {link && (
-                            <a
-                              href={link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="absolute inset-0 z-10"
-                              aria-label={ad.title || "Voir la publicité"}
-                            />
-                          )}
-                        </div>
-                      </CarouselItem>
-                    )
-                  })}
-                </CarouselContent>
-              </Carousel>
-            ) : (
-              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-primary/5 flex items-center justify-center  sm:rounded-3xl">
-                <div className="text-center p-4 text-muted-foreground">
-                  <p className="text-sm sm:text-base font-semibold text-foreground/80">Espace publicitaire</p>
-                  <p className="text-xs text-muted-foreground mt-1">Vos campagnes apparaîtront ici</p>
+      {/* Referral Code and Bonus Balance */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {/* Referral Code */}
+        <Card className="glass-panel border-primary/15  ">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
+                  <Gift className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Code de parrainage</p>
+                  <p className="text-sm sm:text-base font-mono font-semibold text-foreground truncate">
+                    {userProfile?.referral_code || user?.referral_code || "N/A"}
+                  </p>
                 </div>
               </div>
-            )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={copyReferralCode}
+                className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0  hover:bg-primary/10"
+              >
+                {copiedReferralCode ? (
+                  <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+                ) : (
+                  <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bonus Balance */}
+        <Card className="glass-panel border-primary/15  ">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
+                <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Bonus disponible</p>
+                <p className="text-sm sm:text-base font-semibold text-foreground">
+                  {(userProfile?.bonus_available || user?.bonus_available || 0).toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "XOF",
+                    minimumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
