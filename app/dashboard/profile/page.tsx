@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, User, Save, Eye, EyeOff, Lock, ArrowLeft } from "lucide-react"
-import { authApi } from "@/lib/api-client"
+import { authApi, settingsApi } from "@/lib/api-client"
 import { handleFieldErrors } from "@/lib/utils"
-import type { User } from "@/lib/types"
+import type { User as UserType } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -42,13 +42,14 @@ type PasswordFormData = z.infer<typeof passwordSchema>
 export default function ProfilePage() {
   const router = useRouter()
   const { user: authUser, login } = useAuth()
-  const [profile, setProfile] = useState<User | null>(null)
+  const [profile, setProfile] = useState<UserType | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [showOldPassword, setShowOldPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [referralBonusEnabled, setReferralBonusEnabled] = useState(false)
 
   const {
     register,
@@ -76,6 +77,7 @@ export default function ProfilePage() {
       return
     }
     fetchProfile()
+    fetchSettings()
   }, [authUser, router])
 
   const fetchProfile = async () => {
@@ -94,6 +96,16 @@ export default function ProfilePage() {
       toast.error("Erreur lors du chargement du profil")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchSettings = async () => {
+    try {
+      const settings = await settingsApi.get()
+      setReferralBonusEnabled(settings?.referral_bonus === true)
+    } catch (error) {
+      console.error("Error fetching settings:", error)
+      setReferralBonusEnabled(false)
     }
   }
 
@@ -546,7 +558,7 @@ export default function ProfilePage() {
                     : "Jamais"}
                 </p>
               </div>
-              {profile.referral_code && (
+              {referralBonusEnabled && profile.referral_code && (
                 <div>
                   <Label className="text-xs sm:text-sm text-muted-foreground">Code de parrainage</Label>
                   <p className="text-sm sm:text-base font-medium mt-1 font-mono">
@@ -554,7 +566,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
               )}
-              {profile.bonus_available !== undefined && (
+              {referralBonusEnabled && profile.bonus_available !== undefined && (
                 <div>
                   <Label className="text-xs sm:text-sm text-muted-foreground">Bonus disponible</Label>
                   <p className="text-sm sm:text-base font-medium mt-1">
