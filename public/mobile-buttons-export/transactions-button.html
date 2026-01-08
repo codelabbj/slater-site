@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Mobile Button Export</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .button-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 128px;
+            height: 128px;
+        }
+        .mobile-button {
+            position: relative;
+            height: 64px;
+            width: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-from), var(--gradient-via), var(--gradient-to));
+            color: white;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .mobile-button:hover {
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 25px 50px -12px var(--shadow-color);
+        }
+        .icon-container {
+            height: 28px;
+            width: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .button-label {
+            font-size: 10px;
+            font-weight: 500;
+            margin-top: 2px;
+            opacity: 0.9;
+            text-align: center;
+        }
+        .glass-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .mobile-button:hover .glass-overlay {
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button class="mobile-button" style="
+            --gradient-from: #64748b;
+            --gradient-via: #475569;
+            --gradient-to: #334155;
+            --shadow-color: rgba(100, 116, 139, 0.4);
+            --border-color: rgba(148, 163, 184, 0.3);
+        ">
+            <div class="glass-overlay"></div>
+            <div class="icon-container">
+                <i data-lucide="refreshcw" class="w-7 h-7"></i>
+            </div>
+            <span class="button-label">Transactions</span>
+        </button>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Auto-hover effect for demo
+        setInterval(() => {
+            const button = document.querySelector('.mobile-button');
+            button.classList.add('hover');
+            setTimeout(() => {
+                button.classList.remove('hover');
+            }, 1500);
+        }, 3000);
+    </script>
+</body>
+</html>

@@ -206,7 +206,7 @@ export default function DashboardPage() {
               <Card className="overflow-hidden border border-primary/20 glass-panel p-0 py-0  sm:rounded-3xl">
                 <CardContent className="p-0">
                   {isLoadingAd ? (
-                    <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30 flex items-center justify-center  sm:rounded-3xl">
+                    <div className="relative w-full aspect-[16/9] bg-muted/30 flex items-center justify-center sm:rounded-3xl">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
                   ) : advertisements.length > 0 ? (
@@ -233,13 +233,12 @@ export default function DashboardPage() {
 
                           return (
                             <CarouselItem key={adId} className="pl-0">
-                              <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-muted/30  sm:rounded-3xl overflow-hidden">
+                              <div className="relative w-full aspect-[16/9] bg-muted/30 sm:rounded-3xl overflow-hidden">
                                 <Image
                                   src={imageUrl}
                                   alt={ad.title || "Publicité"}
                                   fill
                                   className={link ? "object-cover cursor-pointer transition-transform duration-300 hover:scale-105" : "object-cover"}
-                                  style={{ objectFit: 'cover' }}
                                   onError={() => handleAdImageError(adId)}
                                 />
                                 {link && (
@@ -258,7 +257,7 @@ export default function DashboardPage() {
                       </CarouselContent>
                     </Carousel>
                   ) : (
-                    <div className="relative w-full h-32 sm:h-40 md:h-44 lg:h-48 bg-primary/5 flex items-center justify-center  sm:rounded-3xl">
+                    <div className="relative w-full aspect-[16/9] bg-primary/5 flex items-center justify-center sm:rounded-3xl">
                       <div className="text-center p-4 text-muted-foreground">
                         <p className="text-sm sm:text-base font-semibold text-foreground/80">Espace publicitaire</p>
                         <p className="text-xs text-muted-foreground mt-1">Vos campagnes apparaîtront ici</p>
@@ -269,8 +268,67 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* Primary actions */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {/* Mobile Circular Action Buttons */}
+            <div className="block sm:hidden">
+              <div className="flex gap-3 justify-center mb-2">
+                {/* Deposit Button */}
+                <div className="flex flex-col items-center gap-2">
+                  <Button
+                    asChild
+                    className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white shadow-xl shadow-blue-500/40 border border-blue-400/30 hover:shadow-blue-500/60 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
+                  >
+                    <Link href="/dashboard/deposit" className="flex items-center justify-center">
+                      <ArrowDownToLine className="h-7 w-7" />
+                    </Link>
+                  </Button>
+                  <span className="text-xs font-medium text-foreground">Dépôt</span>
+                </div>
+
+                {/* Withdrawal Button */}
+                <div className="flex flex-col items-center gap-2">
+                  <Button
+                    asChild
+                    className="h-16 w-16 rounded-full bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white shadow-xl shadow-emerald-500/40 border border-emerald-400/30 hover:shadow-emerald-500/60 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
+                  >
+                    <Link href="/dashboard/withdrawal" className="flex items-center justify-center">
+                      <ArrowUpFromLine className="h-7 w-7" />
+                    </Link>
+                  </Button>
+                  <span className="text-xs font-medium text-foreground">Retrait</span>
+                </div>
+
+                {/* Coupons Button */}
+                <div className="flex flex-col items-center gap-2">
+                  <Button
+                    asChild
+                    className="h-16 w-16 rounded-full bg-gradient-to-br from-amber-500 via-orange-500 to-orange-600 text-white shadow-xl shadow-amber-500/40 border border-amber-400/30 hover:shadow-amber-500/60 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
+                  >
+                    <Link href="/dashboard/coupon" className="flex items-center justify-center">
+                      <Ticket className="h-7 w-7" />
+                    </Link>
+                  </Button>
+                  <span className="text-xs font-medium text-foreground">Coupons</span>
+                </div>
+
+                {/* Bonus Button */}
+                {referralBonusEnabled && (
+                  <div className="flex flex-col items-center gap-2">
+                    <Button
+                      asChild
+                      className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white shadow-xl shadow-purple-500/40 border border-purple-400/30 hover:shadow-purple-500/60 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
+                    >
+                      <Link href="/dashboard/bonus" className="flex items-center justify-center">
+                        <Gift className="h-7 w-7" />
+                      </Link>
+                    </Button>
+                    <span className="text-xs font-medium text-foreground">Bonus</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop Primary Actions */}
+            <div className="hidden sm:grid sm:grid-cols-2 sm:gap-4">
               <Button
                 asChild
                 className="h-12 sm:h-12 justify-between bg-primary text-primary-foreground shadow-lg glow-primary  "
@@ -307,8 +365,8 @@ export default function DashboardPage() {
               </Button>
             </div>
 
-            {/* Quick access pills */}
-            <div className="flex flex-wrap gap-2 sm:gap-3">
+            {/* Desktop Quick Access Pills */}
+            <div className="hidden sm:flex sm:flex-wrap sm:gap-3">
               <Button asChild size="sm" variant="ghost" className="h-10 sm:h-10 px-3 sm:px-4 rounded-full border border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10">
                 <Link href="/dashboard/coupon" className="flex items-center gap-2">
                   <Ticket className="h-4 w-4" />
