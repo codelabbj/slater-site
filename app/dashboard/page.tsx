@@ -268,9 +268,8 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* Mobile Circular Action Buttons */}
-            <div className="block sm:hidden">
-              <div className="flex gap-3 justify-center mb-2">
+            {/* Circular Action Buttons */}
+            <div className="flex gap-8 justify-center mb-4">
                 {/* Deposit Button */}
                 <div className="flex flex-col items-center gap-2">
                   <Button
@@ -326,121 +325,64 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
-
-            {/* Desktop Primary Actions */}
-            <div className="hidden sm:grid sm:grid-cols-2 sm:gap-4">
-              <Button
-                asChild
-                className="h-12 sm:h-12 justify-between bg-primary text-primary-foreground shadow-lg glow-primary  "
-              >
-                <Link href="/dashboard/deposit" className="flex items-center justify-between w-full gap-2 sm:gap-3">
-                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center  bg-background/20">
-                      <ArrowDownToLine className="h-4 w-4 sm:h-5 sm:w-5" />
-                    </span>
-                    <div className="text-left min-w-0">
-                      <span className="text-xs sm:text-sm font-semibold">Dépôt</span>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Link>
-              </Button>
-
-              <Button
-                asChild
-                variant="outline"
-                className="h-12 sm:h-12 justify-between border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10  "
-              >
-                <Link href="/dashboard/withdrawal" className="flex items-center justify-between w-full gap-2 sm:gap-3">
-                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center  bg-primary/15 text-primary">
-                      <ArrowUpFromLine className="h-4 w-4 sm:h-5 sm:w-5" />
-                    </span>
-                    <div className="text-left min-w-0">
-                      <span className="text-xs sm:text-sm font-semibold">Retrait</span>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                </Link>
-              </Button>
-            </div>
-
-            {/* Desktop Quick Access Pills */}
-            <div className="hidden sm:flex sm:flex-wrap sm:gap-3">
-              <Button asChild size="sm" variant="ghost" className="h-10 sm:h-10 px-3 sm:px-4 rounded-full border border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10">
-                <Link href="/dashboard/coupon" className="flex items-center gap-2">
-                  <Ticket className="h-4 w-4" />
-                  <span className="text-sm font-semibold">Coupons</span>
-                </Link>
-              </Button>
-              {referralBonusEnabled && (
-                <Button asChild size="sm" variant="ghost" className="h-10 sm:h-10 px-3 sm:px-4 rounded-full border border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10">
-                  <Link href="/dashboard/bonus" className="flex items-center gap-2">
-                    <Gift className="h-4 w-4" />
-                    <span className="text-sm font-semibold">Bonus</span>
-                  </Link>
-                </Button>
-              )}
-            </div>
-          </div>
         </CardContent>
       </Card>
 
       {/* Referral Code and Bonus Balance */}
       {referralBonusEnabled && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          {/* Referral Code */}
-          <Card className="glass-panel border-primary/15  ">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                  <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
-                    <Gift className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs sm:text-sm text-muted-foreground">Code de parrainage</p>
-                    <p className="text-sm sm:text-base font-mono font-semibold text-foreground truncate">
-                      {userProfile?.referral_code || user?.referral_code || "N/A"}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={copyReferralCode}
-                  className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0  hover:bg-primary/10"
-                >
-                  {copiedReferralCode ? (
-                    <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-                  ) : (
-                    <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Bonus Balance */}
-          <Card className="glass-panel border-primary/15  ">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center gap-2 sm:gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {/* Referral Code */}
+        <Card className="glass-panel border-primary/15  ">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
-                  <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Gift className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-sm text-muted-foreground">Bonus disponible</p>
-                  <p className="text-sm sm:text-base font-semibold text-foreground">
-                    {(userProfile?.bonus_available || user?.bonus_available || 0).toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "XOF",
-                      minimumFractionDigits: 0,
-                    })}
+                  <p className="text-xs sm:text-sm text-muted-foreground">Code de parrainage</p>
+                  <p className="text-sm sm:text-base font-mono font-semibold text-foreground truncate">
+                    {userProfile?.referral_code || user?.referral_code || "N/A"}
                   </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={copyReferralCode}
+                className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0  hover:bg-primary/10"
+              >
+                {copiedReferralCode ? (
+                  <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+                ) : (
+                  <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bonus Balance */}
+        <Card className="glass-panel border-primary/15  ">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10  bg-primary/15 text-primary flex-shrink-0">
+                <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Bonus disponible</p>
+                <p className="text-sm sm:text-base font-semibold text-foreground">
+                  {(userProfile?.bonus_available || user?.bonus_available || 0).toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "XOF",
+                    minimumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
       )}
 
       {/* Mobile App Download */}
