@@ -561,8 +561,8 @@ export default function DashboardPage() {
             variant="ghost"
             className="w-full justify-start gap-3 h-auto py-3"
             onClick={() => {
-              const telegramUsername = settings?.telegram || "0594811767"
-              window.open(`https://t.me/${telegramUsername}`, "_blank")
+              const telegramUsername = settings?.telegram 
+              window.open(`${telegramUsername}`, "_blank")
               setIsChatPopoverOpen(false)
             }}
           >
