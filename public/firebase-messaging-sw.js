@@ -4,13 +4,13 @@ importScripts('https://www.gstatic.com/firebasejs/11.0.0/firebase-messaging-comp
 
 // Firebase configuration - REPLACE WITH YOUR CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyBdaKaNvu5nqJb-R5tniw98YkRNm2JRAJ8",
-  authDomain: "slaterapp-a9e14.firebaseapp.com",
-  projectId: "slaterapp-a9e14",
-  storageBucket: "slaterapp-a9e14.firebasestorage.app",
-  messagingSenderId: "259484846842",
-  appId: "1:259484846842:web:9598f487b71df2d1331743",
-  measurementId: "G-TPBEPXVLHR"
+  apiKey: "AIzaSyDA1W76y51lZpb3c-wK6CXC3wt1Z6xTL7o",
+  authDomain: "slater-79f2c.firebaseapp.com",
+  projectId: "slater-79f2c",
+  storageBucket: "slater-79f2c.firebasestorage.app",
+  messagingSenderId: "955218384043",
+  appId: "1:955218384043:web:4b0f1b9030eab2a60a53ee",
+  measurementId: "G-JJ9Q4FW23N"
 };
 
 // Initialize Firebase
