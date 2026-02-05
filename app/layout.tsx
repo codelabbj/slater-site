@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast"
 // import { ErudaLoader } from "@/components/eruda-loader"
 import { Suspense } from "react"
 import { Footer } from "@/components/footer"
+import { NotificationInitializer } from "@/components/notification-initializer"
 
 
 const inter = Inter({ subsets: ["latin"] })
@@ -40,6 +41,7 @@ export default function RootLayout({
             </div>
             <div className="flex-1 flex flex-col relative">
               <AuthProvider>
+                <NotificationInitializer />
                 {/* <ErudaLoader /> */}
                 <Suspense fallback={null}>
                   {children}
