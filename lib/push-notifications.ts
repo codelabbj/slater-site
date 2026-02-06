@@ -163,8 +163,6 @@ export async function initializePushNotifications(): Promise<void> {
  * Wrapper around existing api utility
  */
 async function registerDeviceOnBackend(token: string, type: string) {
-    // Note: userId is required by sendTokenToBackend but we might not have it here directly
-
     // Essayer de récupérer l'ID utilisateur du stockage local (user_data)
     let userId = '';
     try {
@@ -180,16 +178,20 @@ async function registerDeviceOnBackend(token: string, type: string) {
     }
 
     if (userId) {
-        console.log(`📤 [TEST LOG] Sending token to backend for user ${userId} using endpoint /mobcash/devices/...`);
+        console.log(`📤 [TEST LOG] Sending token to backend for user ${userId} using centralized sync logic...`);
         const success = await sendTokenToBackend(token, userId);
         if (success) {
             console.log('✅ [TEST LOG] Device registered on backend successfully');
+            localStorage.setItem('fcm_token', token);
+            localStorage.removeItem('fcm_token_pending');
         } else {
             console.error('❌ [TEST LOG] Failed to register device on backend');
+            localStorage.setItem('fcm_token_pending', token);
         }
     } else {
         console.warn('⚠️ [TEST LOG] No user ID available. Token generated but not yet sent to backend /mobcash/devices/ (authentication required).');
         // Store token for later use when user logs in
         localStorage.setItem('fcm_token_pending', token);
+        localStorage.setItem('fcm_token', token);
     }
 }

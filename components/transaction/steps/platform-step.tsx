@@ -14,16 +14,17 @@ interface PlatformStepProps {
   selectedPlatform: Platform | null
   onSelect: (platform: Platform) => void
   onNext: () => void
+  type: "deposit" | "withdrawal"
 }
 
-export function PlatformStep({ selectedPlatform, onSelect, onNext }: PlatformStepProps) {
+export function PlatformStep({ selectedPlatform, onSelect, onNext, type }: PlatformStepProps) {
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchPlatforms = async () => {
       try {
-        const data = await platformApi.getAll()
+        const data = await platformApi.getAll(type)
         // Filter only enabled platforms
         const enabledPlatforms = data.filter(platform => platform.enable)
         setPlatforms(enabledPlatforms)
@@ -35,7 +36,7 @@ export function PlatformStep({ selectedPlatform, onSelect, onNext }: PlatformSte
     }
 
     fetchPlatforms()
-  }, [])
+  }, [type])
 
   if (isLoading) {
     return (
@@ -60,22 +61,21 @@ export function PlatformStep({ selectedPlatform, onSelect, onNext }: PlatformSte
       </div>
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-          {platforms.map((platform) => (
-            <Card
-              key={platform.id}
-            className={`cursor-pointer transition-all duration-300 hover:shadow-xl overflow-hidden group ${
-                selectedPlatform?.id === platform.id
-                ? "ring-2 ring-primary bg-primary/5 shadow-lg shadow-primary/20"
-                : "hover:bg-primary/5 hover:ring-1 hover:ring-primary/30"
+        {platforms.map((platform) => (
+          <Card
+            key={platform.id}
+            className={`cursor-pointer transition-all duration-300 hover:shadow-xl overflow-hidden group ${selectedPlatform?.id === platform.id
+              ? "ring-2 ring-primary bg-primary/5 shadow-lg shadow-primary/20"
+              : "hover:bg-primary/5 hover:ring-1 hover:ring-primary/30"
               }`}
-              onClick={() => {
-                onSelect(platform)
-                // Auto-advance to next step after a short delay
-                setTimeout(() => {
-                  onNext()
-                }, 300)
-              }}
-            >
+            onClick={() => {
+              onSelect(platform)
+              // Auto-advance to next step after a short delay
+              setTimeout(() => {
+                onNext()
+              }, 300)
+            }}
+          >
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-start gap-4">
                 <div className="relative">
@@ -117,23 +117,23 @@ export function PlatformStep({ selectedPlatform, onSelect, onNext }: PlatformSte
 
                   <div className="flex flex-wrap gap-2">
                     <Badge className="bg-green-500/10 text-green-700 border border-green-500/20 text-xs font-semibold px-2 py-1">
-                        Min: {platform.minimun_deposit.toLocaleString()} FCFA
-                      </Badge>
-                    {platform.maximum_deposit && (
+                      Min: {platform.minimun_deposit.toLocaleString()} FCFA
+                    </Badge>
+                    {platform.max_deposit && (
                       <Badge className="bg-blue-500/10 text-blue-700 border border-blue-500/20 text-xs font-semibold px-2 py-1">
-                        Max: {platform.maximum_deposit.toLocaleString()} FCFA
+                        Max: {platform.max_deposit.toLocaleString()} FCFA
                       </Badge>
                     )}
-                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        
-        {platforms.length === 0 && (
-          <div className="text-center py-8">
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {platforms.length === 0 && (
+        <div className="text-center py-8">
           <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
             <Plus className="h-8 w-8 text-primary" />
           </div>
@@ -141,8 +141,8 @@ export function PlatformStep({ selectedPlatform, onSelect, onNext }: PlatformSte
           <p className="text-sm text-muted-foreground mt-1">
             Les plateformes seront bientôt disponibles
           </p>
-          </div>
-        )}
+        </div>
+      )}
     </div>
   )
 }

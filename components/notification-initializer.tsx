@@ -34,7 +34,8 @@ export function NotificationInitializer() {
                 if (userId) {
                     sendTokenToBackend(tokenToSync, userId).then(success => {
                         if (success) {
-                            console.log('✅ [TEST LOG] Pending/Registered token synced with backend for authenticated user');
+                            console.log('✅ [TEST LOG] Token synced with backend for authenticated user');
+                            localStorage.setItem('fcm_token', tokenToSync);
                             localStorage.removeItem('fcm_token_pending');
                         }
                     });

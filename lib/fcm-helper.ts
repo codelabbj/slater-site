@@ -1,5 +1,5 @@
 import { fcmService } from './firebase';
-import api from './api';
+import { deviceApi } from './api-client';
 
 /**
  * Initialize FCM and get token
@@ -12,16 +12,16 @@ export async function initializeFCM(userId?: string): Promise<string | null> {
 
   try {
     console.log('[FCM] Starting initialization...');
-    
+
     // Check current permission state first
     const currentPermission = Notification.permission;
     console.log('[FCM] Current permission:', currentPermission);
-    
+
     if (currentPermission === 'denied') {
       console.warn('[FCM] Notification permission is already denied');
       return null;
     }
-    
+
     // Register service worker first
     console.log('[FCM] Registering service worker...');
     await fcmService.registerServiceWorker();
@@ -31,7 +31,7 @@ export async function initializeFCM(userId?: string): Promise<string | null> {
     console.log('[FCM] Requesting notification permission...');
     const permission = await fcmService.requestNotificationPermission();
     console.log('[FCM] Permission result:', permission);
-    
+
     if (permission !== 'granted') {
       console.warn('[FCM] Notification permission not granted:', permission);
       return null;
@@ -40,12 +40,12 @@ export async function initializeFCM(userId?: string): Promise<string | null> {
     // Get FCM token
     console.log('[FCM] Getting FCM token...');
     const token = await fcmService.refreshToken();
-    
+
     if (token) {
       console.log('[FCM] Token generated successfully:', token.substring(0, 20) + '...');
       // Store token in localStorage for persistence
       localStorage.setItem('fcm_token', token);
-      
+
       // Send token to backend if userId provided
       if (userId) {
         await sendTokenToBackend(token, userId);
@@ -68,7 +68,7 @@ export async function initializeFCM(userId?: string): Promise<string | null> {
  * @returns Promise<boolean> Success status
  */
 export async function sendTokenToBackend(
-  token: string, 
+  token: string,
   userId?: string
 ): Promise<boolean> {
   if (!userId) {
@@ -77,12 +77,8 @@ export async function sendTokenToBackend(
   }
 
   try {
-    // Send to the devices endpoint with the required payload format
-    await api.post('/mobcash/devices/', {
-      registration_id: token,
-      type: 'web',
-      user_id: userId,
-    });
+    // Send to the devices endpoint with the required payload format via deviceApi
+    await deviceApi.register(token, userId);
 
     console.log('[FCM] Token sent to backend successfully');
     return true;
@@ -105,7 +101,7 @@ export async function setupNotifications(userId?: string): Promise<string | null
   try {
     // Step 1: Initialize FCM and get token (userId is passed through to backend)
     const token = await initializeFCM(userId);
-    
+
     if (!token) {
       return null;
     }

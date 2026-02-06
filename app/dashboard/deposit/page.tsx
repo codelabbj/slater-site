@@ -30,22 +30,22 @@ import {
 export default function DepositPage() {
   const router = useRouter()
   const { user } = useAuth()
-  
+
   // Step management
   const [currentStep, setCurrentStep] = useState(1)
   const totalSteps = 5
-  
+
   // Form data
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
   const [selectedBetId, setSelectedBetId] = useState<UserAppId | null>(null)
   const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null)
   const [selectedPhone, setSelectedPhone] = useState<UserPhone | null>(null)
   const [amount, setAmount] = useState(0)
-  
+
   // Confirmation dialog
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
+
   // Transaction link modal
   const [isTransactionLinkModalOpen, setIsTransactionLinkModalOpen] = useState(false)
   const [transactionLink, setTransactionLink] = useState<string | null>(null)
@@ -302,7 +302,7 @@ export default function DepositPage() {
         network: selectedNetwork.id,
         source: "web"
       })
-      
+
       toast.success("Dépôt initié avec succès!")
 
       // Check if transaction_link exists in the response
@@ -326,7 +326,7 @@ export default function DepositPage() {
         //   }
         // } else
         if (selectedNetwork?.name?.toLowerCase() === "mtn" &&
-                   selectedNetwork.deposit_api?.toLowerCase() === "connect") {
+          selectedNetwork.deposit_api?.toLowerCase() === "connect") {
           if (selectedNetwork.payment_by_link === false) {
             // Use USSD code for MTN when payment_by_link is false
             const handled = await handleMtnUssdFlow(amount)
@@ -363,7 +363,7 @@ export default function DepositPage() {
       window.open(transactionLink, "_blank", "noopener,noreferrer")
       setIsTransactionLinkModalOpen(false)
       setTransactionLink(null)
-      
+
       const handled = await handleMoovUssdFlow(amount)
       if (!handled) {
         router.push("/dashboard")
@@ -382,9 +382,9 @@ export default function DepositPage() {
       case 4:
         return selectedPhone !== null
       case 5:
-        return amount > 0 && selectedPlatform && 
-               amount >= selectedPlatform.minimun_deposit && 
-               amount <= selectedPlatform.max_deposit
+        return amount > 0 && selectedPlatform &&
+          amount >= selectedPlatform.minimun_deposit &&
+          amount <= selectedPlatform.max_deposit
       default:
         return false
     }
@@ -398,6 +398,7 @@ export default function DepositPage() {
             selectedPlatform={selectedPlatform}
             onSelect={setSelectedPlatform}
             onNext={handleNext}
+            type="deposit"
           />
         )
       case 2:
@@ -428,12 +429,12 @@ export default function DepositPage() {
           />
         )
       case 5:
-    return (
+        return (
           <AmountStep
             amount={amount}
             setAmount={setAmount}
             withdriwalCode=""
-            setWithdriwalCode={() => {}}
+            setWithdriwalCode={() => { }}
             selectedPlatform={selectedPlatform}
             selectedBetId={selectedBetId}
             selectedNetwork={selectedNetwork}
@@ -460,7 +461,7 @@ export default function DepositPage() {
           <ArrowLeft className="h-4 w-4" />
           Retour au tableau de bord
         </Button>
-          </div>
+      </div>
 
       {/* Progress Section */}
       <Card className="glass-panel rounded-2xl sm:rounded-3xl">
@@ -494,96 +495,96 @@ export default function DepositPage() {
         </div>
       )}
 
-        {/* Confirmation Dialog */}
-        <ConfirmationDialog
-          isOpen={isConfirmationOpen}
-          onClose={() => setIsConfirmationOpen(false)}
-          onConfirm={handleConfirmTransaction}
-          transactionData={{
-            amount,
-            phone_number: selectedPhone?.phone || "",
-            app: selectedPlatform?.id || "",
-            user_app_id: selectedBetId?.user_app_id || "",
-            network: selectedNetwork?.id || 0,
-          }}
-          type="deposit"
-          platformName={selectedPlatform?.name || ""}
-          networkName={selectedNetwork?.public_name || ""}
-          isLoading={isSubmitting}
-        />
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={isConfirmationOpen}
+        onClose={() => setIsConfirmationOpen(false)}
+        onConfirm={handleConfirmTransaction}
+        transactionData={{
+          amount,
+          phone_number: selectedPhone?.phone || "",
+          app: selectedPlatform?.id || "",
+          user_app_id: selectedBetId?.user_app_id || "",
+          network: selectedNetwork?.id || 0,
+        }}
+        type="deposit"
+        platformName={selectedPlatform?.name || ""}
+        networkName={selectedNetwork?.public_name || ""}
+        isLoading={isSubmitting}
+      />
 
-        {/* Transaction Link Modal */}
-        <Dialog open={isTransactionLinkModalOpen} onOpenChange={setIsTransactionLinkModalOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Continuer la transaction</DialogTitle>
-              <DialogDescription>
-                Cliquez sur continuer pour continuer la transaction
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsTransactionLinkModalOpen(false)
-                  setTransactionLink(null)
-                  router.push("/dashboard")
-                }}
-              >
-                Annuler
-              </Button>
-              <Button onClick={handleContinueTransaction}>
-                Continuer
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+      {/* Transaction Link Modal */}
+      <Dialog open={isTransactionLinkModalOpen} onOpenChange={setIsTransactionLinkModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Continuer la transaction</DialogTitle>
+            <DialogDescription>
+              Cliquez sur continuer pour continuer la transaction
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsTransactionLinkModalOpen(false)
+                setTransactionLink(null)
+                router.push("/dashboard")
+              }}
+            >
+              Annuler
+            </Button>
+            <Button onClick={handleContinueTransaction}>
+              Continuer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        {/* Moov USSD fallback modal */}
-        <Dialog open={isMoovUssdModalOpen} onOpenChange={handleMoovModalClose}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Finaliser la transaction Moov</DialogTitle>
-              <DialogDescription asChild>
-                <div className="text-sm text-muted-foreground space-y-2">
+      {/* Moov USSD fallback modal */}
+      <Dialog open={isMoovUssdModalOpen} onOpenChange={handleMoovModalClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Finaliser la transaction Moov</DialogTitle>
+            <DialogDescription asChild>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>
+                  Nous n&apos;avons pas pu ouvrir automatiquement le composeur téléphonique. Copiez le code ci-dessous et collez-le dans l&apos;application Téléphone pour terminer votre transaction Moov.
+                </p>
+                {moovMerchantPhone && (
                   <p>
-                    Nous n&apos;avons pas pu ouvrir automatiquement le composeur téléphonique. Copiez le code ci-dessous et collez-le dans l&apos;application Téléphone pour terminer votre transaction Moov.
+                    <span className="font-semibold text-foreground">Numéro marchand&nbsp;:</span> {moovMerchantPhone}
                   </p>
-                  {moovMerchantPhone && (
-                    <p>
-                      <span className="font-semibold text-foreground">Numéro marchand&nbsp;:</span> {moovMerchantPhone}
-                    </p>
-                  )}
-                  {moovUssdCode ? (
-                    <div className="space-y-1">
-                      <p className="font-semibold text-foreground">Code USSD à composer :</p>
-                      <div className="flex items-center gap-2">
-                        <Input value={moovUssdCode} readOnly className="font-mono text-sm" />
-                        <Button variant="outline" size="icon" onClick={handleCopyUssdCode}>
-                          <Copy className="h-4 w-4" />
-                          <span className="sr-only">Copier le code</span>
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Collez ce code dans votre composeur téléphonique et validez pour poursuivre.
-                      </p>
+                )}
+                {moovUssdCode ? (
+                  <div className="space-y-1">
+                    <p className="font-semibold text-foreground">Code USSD à composer :</p>
+                    <div className="flex items-center gap-2">
+                      <Input value={moovUssdCode} readOnly className="font-mono text-sm" />
+                      <Button variant="outline" size="icon" onClick={handleCopyUssdCode}>
+                        <Copy className="h-4 w-4" />
+                        <span className="sr-only">Copier le code</span>
+                      </Button>
                     </div>
-                  ) : (
-                    <p className="text-destructive text-sm">
-                      Impossible de générer le code USSD automatiquement. Veuillez réessayer ou contacter le support.
+                    <p className="text-xs text-muted-foreground">
+                      Collez ce code dans votre composeur téléphonique et validez pour poursuivre.
                     </p>
-                  )}
-                </div>
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button onClick={() => handleMoovModalClose(false)}>J&apos;ai compris</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                  </div>
+                ) : (
+                  <p className="text-destructive text-sm">
+                    Impossible de générer le code USSD automatiquement. Veuillez réessayer ou contacter le support.
+                  </p>
+                )}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => handleMoovModalClose(false)}>J&apos;ai compris</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        {/* Orange USSD fallback modal - COMMENTED OUT */}
-        {/* <Dialog open={isOrangeUssdModalOpen} onOpenChange={handleOrangeModalClose}>
+      {/* Orange USSD fallback modal - COMMENTED OUT */}
+      {/* <Dialog open={isOrangeUssdModalOpen} onOpenChange={handleOrangeModalClose}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Finaliser la transaction Orange</DialogTitle>
@@ -625,48 +626,48 @@ export default function DepositPage() {
           </DialogContent>
         </Dialog> */}
 
-        {/* MTN USSD fallback modal */}
-        <Dialog open={isMtnUssdModalOpen} onOpenChange={handleMtnModalClose}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Finaliser la transaction MTN</DialogTitle>
-              <DialogDescription asChild>
-                <div className="text-sm text-muted-foreground space-y-2">
+      {/* MTN USSD fallback modal */}
+      <Dialog open={isMtnUssdModalOpen} onOpenChange={handleMtnModalClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Finaliser la transaction MTN</DialogTitle>
+            <DialogDescription asChild>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>
+                  Nous n&apos;avons pas pu ouvrir automatiquement le composeur téléphonique. Copiez le code ci-dessous et collez-le dans l&apos;application Téléphone pour terminer votre transaction MTN.
+                </p>
+                {mtnMerchantPhone && (
                   <p>
-                    Nous n&apos;avons pas pu ouvrir automatiquement le composeur téléphonique. Copiez le code ci-dessous et collez-le dans l&apos;application Téléphone pour terminer votre transaction MTN.
+                    <span className="font-semibold text-foreground">Numéro marchand&nbsp;:</span> {mtnMerchantPhone}
                   </p>
-                  {mtnMerchantPhone && (
-                    <p>
-                      <span className="font-semibold text-foreground">Numéro marchand&nbsp;:</span> {mtnMerchantPhone}
-                    </p>
-                  )}
-                  {mtnUssdCode ? (
-                    <div className="space-y-1">
-                      <p className="font-semibold text-foreground">Code USSD à composer :</p>
-                      <div className="flex items-center gap-2">
-                        <Input value={mtnUssdCode} readOnly className="font-mono text-sm" />
-                        <Button variant="outline" size="icon" onClick={handleCopyMtnUssdCode}>
-                          <Copy className="h-4 w-4" />
-                          <span className="sr-only">Copier le code</span>
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Collez ce code dans votre composeur téléphonique et validez pour poursuivre.
-                      </p>
+                )}
+                {mtnUssdCode ? (
+                  <div className="space-y-1">
+                    <p className="font-semibold text-foreground">Code USSD à composer :</p>
+                    <div className="flex items-center gap-2">
+                      <Input value={mtnUssdCode} readOnly className="font-mono text-sm" />
+                      <Button variant="outline" size="icon" onClick={handleCopyMtnUssdCode}>
+                        <Copy className="h-4 w-4" />
+                        <span className="sr-only">Copier le code</span>
+                      </Button>
                     </div>
-                  ) : (
-                    <p className="text-destructive text-sm">
-                      Impossible de générer le code USSD automatiquement. Veuillez réessayer ou contacter le support.
+                    <p className="text-xs text-muted-foreground">
+                      Collez ce code dans votre composeur téléphonique et validez pour poursuivre.
                     </p>
-                  )}
-                </div>
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button onClick={() => handleMtnModalClose(false)}>J&apos;ai compris</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                  </div>
+                ) : (
+                  <p className="text-destructive text-sm">
+                    Impossible de générer le code USSD automatiquement. Veuillez réessayer ou contacter le support.
+                  </p>
+                )}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => handleMtnModalClose(false)}>J&apos;ai compris</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -23,9 +23,9 @@ export function NetworkStep({ selectedNetwork, onSelect, onNext, type }: Network
   useEffect(() => {
     const fetchNetworks = async () => {
       try {
-        const data = await networkApi.getAll()
+        const data = await networkApi.getAll(type)
         // Filter networks based on transaction type
-        const activeNetworks = data.filter(network => 
+        const activeNetworks = data.filter(network =>
           type === TRANSACTION_TYPES.DEPOSIT ? network.active_for_deposit : network.active_for_with
         )
         setNetworks(activeNetworks)
@@ -59,11 +59,10 @@ export function NetworkStep({ selectedNetwork, onSelect, onNext, type }: Network
           {networks.map((network) => (
             <Card
               key={network.id}
-              className={`cursor-pointer transition-all hover:shadow-md overflow-hidden ${
-                selectedNetwork?.id === network.id
+              className={`cursor-pointer transition-all hover:shadow-md overflow-hidden ${selectedNetwork?.id === network.id
                   ? `ring-2 ${type === TRANSACTION_TYPES.DEPOSIT ? "ring-deposit bg-green-500/10" : "ring-withdrawal bg-blue-500/10"}`
                   : "hover:bg-muted/50"
-              }`}
+                }`}
               onClick={() => {
                 onSelect(network)
                 // Auto-advance to next step after a short delay
@@ -101,7 +100,7 @@ export function NetworkStep({ selectedNetwork, onSelect, onNext, type }: Network
             </Card>
           ))}
         </div>
-        
+
         {networks.length === 0 && (
           <div className="text-center py-8">
             <p className="text-sm text-muted-foreground break-words">

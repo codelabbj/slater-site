@@ -21,11 +21,11 @@ import { ChevronLeft, ArrowUpFromLine, ArrowLeft } from "lucide-react"
 export default function WithdrawalPage() {
   const router = useRouter()
   const { user } = useAuth()
-  
+
   // Step management
   const [currentStep, setCurrentStep] = useState(1)
   const totalSteps = 5
-  
+
   // Form data
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
   const [selectedBetId, setSelectedBetId] = useState<UserAppId | null>(null)
@@ -33,7 +33,7 @@ export default function WithdrawalPage() {
   const [selectedPhone, setSelectedPhone] = useState<UserPhone | null>(null)
   const [amount, setAmount] = useState(0)
   const [withdriwalCode, setWithdriwalCode] = useState("")
-  
+
   // Confirmation dialog
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -75,9 +75,9 @@ export default function WithdrawalPage() {
         withdriwal_code: withdriwalCode,
         source: "web"
       })
-      
+
       toast.success("Retrait initié avec succès!")
-      
+
       router.push("/dashboard")
     } catch (error: any) {
       // Check for rate limit error (error_time_message)
@@ -103,10 +103,10 @@ export default function WithdrawalPage() {
       case 4:
         return selectedPhone !== null
       case 5:
-        return amount > 0 && selectedPlatform && 
-               withdriwalCode.length >= 4 &&
-               amount >= selectedPlatform.minimun_with && 
-               amount <= selectedPlatform.max_win
+        return amount > 0 && selectedPlatform &&
+          withdriwalCode.length >= 4 &&
+          amount >= selectedPlatform.minimun_with &&
+          amount <= selectedPlatform.max_win
       default:
         return false
     }
@@ -120,6 +120,7 @@ export default function WithdrawalPage() {
             selectedPlatform={selectedPlatform}
             onSelect={setSelectedPlatform}
             onNext={handleNext}
+            type="withdrawal"
           />
         )
       case 2:
@@ -150,7 +151,7 @@ export default function WithdrawalPage() {
           />
         )
       case 5:
-    return (
+        return (
           <AmountStep
             amount={amount}
             setAmount={setAmount}
@@ -187,53 +188,53 @@ export default function WithdrawalPage() {
       {/* Progress Section */}
       <Card className="glass-panel rounded-2xl sm:rounded-3xl">
         <CardContent className="p-5 sm:p-6">
-        <TransactionProgressBar 
-          currentStep={currentStep} 
-          totalSteps={totalSteps}
-          type="withdrawal"
-        />
+          <TransactionProgressBar
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+            type="withdrawal"
+          />
         </CardContent>
       </Card>
 
-        {/* Current Step */}
+      {/* Current Step */}
       <Card className="glass-panel rounded-2xl sm:rounded-3xl min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]">
         <CardContent className="p-5 sm:p-6">
           {renderCurrentStep()}
         </CardContent>
       </Card>
 
-        {/* Navigation - Show Previous button for steps 2-5 */}
-        {currentStep > 1 && currentStep <= 5 && (
+      {/* Navigation - Show Previous button for steps 2-5 */}
+      {currentStep > 1 && currentStep <= 5 && (
         <div className="flex justify-start">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
             className="flex items-center gap-2 h-11 sm:h-12 px-6 border-primary/30 bg-primary/5 hover:bg-primary/10 text-sm sm:text-base font-semibold"
-            >
-              <ChevronLeft className="h-4 w-4" />
+          >
+            <ChevronLeft className="h-4 w-4" />
             Précédent
-            </Button>
-          </div>
-        )}
+          </Button>
+        </div>
+      )}
 
-        {/* Confirmation Dialog */}
-        <ConfirmationDialog
-          isOpen={isConfirmationOpen}
-          onClose={() => setIsConfirmationOpen(false)}
-          onConfirm={handleConfirmTransaction}
-          transactionData={{
-            amount,
-            phone_number: selectedPhone?.phone || "",
-            app: selectedPlatform?.id || "",
-            user_app_id: selectedBetId?.user_app_id || "",
-            network: selectedNetwork?.id || 0,
-            withdriwal_code: withdriwalCode,
-          }}
-          type="withdrawal"
-          platformName={selectedPlatform?.name || ""}
-          networkName={selectedNetwork?.public_name || ""}
-          isLoading={isSubmitting}
-        />
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={isConfirmationOpen}
+        onClose={() => setIsConfirmationOpen(false)}
+        onConfirm={handleConfirmTransaction}
+        transactionData={{
+          amount,
+          phone_number: selectedPhone?.phone || "",
+          app: selectedPlatform?.id || "",
+          user_app_id: selectedBetId?.user_app_id || "",
+          network: selectedNetwork?.id || 0,
+          withdriwal_code: withdriwalCode,
+        }}
+        type="withdrawal"
+        platformName={selectedPlatform?.name || ""}
+        networkName={selectedNetwork?.public_name || ""}
+        isLoading={isSubmitting}
+      />
     </div>
   )
 }
