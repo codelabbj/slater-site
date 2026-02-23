@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { formatPhoneNumberForDisplay } from "@/lib/utils"
+import { Checkbox } from "@/components/ui/checkbox"
+import Link from "next/link"
 
 interface AmountStepProps {
   amount: number
@@ -37,6 +39,7 @@ export function AmountStep({
   onNext
 }: AmountStepProps) {
   const [errors, setErrors] = useState<{ amount?: string; withdriwalCode?: string }>({})
+  const [isAccepted, setIsAccepted] = useState(false)
 
   const validateAmount = (value: number) => {
     if (!selectedPlatform) return "Plateforme non sélectionnée"
@@ -78,7 +81,7 @@ export function AmountStep({
     const withdriwalCodeError = type === "withdrawal" ? validateWithdriwalCode(withdriwalCode) : null
 
     return !amountError && !withdriwalCodeError &&
-      selectedPlatform && selectedBetId && selectedNetwork && selectedPhone
+      selectedPlatform && selectedBetId && selectedNetwork && selectedPhone && isAccepted
   }
 
   if (!selectedPlatform || !selectedBetId || !selectedNetwork || !selectedPhone) {
@@ -277,12 +280,36 @@ export function AmountStep({
         </Card>
       )}
 
+      {/* Terms and Conditions Checkbox */}
+      <div className="flex items-start space-x-3 p-4 bg-primary/5 rounded-xl border border-primary/10">
+        <Checkbox
+          id="terms"
+          checked={isAccepted}
+          onCheckedChange={(checked) => setIsAccepted(checked === true)}
+          className="mt-1"
+        />
+        <label
+          htmlFor="terms"
+          className="text-sm leading-relaxed text-muted-foreground cursor-pointer select-none"
+        >
+          En cliquant sur Suivant, vous acceptez nos{" "}
+          <Link
+            href="/privacy-policy"
+            className="font-semibold text-primary hover:underline transition-all"
+            target="_blank"
+          >
+            conditions d&apos;utilisation
+          </Link>{" "}
+          et confirmez que vous avez plus de 18 ans.
+        </label>
+      </div>
+
       {/* Continue Button */}
       <div className="flex justify-end pt-2">
         <Button
           onClick={onNext}
           disabled={!isFormValid()}
-          className="w-full sm:w-auto min-w-[120px] h-11 sm:h-10 text-sm sm:text-base"
+          className="w-full sm:w-auto min-w-[120px] h-11 sm:h-10 text-sm sm:text-base font-semibold shadow-lg shadow-primary/20"
         >
           Continuer
         </Button>

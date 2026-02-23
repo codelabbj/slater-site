@@ -13,8 +13,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { authApi, settingsApi } from "@/lib/api-client"
 import { handleFieldErrors } from "@/lib/utils"
 import { toast } from "react-hot-toast"
-import { Loader2, Eye, EyeOff } from "lucide-react"
+import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react"
 import Image from "next/image"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const baseSignupSchema = z.object({
   first_name: z.string().min(2, "Le prénom doit contenir au minimum 2 caractères"),
@@ -23,6 +24,7 @@ const baseSignupSchema = z.object({
   phone: z.string().min(8, "Numéro de téléphone invalide"),
   password: z.string().min(6, "Le mot de passe doit contenir au minimum 6 caractères"),
   re_password: z.string().min(6, "Confirmation du mot de passe requise"),
+  accept_terms: z.boolean().refine(val => val === true, "Vous devez accepter les conditions d'utilisation"),
 })
 
 type SignupFormData = z.infer<typeof baseSignupSchema> & {
@@ -54,17 +56,17 @@ export default function SignupPage() {
 
   const signupSchema = referralBonusEnabled
     ? baseSignupSchema
-        .extend({
-          referral_code: z.string().optional(),
-        })
-        .refine((data) => data.password === data.re_password, {
-          message: "Les mots de passe ne correspondent pas",
-          path: ["re_password"],
-        })
-    : baseSignupSchema.refine((data) => data.password === data.re_password, {
+      .extend({
+        referral_code: z.string().optional(),
+      })
+      .refine((data) => data.password === data.re_password, {
         message: "Les mots de passe ne correspondent pas",
         path: ["re_password"],
       })
+    : baseSignupSchema.refine((data) => data.password === data.re_password, {
+      message: "Les mots de passe ne correspondent pas",
+      path: ["re_password"],
+    })
 
   const {
     register,
@@ -73,6 +75,9 @@ export default function SignupPage() {
     setError,
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
+    defaultValues: {
+      accept_terms: false
+    }
   })
 
   const onSubmit = async (data: SignupFormData) => {
@@ -133,7 +138,7 @@ export default function SignupPage() {
                 priority
               />
             </div>
-          
+
           </div>
         </div>
 
@@ -143,7 +148,7 @@ export default function SignupPage() {
           </div>
         </div> */}
         <CardTitle className="text-2xl sm:text-3xl font-bold text-foreground mt-4">Rejoignez la communauté Slater</CardTitle>
-        
+
       </CardHeader>
       <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-7">
@@ -259,6 +264,35 @@ export default function SignupPage() {
               {errors.referral_code && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.referral_code.message}</p>}
             </div>
           )}
+
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3 p-4 bg-primary/5 rounded-xl border border-primary/10">
+              <Checkbox
+                id="accept_terms"
+                {...register("accept_terms")}
+                onCheckedChange={(checked) => {
+                  const event = { target: { name: "accept_terms", value: checked === true } }
+                  register("accept_terms").onChange(event as any)
+                }}
+                className="mt-1"
+              />
+              <label
+                htmlFor="accept_terms"
+                className="text-sm leading-relaxed text-muted-foreground cursor-pointer select-none"
+              >
+                En cliquant sur S&apos;inscrire, vous acceptez nos{" "}
+                <Link
+                  href="/privacy-policy"
+                  className="font-semibold text-primary hover:underline transition-all"
+                  target="_blank"
+                >
+                  conditions d&apos;utilisation
+                </Link>{" "}
+                et confirmez que vous avez plus de 18 ans.
+              </label>
+            </div>
+            {errors.accept_terms && <p className="text-xs sm:text-sm text-destructive font-medium">{errors.accept_terms.message}</p>}
+          </div>
 
           <Button type="submit" className="w-full h-12 sm:h-11 text-base sm:text-sm font-bold bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-xl glow-primary hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02]" disabled={isLoading}>
             {isLoading ? (

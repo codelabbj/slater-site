@@ -37,7 +37,7 @@ export const NETWORK_CHOICES = [
 
 // API Choices
 export const API_CHOICES = [
-  ["connect", "Blaffa Connect"],
+  ["connect", "Slater Connect"],
 ] as const
 
 // Type definitions for better type safety
