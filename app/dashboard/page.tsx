@@ -13,8 +13,8 @@ import {
 import { ArrowDownToLine, ArrowUpFromLine, Wallet, Loader2, ArrowRight, RefreshCw, MessageCircle, Send, Smartphone, Download, Ticket, Bell, Gift, Copy, Check, Coins } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { transactionApi, advertisementApi, settingsApi, authApi } from "@/lib/api-client"
-import type { Transaction, Advertisement, Settings, User } from "@/lib/types"
+import {transactionApi, advertisementApi, settingsApi, authApi, networkApi} from "@/lib/api-client"
+import type {Transaction, Advertisement, Settings, User, Network} from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -25,6 +25,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel"
+import TransactionCard from "@/components/ui/transaction-card";
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -40,6 +41,7 @@ export default function DashboardPage() {
   const [referralBonusEnabled, setReferralBonusEnabled] = useState(false)
   const [userProfile, setUserProfile] = useState<User | null>(null)
   const [copiedReferralCode, setCopiedReferralCode] = useState(false)
+  const [networks, setNetworks] = useState<Network[]>([])
 
   const fetchRecentTransactions = async () => {
     try {
@@ -103,12 +105,22 @@ export default function DashboardPage() {
     }
   }
 
+  const fetchNetworks = async () => {
+    try {
+      const networkData = await networkApi.getAll()
+      setNetworks(networkData)
+    }catch (error) {
+      console.error("Error fetching networks:", error)
+    }
+  }
+
   useEffect(() => {
     if (user) {
       fetchRecentTransactions()
       fetchAdvertisement()
       fetchSettings()
       fetchUserProfile()
+      fetchNetworks()
     }
   }, [user])
 
@@ -145,28 +157,6 @@ export default function DashboardPage() {
 
     return () => clearInterval(interval)
   }, [carouselApi, advertisements.length, isCarouselPaused])
-
-  const getStatusBadge = (status: Transaction["status"]) => {
-    const statusConfig: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
-      pending: { variant: "secondary", label: "En attente" },
-      accept: { variant: "default", label: "Accepté" },
-      init_payment: { variant: "secondary", label: "En attente" },
-      error: { variant: "destructive", label: "Erreur" },
-      reject: { variant: "destructive", label: "Rejeté" },
-      timeout: { variant: "outline", label: "Expiré" },
-    }
-    
-    const config = statusConfig[status] || { variant: "outline" as const, label: status }
-    return <Badge variant={config.variant}>{config.label}</Badge>
-  }
-
-  const getTypeBadge = (type: Transaction["type_trans"]) => {
-    return (
-      <Badge variant={type === "deposit" ? "default" : "secondary"}>
-        {type === "deposit" ? "Dépôt" : "Retrait"}
-      </Badge>
-    )
-  }
 
   const copyReferralCode = async () => {
     const referralCode = userProfile?.referral_code || user?.referral_code
@@ -447,59 +437,9 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3.5">
             {recentTransactions.map((transaction) => {
-              const isDeposit = transaction.type_trans === "deposit"
+              const network = networks.find(n => n.id == transaction.network)
               return (
-                <Card
-                  key={transaction.id}
-                  className={cn(
-                    "glass-panel hover:shadow-lg transition-all duration-200 border-primary/10  sm:rounded-3xl",
-                    "relative overflow-hidden"
-                  )}
-                >
-                  <div className="absolute inset-x-0 top-0 h-1.5" style={{ background: isDeposit ? "linear-gradient(90deg, rgba(50,251,255,0.35), rgba(23,161,255,0.25))" : "linear-gradient(90deg, rgba(15,34,55,0.35), rgba(50,251,255,0.15))" }} />
-                  <CardContent className="p-3.5 sm:p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3 min-w-0">
-                        <div
-                          className={cn(
-                            "p-2  flex-shrink-0",
-                            isDeposit ? "bg-primary/15 text-primary" : "bg-secondary/20 text-foreground"
-                          )}
-                        >
-                          {isDeposit ? (
-                            <ArrowDownToLine className="h-4 w-4" />
-                          ) : (
-                            <ArrowUpFromLine className="h-4 w-4" />
-                          )}
-                        </div>
-                        <div className="min-w-0 space-y-1">
-                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                            <h3 className="font-semibold text-sm sm:text-base truncate">#{transaction.reference}</h3>
-                            {getTypeBadge(transaction.type_trans)}
-                            {getStatusBadge(transaction.status)}
-                          </div>
-                          <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                            {transaction.app_details?.name || transaction.app} • {formatPhoneNumberForDisplay(transaction.phone_number)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-base sm:text-lg font-semibold">
-                          {transaction.amount.toLocaleString("fr-FR", {
-                            style: "currency",
-                            currency: "XOF",
-                            minimumFractionDigits: 0,
-                          })}
-                        </p>
-                        <p className="text-xs sm:text-sm text-muted-foreground">
-                          {format(new Date(transaction.created_at), "dd MMM à HH:mm", {
-                            locale: fr,
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  <TransactionCard transaction={transaction} network={network} />
               )
             })}
           </div>

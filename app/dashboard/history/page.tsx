@@ -9,12 +9,13 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, Search, Filter, RefreshCw, ArrowLeft } from "lucide-react"
-import { transactionApi } from "@/lib/api-client"
-import type { Transaction } from "@/lib/types"
+import {networkApi, transactionApi} from "@/lib/api-client"
+import type {Network, Transaction} from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { formatPhoneNumberForDisplay } from "@/lib/utils"
+import TransactionCard from "@/components/ui/transaction-card";
 
 export default function TransactionHistoryPage() {
   const router = useRouter()
@@ -24,7 +25,7 @@ export default function TransactionHistoryPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
-  
+  const [networks, setNetworks] = useState<Network[]>([])
   // Filters
   const [searchTerm, setSearchTerm] = useState("")
   const [typeFilter, setTypeFilter] = useState<"all" | "deposit" | "withdrawal">("all")
@@ -33,6 +34,10 @@ export default function TransactionHistoryPage() {
   useEffect(() => {
     fetchTransactions()
   }, [currentPage, searchTerm, typeFilter, statusFilter])
+
+  useEffect(() => {
+    fetchNetworks()
+  }, []);
 
   // Refetch data when the page gains focus to ensure fresh data
   useEffect(() => {
@@ -66,26 +71,13 @@ export default function TransactionHistoryPage() {
     }
   }
 
-  const getStatusBadge = (status: Transaction["status"]) => {
-    const statusConfig: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
-      pending: { variant: "secondary", label: "En attente" },
-      accept: { variant: "default", label: "Accepté" },
-      init_payment: { variant: "secondary", label: "En attente" },
-      error: { variant: "destructive", label: "Erreur" },
-      reject: { variant: "destructive", label: "Rejeté" },
-      timeout: { variant: "outline", label: "Expiré" },
+  const fetchNetworks = async () => {
+    try {
+      const networkData = await networkApi.getAll()
+      setNetworks(networkData)
+    }catch (error) {
+      console.error('Error loading networks : ',error)
     }
-    
-    const config = statusConfig[status] || { variant: "outline" as const, label: status }
-    return <Badge variant={config.variant}>{config.label}</Badge>
-  }
-
-  const getTypeBadge = (type: Transaction["type_trans"]) => {
-    return (
-      <Badge variant={type === "deposit" ? "default" : "secondary"}>
-        {type === "deposit" ? "Dépôt" : "Retrait"}
-      </Badge>
-    )
   }
 
   const handleSearch = (value: string) => {
@@ -223,48 +215,12 @@ export default function TransactionHistoryPage() {
               </div>
             ) : (
               <div className="space-y-2 sm:space-y-3">
-                {transactions.map((transaction) => (
-                  <Card key={transaction.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-3 sm:p-4 lg:p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-                        <div className="flex-1 min-w-0 space-y-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="font-semibold text-sm sm:text-base">#{transaction.reference}</h3>
-                            {getTypeBadge(transaction.type_trans)}
-                            {getStatusBadge(transaction.status)}
-                          </div>
-                          <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
-                            <p className="truncate">Plateforme: {transaction.app}</p>
-                            <p className="truncate">ID de pari: {transaction.user_app_id}</p>
-                            <p className="truncate">Téléphone: {formatPhoneNumberForDisplay(transaction.phone_number)}</p>
-                            {transaction.withdriwal_code && (
-                              <p className="truncate">Code de retrait: {transaction.withdriwal_code}</p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-left sm:text-right flex-shrink-0 space-y-2">
-                          <p className="text-base sm:text-lg font-semibold">
-                            {transaction.amount.toLocaleString("fr-FR", {
-                              style: "currency",
-                              currency: "XOF",
-                              minimumFractionDigits: 0,
-                            })}
-                          </p>
-                          <p className="text-xs sm:text-sm text-muted-foreground">
-                            {format(new Date(transaction.created_at), "dd MMM yyyy à HH:mm", {
-                              locale: fr,
-                            })}
-                          </p>
-                          {transaction.error_message && (
-                            <p className="text-xs sm:text-sm text-red-500 break-words">
-                              Erreur: {transaction.error_message}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {transactions.map((transaction) => {
+                  const network = networks.find(n=> n.id == transaction.network)
+                  return(
+                      <TransactionCard transaction={transaction} network={network}/>
+                  )
+                })}
               </div>
             )}
 
