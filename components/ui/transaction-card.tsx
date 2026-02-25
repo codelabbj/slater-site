@@ -103,7 +103,7 @@ export default function TransactionCard({transaction, network}: TransactionCardP
         </Card>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md m-2">
                 <DialogHeader className="space-y-4">
                     <DialogTitle>Détails de la transaction</DialogTitle>
                     <DialogDescription>
