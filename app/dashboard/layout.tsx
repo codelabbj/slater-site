@@ -19,6 +19,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { settingsApi } from "@/lib/api-client"
+import { Footer } from "@/components/footer"
 
 const coreNavigation = [
   { name: "Accueil", href: "/dashboard", icon: Home },
@@ -94,164 +95,87 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const userInitials = `${user.first_name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase()
 
   return (
-    <div className="relative flex-1 flex flex-col bg-background">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary/15 via-primary/8 to-transparent blur-3xl" />
-
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-transparent">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="mt-3 sm:mt-4 mb-3 sm:mb-4 rounded-2xl glass-panel shadow-lg">
-          {/* Top row with logo and user menu */}
-            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
-              <div className="flex items-center gap-3 sm:gap-4">
-              <Link href="/dashboard" className="flex items-center gap-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 ring-1 ring-primary/30 glow-primary overflow-hidden">
-                <Image
-                      src="/Slater-logo.png"
-                      alt="Slater Logo"
-                      width={48}
-                      height={16}
-                      className="h-8 w-auto object-contain"
-                  priority
-                />
-                  </div>
-                  <div className="hidden sm:flex flex-col leading-tight">
-                    <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Slater</span>
-                    <span className="text-sm font-semibold text-foreground">Espace client</span>
-                  </div>
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      {/* Header - Fixed at top */}
+      <header className="flex-shrink-0 z-50 px-2 sm:px-4 pt-2 sm:pt-4">
+        <div className="relative isolate max-w-md mx-auto">
+          <div className="absolute inset-0 -z-10 rounded-xl sm:rounded-2xl blur-2xl opacity-50" style={{ background: "radial-gradient(80% 60% at 50% 100%, rgba(50, 251, 255, 0.15), transparent 60%)" }} />
+          <div className="rounded-xl sm:rounded-2xl bg-gradient-to-b from-white/80 via-white/90 to-white/60 dark:from-white/10 dark:via-white/8 dark:to-white/5 border border-border/60 shadow-lg">
+            <div className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3">
+              {/* Logo */}
+              <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3">
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-primary/15 overflow-hidden">
+                  <Image
+                    src="/Slater-logo.png"
+                    alt="Slater Logo"
+                    width={40}
+                    height={14}
+                    className="h-5 w-auto sm:h-7 object-contain"
+                    priority
+                  />
+                </div>
+                <span className="text-base sm:text-lg font-bold text-foreground">Slater</span>
               </Link>
-            </div>
 
-              {/* Mobile: Show "Slater" title in center, Desktop: Theme toggle, notifications, and User menu */}
+              {/* Right side actions */}
               <div className="flex items-center gap-1 sm:gap-2">
-                {/* Mobile: Slater title in center */}
-                <div className="sm:hidden absolute left-1/2 transform -translate-x-1/2 flex flex-col leading-tight">
-                  <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Slater</span>
-                  <span className="text-sm font-semibold text-foreground">Espace client</span>
-                </div>
-
-                {/* Desktop: Theme toggle and notifications */}
-                <div className="hidden sm:flex items-center gap-1 sm:gap-2">
-                  <ThemeToggle />
-                  <Button asChild variant="ghost" className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full glow-primary">
-                    <Link href="/notifications" className="flex items-center justify-center">
-                      <Bell className="h-4 w-4" />
-                      <span className="sr-only">Notifications</span>
-                    </Link>
-                  </Button>
-                </div>
-
-
-              <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="relative h-12 w-12 sm:h-14 sm:w-14 p-0 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 border border-primary/30 shadow-lg shadow-primary/20 glow-primary hover:shadow-primary/30 hover:scale-105 transition-all duration-200"
-                    >
-                      <div className="relative flex items-center justify-center w-full h-full">
-                        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-primary/40 ring-offset-1 ring-offset-background">
-                          <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-sm sm:text-base font-bold">
-                            {userInitials}
-                          </AvatarFallback>
-                  </Avatar>
-                      </div>
-                </Button>
-              </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-64 p-0 glass-panel border-primary/20 shadow-2xl shadow-primary/10 rounded-2xl overflow-hidden"
-                    align="end"
-                    forceMount
-                    sideOffset={8}
-                  >
-                    {/* Profile Header */}
-                    <div className="bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 p-4 border-b border-primary/20">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 ring-2 ring-primary/30">
-                          <AvatarFallback className="bg-primary text-primary-foreground font-bold text-base">
-                            {userInitials}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-foreground text-sm truncate">
-                      {user.first_name} {user.last_name}
-                    </p>
-                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Menu Items */}
-                    <div className="p-2">
-                      <DropdownMenuItem asChild className="rounded-xl px-3 py-3 hover:bg-primary/10 focus:bg-primary/10 transition-colors">
-                        <Link href="/dashboard/profile" className="flex items-center gap-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary">
-                            <User className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <span className="font-medium">Mon Profil</span>
-                            <p className="text-xs text-muted-foreground">Gérer mes informations</p>
-                  </div>
+                <ThemeToggle />
+                <Button asChild variant="ghost" size="icon" className="relative rounded-lg h-8 w-8 sm:h-10 sm:w-10">
+                  <Link href="/notifications">
+                    <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Link>
-                </DropdownMenuItem>
-
-                      {/* Mobile: Theme toggle and notifications in dropdown */}
-                      <div className="sm:hidden">
-                        <DropdownMenuSeparator className="my-2" />
-                        <DropdownMenuItem asChild className="rounded-xl px-3 py-3 hover:bg-primary/10 focus:bg-primary/10 transition-colors">
-                          <Link href="/notifications" className="flex items-center gap-3">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary">
-                              <Bell className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <span className="font-medium">Notifications</span>
-                              <p className="text-xs text-muted-foreground">Voir mes notifications</p>
-                            </div>
-                          </Link>
-                        </DropdownMenuItem>
-
-                        <div className="px-3 py-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Thème</span>
-                            <ThemeToggle />
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">Changer le thème sombre/clair</p>
-                        </div>
-
-                        <DropdownMenuSeparator className="my-2" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-lg p-0">
+                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-xs sm:text-sm">
+                          {userInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" sideOffset={8}>
+                    <DropdownMenuLabel className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                          {userInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{user.first_name} {user.last_name}</span>
+                        <span className="text-xs text-muted-foreground">{user.email}</span>
                       </div>
-
-                      {/* Desktop: Separator only */}
-                      <div className="hidden sm:block">
-                        <DropdownMenuSeparator className="my-2" />
-                      </div>
-
-                      <DropdownMenuItem
-                        onClick={logout}
-                        className="rounded-xl px-3 py-3 hover:bg-destructive/10 focus:bg-destructive/10 text-destructive focus:text-destructive transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-destructive/15 text-destructive">
-                            <LogOut className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <span className="font-medium">Déconnexion</span>
-                            <p className="text-xs text-muted-foreground">Se déconnecter du compte</p>
-                          </div>
-                        </div>
-                </DropdownMenuItem>
-                    </div>
-              </DropdownMenuContent>
-              </DropdownMenu>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/profile" className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span>Mon Profil</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/notifications" className="flex items-center gap-2">
+                        <Bell className="h-4 w-4" />
+                        <span>Notifications</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      <span>Déconnexion</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-          </div>
-
           </div>
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="container mx-auto px-3 sm:px-4 pb-24 lg:pb-10">
-        <div className="relative isolate">
+      {/* Main content - Scrollable */}
+      <main className="flex-1 overflow-y-auto container mx-auto px-3 sm:px-4 py-4">
+        <div className="relative isolate max-w-md mx-auto">
           <div className="absolute inset-0 -z-10 rounded-3xl blur-3xl opacity-40" style={{ background: "radial-gradient(80% 65% at 50% 0%, rgba(50, 251, 255, 0.20), transparent 60%)" }} />
           <div className="rounded-3xl bg-gradient-to-b from-white/70 via-white/80 to-white/40 dark:from-white/5 dark:via-white/5 dark:to-white/0 border border-border/70 shadow-[0_20px_60px_-30px_rgba(5,12,22,0.45)] p-3 sm:p-5">
             {children}
@@ -259,6 +183,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </main>
 
+      {/* Footer - Fixed at bottom */}
+      <Footer />
     </div>
   )
 }

@@ -475,11 +475,9 @@ export default function DepositPage() {
       </Card>
 
       {/* Current Step */}
-      <Card className="glass-panel rounded-2xl sm:rounded-3xl min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]">
-        <CardContent className="p-5 sm:p-6">
-          {renderCurrentStep()}
-        </CardContent>
-      </Card>
+      <div className="min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]">
+        {renderCurrentStep()}
+      </div>
 
       {/* Navigation - Show Previous button for steps 2-5 */}
       {currentStep > 1 && currentStep <= 5 && (

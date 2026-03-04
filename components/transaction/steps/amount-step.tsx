@@ -1,13 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Youtube } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { formatPhoneNumberForDisplay } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -86,11 +83,9 @@ export function AmountStep({
 
   if (!selectedPlatform || !selectedBetId || !selectedNetwork || !selectedPhone) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Veuillez compléter les étapes précédentes</p>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-12">
+        <p className="text-xs text-muted-foreground">Veuillez compléter les étapes précédentes</p>
+      </div>
     )
   }
 
@@ -98,61 +93,41 @@ export function AmountStep({
   const maxAmount = type === "deposit" ? selectedPlatform.max_deposit : selectedPlatform.max_win
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-3">
       {/* Transaction Summary */}
-      <Card className="overflow-hidden">
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-lg sm:text-xl">Résumé de la transaction</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+      <div className="rounded-lg border border-border bg-card p-3">
+        <h3 className="text-sm font-semibold mb-2">Résumé</h3>
+        <div className="space-y-2 text-xs">
           <div className="flex justify-between items-center gap-2">
-            <span className="text-xs sm:text-sm text-muted-foreground">Type</span>
-            <Badge variant={type === "deposit" ? "default" : "secondary"} className="text-xs sm:text-sm">
+            <span className="text-muted-foreground">Type</span>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${type === "deposit" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
               {type === "deposit" ? "Dépôt" : "Retrait"}
-            </Badge>
+            </span>
           </div>
 
-          <Separator />
+          <div className="h-px bg-border" />
 
           <div className="flex justify-between items-center gap-2">
-            <span className="text-xs sm:text-sm text-muted-foreground">Plateforme</span>
-            <span className="font-medium text-xs sm:text-sm text-right break-words">{selectedPlatform.name}</span>
-          </div>
-
-          {selectedPlatform.city && (
-            <div className="flex justify-between items-center gap-2">
-              <span className="text-xs sm:text-sm text-muted-foreground">Ville</span>
-              <span className="font-medium text-xs sm:text-sm text-right break-words">
-                {selectedPlatform.city}
-              </span>
-            </div>
-          )}
-
-          {selectedPlatform.street && (
-            <div className="flex justify-between items-center gap-2">
-              <span className="text-xs sm:text-sm text-muted-foreground">Rue</span>
-              <span className="font-medium text-xs sm:text-sm text-right break-words">
-                {selectedPlatform.street}
-              </span>
-            </div>
-          )}
-
-          <div className="flex justify-between items-center gap-2">
-            <span className="text-xs sm:text-sm text-muted-foreground">ID de pari</span>
-            <span className="font-medium text-xs sm:text-sm text-right break-all">{selectedBetId.user_app_id}</span>
+            <span className="text-muted-foreground">Plateforme</span>
+            <span className="font-medium text-right break-words">{selectedPlatform.name}</span>
           </div>
 
           <div className="flex justify-between items-center gap-2">
-            <span className="text-xs sm:text-sm text-muted-foreground">Réseau</span>
-            <span className="font-medium text-xs sm:text-sm text-right break-words">{selectedNetwork.public_name}</span>
+            <span className="text-muted-foreground">ID de pari</span>
+            <span className="font-medium text-right break-all">{selectedBetId.user_app_id}</span>
           </div>
 
           <div className="flex justify-between items-center gap-2">
-            <span className="text-xs sm:text-sm text-muted-foreground">Téléphone</span>
-            <span className="font-medium text-xs sm:text-sm text-right break-all">{formatPhoneNumberForDisplay(selectedPhone.phone)}</span>
+            <span className="text-muted-foreground">Réseau</span>
+            <span className="font-medium text-right break-words">{selectedNetwork.public_name}</span>
           </div>
-        </CardContent>
-      </Card>
+
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-muted-foreground">Téléphone</span>
+            <span className="font-medium text-right break-all">{formatPhoneNumberForDisplay(selectedPhone.phone)}</span>
+          </div>
+        </div>
+      </div>
 
       {/* Network Message */}
       {selectedNetwork && (() => {
@@ -163,77 +138,66 @@ export function AmountStep({
         if (!message || message.trim() === "") return null
 
         return (
-          <Card className="overflow-hidden border-primary/20 bg-primary/5">
-            <CardContent className="p-4 sm:p-6">
-              <p className="text-sm sm:text-base text-foreground whitespace-pre-wrap break-words">
-                {message}
-              </p>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+            <p className="text-xs text-foreground whitespace-pre-wrap break-words">
+              {message}
+            </p>
+          </div>
         )
       })()}
 
       {/* Amount Input */}
-      <Card className="overflow-hidden">
-        <CardHeader className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <CardTitle className="text-lg sm:text-xl">Montant de la transaction</CardTitle>
+      <div className="rounded-lg border border-border bg-card p-3">
+        <h3 className="text-sm font-semibold mb-2">Montant</h3>
+        <div className="space-y-2">
+          <div>
+            <Input
+              id="amount"
+              type="number"
+              value={amount || ""}
+              onChange={(e) => handleAmountChange(e.target.value)}
+              placeholder="Entrez le montant"
+              className={`h-9 text-sm ${errors.amount ? "border-red-500" : ""}`}
+            />
+            {errors.amount && (
+              <p className="text-[10px] text-red-500 mt-1 break-words">{errors.amount}</p>
+            )}
           </div>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
-          <div className="space-y-3 sm:space-y-4">
-            <div>
-              <Input
-                id="amount"
-                type="number"
-                value={amount || ""}
-                onChange={(e) => handleAmountChange(e.target.value)}
-                placeholder="Entrez le montant"
-                className={`h-11 sm:h-10 text-base sm:text-sm ${errors.amount ? "border-red-500" : ""}`}
-              />
-              {errors.amount && (
-                <p className="text-xs sm:text-sm text-red-500 mt-1 break-words">{errors.amount}</p>
-              )}
+
+          {amount > 0 && (
+            <div className="p-2 bg-muted rounded">
+              <p className="text-[10px] text-muted-foreground">Montant saisi:</p>
+              <p className="text-sm font-semibold break-words">
+                {amount.toLocaleString("fr-FR", {
+                  style: "currency",
+                  currency: "XOF",
+                  minimumFractionDigits: 0,
+                })}
+              </p>
             </div>
+          )}
 
-            {amount > 0 && (
-              <div className="p-3 bg-muted ">
-                <p className="text-xs sm:text-sm text-muted-foreground">Montant saisi:</p>
-                <p className="text-base sm:text-lg font-semibold break-words">
-                  {amount.toLocaleString("fr-FR", {
-                    style: "currency",
-                    currency: "XOF",
-                    minimumFractionDigits: 0,
-                  })}
-                </p>
-              </div>
-            )}
-
-            {type === "deposit" && selectedPlatform?.deposit_tuto_link && (
-              <div className="pt-2">
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full sm:w-auto h-10 text-sm sm:text-base border-primary/20 hover:bg-primary/5"
-                >
-                  <a href={selectedPlatform.deposit_tuto_link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-                    <Youtube className="h-4 w-4 text-red-500" />
-                    Comment déposer ?
-                  </a>
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          {type === "deposit" && selectedPlatform?.deposit_tuto_link && (
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="w-full border-primary/20 hover:bg-primary/5"
+            >
+              <a href={selectedPlatform.deposit_tuto_link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5">
+                <Youtube className="h-3.5 w-3.5 text-red-500" />
+                <span className="text-xs">Comment déposer ?</span>
+              </a>
+            </Button>
+          )}
+        </div>
+      </div>
 
       {/* Withdrawal Code (only for withdrawals) */}
       {type === "withdrawal" && (
-        <Card className="overflow-hidden">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Code de retrait</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
+        <div className="rounded-lg border border-border bg-card p-3">
+          <h3 className="text-sm font-semibold mb-2">Code de retrait</h3>
+          <div className="space-y-2">
             <div>
               <Input
                 id="withdriwalCode"
@@ -241,24 +205,25 @@ export function AmountStep({
                 value={withdriwalCode}
                 onChange={(e) => handleWithdriwalCodeChange(e.target.value)}
                 placeholder="Entrez votre code de retrait"
-                className={`h-11 sm:h-10 text-base sm:text-sm ${errors.withdriwalCode ? "border-red-500" : ""}`}
+                className={`h-9 text-sm ${errors.withdriwalCode ? "border-red-500" : ""}`}
               />
               {errors.withdriwalCode && (
-                <p className="text-xs sm:text-sm text-red-500 mt-1 break-words">{errors.withdriwalCode}</p>
+                <p className="text-[10px] text-red-500 mt-1 break-words">{errors.withdriwalCode}</p>
               )}
             </div>
 
             {selectedPlatform && (
-              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <div className="flex flex-col gap-1.5">
                 {selectedPlatform.withdrawal_tuto_link && (
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full sm:w-auto flex-1 h-10 text-sm sm:text-base border-primary/20 hover:bg-primary/5"
+                    size="sm"
+                    className="w-full border-primary/20 hover:bg-primary/5"
                   >
-                    <a href={selectedPlatform.withdrawal_tuto_link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-                      <Youtube className="h-4 w-4 text-red-500" />
-                      Comment retirer ?
+                    <a href={selectedPlatform.withdrawal_tuto_link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5">
+                      <Youtube className="h-3.5 w-3.5 text-red-500" />
+                      <span className="text-xs">Comment retirer ?</span>
                     </a>
                   </Button>
                 )}
@@ -266,31 +231,32 @@ export function AmountStep({
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full sm:w-auto flex-1 h-10 text-sm sm:text-base border-primary/20 hover:bg-primary/5"
+                    size="sm"
+                    className="w-full border-primary/20 hover:bg-primary/5"
                   >
-                    <a href={selectedPlatform.why_withdrawal_fail} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-                      <Youtube className="h-4 w-4 text-red-500" />
-                      Pourquoi le retrait échoue ?
+                    <a href={selectedPlatform.why_withdrawal_fail} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5">
+                      <Youtube className="h-3.5 w-3.5 text-red-500" />
+                      <span className="text-xs">Pourquoi le retrait échoue ?</span>
                     </a>
                   </Button>
                 )}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Terms and Conditions Checkbox */}
-      <div className="flex items-start space-x-3 p-4 bg-primary/5 rounded-xl border border-primary/10">
+      <div className="flex items-start space-x-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
         <Checkbox
           id="terms"
           checked={isAccepted}
           onCheckedChange={(checked) => setIsAccepted(checked === true)}
-          className="mt-1"
+          className="mt-0.5"
         />
         <label
           htmlFor="terms"
-          className="text-sm leading-relaxed text-muted-foreground cursor-pointer select-none"
+          className="text-xs leading-relaxed text-muted-foreground cursor-pointer select-none"
         >
           En cliquant sur Suivant, vous acceptez nos{" "}
           <Link
@@ -305,11 +271,12 @@ export function AmountStep({
       </div>
 
       {/* Continue Button */}
-      <div className="flex justify-end pt-2">
+      <div className="flex justify-end pt-1">
         <Button
           onClick={onNext}
           disabled={!isFormValid()}
-          className="w-full sm:w-auto min-w-[120px] h-11 sm:h-10 text-sm sm:text-base font-semibold shadow-lg shadow-primary/20"
+          size="sm"
+          className="w-full sm:w-auto min-w-[100px] font-semibold"
         >
           Continuer
         </Button>

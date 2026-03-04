@@ -6,7 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  output: 'export',
+  // output: 'export', // Désactivé pour le dev - réactiver pour le build
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
   distDir: 'out',

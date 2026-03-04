@@ -8,7 +8,6 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "react-hot-toast"
 // import { ErudaLoader } from "@/components/eruda-loader"
 import { Suspense } from "react"
-import { Footer } from "@/components/footer"
 import { NotificationInitializer } from "@/components/notification-initializer"
 
 
@@ -50,7 +49,6 @@ export default function RootLayout({
                 {/* <DevTools /> */}
               </AuthProvider>
             </div>
-            <Footer />
           </div>
         </ThemeProvider>
       </body>
