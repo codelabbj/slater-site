@@ -177,7 +177,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="flex-1 overflow-y-auto container mx-auto px-3 sm:px-4 py-4">
         <div className="relative isolate max-w-md mx-auto">
           <div className="absolute inset-0 -z-10 rounded-3xl blur-3xl opacity-40" style={{ background: "radial-gradient(80% 65% at 50% 0%, rgba(50, 251, 255, 0.20), transparent 60%)" }} />
-          <div className="rounded-3xl bg-gradient-to-b from-white/70 via-white/80 to-white/40 dark:from-white/5 dark:via-white/5 dark:to-white/0 border border-border/70 shadow-[0_20px_60px_-30px_rgba(5,12,22,0.45)] p-3 sm:p-5">
+          <div className="rounded-3xl bg-gradient-to-br from-background/80 via-background/90 to-background/60 dark:from-background/60 dark:via-background/70 dark:to-background/40 border border-border/50 shadow-lg p-3 sm:p-5 backdrop-blur-sm">
             {children}
           </div>
         </div>

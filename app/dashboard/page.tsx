@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   Popover,
@@ -22,6 +21,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel"
 import TransactionCard from "@/components/ui/transaction-card"
+import { cn } from "@/lib/utils"
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -160,24 +160,32 @@ export default function DashboardPage() {
   }
 
   return (
-    <>
-      <div className="space-y-4 sm:space-y-6">
-        {/* Header Section */}
-        <div className="flex flex-col gap-1 sm:gap-2">
-          <h1 className="text-xl sm:text-3xl font-bold text-foreground">
-            Bonjour, {user?.first_name} 👋
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Voici un aperçu de votre activité
-          </p>
-        </div>
+    <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
+      {/* Header Section */}
+      <div className="relative flex flex-col gap-1 sm:gap-2">
+        {/* Dotted pattern background */}
+        <div className="absolute inset-0 -z-10 opacity-30" 
+          style={{ 
+            backgroundImage: `radial-gradient(circle, currentColor 1px, transparent 1px)`,
+            backgroundSize: "16px 16px"
+          }} 
+        />
+        {/* Animated overlay */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-shimmer" />
+        
+        <h1 className="text-xl sm:text-3xl font-bold text-foreground">
+          Bonjour, {user?.first_name} 👋
+        </h1>
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Voici un aperçu de votre activité
+        </p>
+      </div>
 
-        {/* Advertisement Banner - Right after greeting */}
-        <div className="relative isolate ">
-          <div className="absolute inset-0 -z-10 rounded-2xl blur-xl opacity-40" style={{ background: "radial-gradient(80% 60% at 50% 100%, rgba(50, 251, 255, 0.2), transparent 60%)" }} />
-          <div className="rounded-2xl bg-gradient-to-b from-white/90 via-white/95 to-white/80 dark:from-white/10 dark:via-white/8 dark:to-white/5 border border-border/60 shadow-lg overflow-hidden">
-            <Card className="border-0 bg-transparent shadow-none py-0">
-              <CardContent className="p-0">
+      {/* Advertisement Banner - Right after greeting */}
+      <div className="relative isolate">
+        <div className="absolute inset-0 -z-10 rounded-2xl blur-xl opacity-40" style={{ background: "radial-gradient(80% 60% at 50% 100%, rgba(50, 251, 255, 0.2), transparent 60%)" }} />
+        <div className="rounded-2xl bg-gradient-to-b from-white/90 via-white/95 to-white/80 dark:from-white/10 dark:via-white/8 dark:to-white/5 border border-border/60 shadow-lg overflow-hidden">
+          <div className="p-0">
                 {isLoadingAd ? (
                   <div className="w-full aspect-[16/9] bg-muted/50 animate-pulse flex items-center justify-center rounded-xl">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -241,8 +249,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
           </div>
         </div>
 
@@ -426,10 +433,9 @@ export default function DashboardPage() {
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Chat Popover */}
-      <Popover open={isChatPopoverOpen} onOpenChange={setIsChatPopoverOpen}>
+        {/* Chat Popover */}
+        <Popover open={isChatPopoverOpen} onOpenChange={setIsChatPopoverOpen}>
         <PopoverTrigger asChild>
           <Button
             className="fixed right-4 bottom-24 h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 ring-4 ring-primary/20"
@@ -472,6 +478,6 @@ export default function DashboardPage() {
           </div>
         </PopoverContent>
       </Popover>
-    </>
+    </div>
   )
 }
