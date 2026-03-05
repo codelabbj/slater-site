@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -134,14 +133,12 @@ export default function TransactionHistoryPage() {
         </div>
 
         {/* Filters */}
-        <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
-              Filtres
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
+        <div className="border rounded-lg p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 text-base sm:text-lg mb-4">
+            <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+            Filtres
+          </h2>
+          <div className="p-0">
             <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               <div className="relative sm:col-span-2 lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -185,10 +182,9 @@ export default function TransactionHistoryPage() {
         </Card>
 
         {/* Transactions List */}
-        <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base sm:text-lg">
-              <span>Transactions ({totalCount})</span>
+        <div className="border rounded-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 text-base sm:text-lg">
+            <span>Transactions ({totalCount})</span>
               <Button 
                 variant="outline" 
                 size="sm"
@@ -252,8 +248,7 @@ export default function TransactionHistoryPage() {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
       </div>
     </div>
   )

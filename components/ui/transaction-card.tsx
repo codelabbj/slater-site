@@ -1,7 +1,6 @@
 "use client"
 
 import {Network, Transaction} from "@/lib/types";
-import {Card, CardContent} from "@/components/ui/card";
 import {cn, formatPhoneNumberForDisplay} from "@/lib/utils";
 import {ArrowDownToLine, ArrowUpFromLine} from "lucide-react";
 import {format} from "date-fns";
@@ -49,16 +48,16 @@ export default function TransactionCard({transaction, network}: TransactionCardP
 
     return (
         <>
-        <Card
+        <div
             key={transaction.id}
             onClick={() => setIsOpen(true)}
             className={cn(
-                "glass-panel hover:shadow-lg transition-all duration-200 border-primary/10  sm:rounded-3xl",
+                "border rounded-lg p-4 hover:shadow-md transition-all duration-200",
                 "relative overflow-hidden cursor-pointer"
             )}
         >
             <div className="absolute inset-x-0 top-0 h-1.5" style={{ background: isDeposit ? "linear-gradient(90deg, rgba(50,251,255,0.35), rgba(23,161,255,0.25))" : "linear-gradient(90deg, rgba(15,34,55,0.35), rgba(50,251,255,0.15))" }} />
-            <CardContent className="p-3.5 sm:p-4">
+            <div className="p-0">
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0">
                         <div
@@ -99,8 +98,8 @@ export default function TransactionCard({transaction, network}: TransactionCardP
                         </p>
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className="max-w-md m-2">
