@@ -58,7 +58,7 @@ export function PlatformStep({ selectedPlatform, onSelect, onNext, type }: Platf
         </p>
       </div>
 
-      <div className="grid gap-2.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2.5 grid-cols-1 sm:grid-cols-2">
         {platforms.map((platform) => (
           <div
             key={platform.id}

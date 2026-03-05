@@ -247,116 +247,133 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <Card className="bg-gradient-to-br from-background to-muted/20 border-muted">
-          <CardContent className="p-2">
-            <div className="flex items-center justify-around gap-2">
-              <Link href="/dashboard/deposit" className="group flex flex-col items-center gap-1 flex-1">
-                <div className="p-2 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all">
-                  <ArrowDownToLine className="h-5 w-5" />
-                </div>
-                <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Dépôt</span>
-              </Link>
+        <div className="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-background via-muted/20 to-background border backdrop-blur-sm shadow-lg">
+          {/* Decorative gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50" />
+          
+          {/* Decorative corner accent */}
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 bg-primary" />
+          
+          <div className="relative flex items-center justify-around gap-3">
+            <Link href="/dashboard/deposit" className="group flex flex-col items-center gap-2 flex-1">
+              <div className="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg ring-1 ring-blue-400/20 group-hover:shadow-blue-500/50 group-hover:scale-110 transition-all duration-300">
+                <ArrowDownToLine className="h-5 w-5" />
+                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-md bg-blue-400" />
+              </div>
+              <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">Dépôt</span>
+            </Link>
 
-              <div className="h-8 w-px bg-border" />
+            <div className="h-10 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
 
-              <Link href="/dashboard/withdrawal" className="group flex flex-col items-center gap-1 flex-1">
-                <div className="p-2 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all">
-                  <ArrowUpFromLine className="h-5 w-5" />
-                </div>
-                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Retrait</span>
-              </Link>
+            <Link href="/dashboard/withdrawal" className="group flex flex-col items-center gap-2 flex-1">
+              <div className="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg ring-1 ring-emerald-400/20 group-hover:shadow-emerald-500/50 group-hover:scale-110 transition-all duration-300">
+                <ArrowUpFromLine className="h-5 w-5" />
+                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-md bg-emerald-400" />
+              </div>
+              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">Retrait</span>
+            </Link>
 
-              <div className="h-8 w-px bg-border" />
+            <div className="h-10 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
 
-              <Link href="/dashboard/coupon" className="group flex flex-col items-center gap-1 flex-1">
-                <div className="p-2 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all">
-                  <Ticket className="h-5 w-5" />
-                </div>
-                <span className="text-xs font-medium text-amber-700 dark:text-amber-300">Coupons</span>
-              </Link>
+            <Link href="/dashboard/coupon" className="group flex flex-col items-center gap-2 flex-1">
+              <div className="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg ring-1 ring-amber-400/20 group-hover:shadow-amber-500/50 group-hover:scale-110 transition-all duration-300">
+                <Ticket className="h-5 w-5" />
+                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-md bg-amber-400" />
+              </div>
+              <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">Coupons</span>
+            </Link>
 
-              {referralBonusEnabled && (
-                <>
-                  <div className="h-8 w-px bg-border" />
-                  
-                  <Link href="/dashboard/bonus" className="group flex flex-col items-center gap-1 flex-1">
-                    <div className="p-2 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all">
-                      <Gift className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-medium text-purple-700 dark:text-purple-300">Bonus</span>
-                  </Link>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            {referralBonusEnabled && (
+              <>
+                <div className="h-10 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
+                
+                <Link href="/dashboard/bonus" className="group flex flex-col items-center gap-2 flex-1">
+                  <div className="relative p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg ring-1 ring-purple-400/20 group-hover:shadow-purple-500/50 group-hover:scale-110 transition-all duration-300">
+                    <Gift className="h-5 w-5" />
+                    <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-md bg-purple-400" />
+                  </div>
+                  <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">Bonus</span>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
 
         {/* Stats Cards */}
         {referralBonusEnabled && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-primary/20">
-                    <Copy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Code de parrainage</p>
-                    <p className="text-xs sm:text-sm font-mono font-semibold truncate">
-                      {userProfile?.referral_code || user?.referral_code || "N/A"}
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={copyReferralCode}>
-                    {copiedReferralCode ? (
-                      <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-                    ) : (
-                      <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
-                    )}
-                  </Button>
+            <div className="group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-primary/10 via-primary/5 to-background border backdrop-blur-sm hover:shadow-lg transition-all duration-300 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-20 bg-primary" />
+              
+              <div className="relative flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg ring-1 ring-primary/20">
+                  <Copy className="h-5 w-5" />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground font-medium mb-0.5">Code de parrainage</p>
+                  <p className="text-sm font-mono font-bold truncate">
+                    {userProfile?.referral_code || user?.referral_code || "N/A"}
+                  </p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 rounded-xl hover:bg-primary/10" 
+                  onClick={copyReferralCode}
+                >
+                  {copiedReferralCode ? (
+                    <Check className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
 
-            <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 border-amber-200 dark:border-amber-800">
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-amber-500/20">
-                    <Coins className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Bonus disponible</p>
-                    <p className="text-sm sm:text-lg font-bold text-amber-700 dark:text-amber-300">
-                      {(userProfile?.bonus_available || user?.bonus_available || 0).toLocaleString("fr-FR", {
-                        style: "currency",
-                        currency: "XOF",
-                        minimumFractionDigits: 0,
-                      })}
-                    </p>
-                  </div>
+            <div className="group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-amber-50/80 via-amber-50/50 to-background dark:from-amber-950/20 dark:via-amber-950/10 dark:to-background border border-amber-200/50 dark:border-amber-800/30 backdrop-blur-sm hover:shadow-lg hover:shadow-amber-200/50 dark:hover:shadow-amber-900/30 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-20 bg-amber-400" />
+              
+              <div className="relative flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg ring-1 ring-amber-400/20">
+                  <Coins className="h-5 w-5" />
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium mb-0.5">Bonus disponible</p>
+                  <p className="text-lg font-bold text-amber-700 dark:text-amber-300">
+                    {(userProfile?.bonus_available || user?.bonus_available || 0).toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "XOF",
+                      minimumFractionDigits: 0,
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Recent Transactions */}
         <div>
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-base sm:text-xl font-semibold flex items-center gap-1.5 sm:gap-2">
-              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              Récents
+            <h2 className="text-base sm:text-xl font-bold flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              </div>
+              Transactions
             </h2>
-            <div className="flex gap-1.5 sm:gap-2">
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 sm:h-9"
+                className="h-8 sm:h-9 rounded-xl"
                 onClick={fetchRecentTransactions}
                 disabled={isLoadingTransactions}
               >
                 <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isLoadingTransactions ? 'animate-spin' : ''}`} />
               </Button>
-              <Button asChild variant="ghost" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm">
+              <Button asChild variant="ghost" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm rounded-xl hover:bg-primary/10">
                 <Link href="/dashboard/history">
                   Tout voir
                   <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
@@ -366,17 +383,22 @@ export default function DashboardPage() {
           </div>
 
           {isLoadingTransactions ? (
-            <div className="flex items-center justify-center py-8 sm:py-12">
-              <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-primary" />
+            <div className="flex items-center justify-center py-12 rounded-2xl border bg-gradient-to-br from-background to-muted/20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : recentTransactions.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
-                <Wallet className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mb-3 sm:mb-4" />
-                <p className="text-sm sm:text-base font-medium">Aucune transaction</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Vos transactions apparaîtront ici</p>
-              </CardContent>
-            </Card>
+            <div className="relative overflow-hidden rounded-2xl p-8 sm:p-12 bg-gradient-to-br from-background via-muted/20 to-background border backdrop-blur-sm">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50" />
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 bg-primary" />
+              
+              <div className="relative flex flex-col items-center justify-center text-center">
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 mb-4">
+                  <Wallet className="h-12 w-12 text-muted-foreground" />
+                </div>
+                <p className="text-base font-semibold mb-1">Aucune transaction</p>
+                <p className="text-sm text-muted-foreground">Vos transactions apparaîtront ici</p>
+              </div>
+            </div>
           ) : (
             <div className="space-y-2 sm:space-y-3">
               {recentTransactions.map((transaction) => {
@@ -388,62 +410,64 @@ export default function DashboardPage() {
         </div>
 
         {/* Download App Card */}
-        <Card className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center justify-between gap-3 sm:gap-4">
-              <div>
-                <h3 className="text-sm sm:font-semibold font-medium">Télécharger l&apos;application</h3>
-                <p className="text-xs sm:text-sm opacity-90">Version 1.0.2</p>
-              </div>
-              <Button asChild variant="secondary" className="shrink-0 h-8 sm:h-10 text-xs sm:text-sm">
-                <a href="https://slaterci-mobile-app.vercel.app/releases/app-v1.0.2.apk" target="_blank" rel="noopener noreferrer">
-                  Télécharger
-                </a>
-              </Button>
+        <div className="group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-white" />
+          
+          <div className="relative flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm sm:text-base font-bold mb-1">Télécharger l&apos;application</h3>
+              <p className="text-xs opacity-90">Version 1.0.2</p>
             </div>
-          </CardContent>
-        </Card>
+            <Button asChild variant="secondary" className="shrink-0 h-9 sm:h-10 text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all">
+              <a href="https://slaterci-mobile-app.vercel.app/releases/app-v1.0.2.apk" target="_blank" rel="noopener noreferrer">
+                Télécharger
+              </a>
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Chat Popover */}
       <Popover open={isChatPopoverOpen} onOpenChange={setIsChatPopoverOpen}>
         <PopoverTrigger asChild>
           <Button
-            className="fixed right-4 bottom-24 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all"
+            className="fixed right-4 bottom-24 h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 ring-4 ring-primary/20"
             aria-label="Ouvrir le chat"
           >
             <Send className="h-5 w-5" />
+            <div className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity blur-md bg-primary" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-56 p-2 mb-2 mr-2" align="end" side="top">
+        <PopoverContent className="w-56 p-2 mb-2 mr-2 rounded-2xl border-2 shadow-xl" align="end" side="top">
           <div className="space-y-1">
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 h-auto py-3"
+              className="w-full justify-start gap-3 h-auto py-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-950/20 transition-all"
               onClick={() => {
                 const whatsappNumber = settings?.whatsapp_phone || "0544360901"
                 window.open(`https://wa.me/${whatsappNumber}`, "_blank")
                 setIsChatPopoverOpen(false)
               }}
             >
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#25D366] text-white">
+              <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white shadow-md">
                 <Send className="h-4 w-4" />
               </div>
-              <span className="font-medium text-sm">WhatsApp</span>
+              <span className="font-semibold text-sm">WhatsApp</span>
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 h-auto py-3"
+              className="w-full justify-start gap-3 h-auto py-3 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all"
               onClick={() => {
                 const telegramUsername = settings?.telegram
                 window.open(`${telegramUsername}`, "_blank")
                 setIsChatPopoverOpen(false)
               }}
             >
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white">
+              <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
                 <Send className="h-4 w-4" />
               </div>
-              <span className="font-medium text-sm">Telegram</span>
+              <span className="font-semibold text-sm">Telegram</span>
             </Button>
           </div>
         </PopoverContent>

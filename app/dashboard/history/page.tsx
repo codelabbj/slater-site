@@ -110,107 +110,99 @@ export default function TransactionHistoryPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+      <div className="space-y-3">
         {/* Back Button */}
         <div className="flex items-center justify-start">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => router.push("/dashboard")}
-            className="flex items-center gap-2 h-10 px-4  hover:bg-primary/10 text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-2 h-8 px-3 hover:bg-primary/10 text-muted-foreground hover:text-foreground text-xs"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Retour au tableau de bord
+            <ArrowLeft className="h-3 w-3" />
+            Retour
           </Button>
         </div>
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Historique des transactions</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-            Consultez toutes vos transactions de dépôt et de retrait
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight">Historique</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Vos transactions
           </p>
         </div>
 
         {/* Filters */}
-        <div className="border rounded-lg p-4 sm:p-6">
-          <h2 className="flex items-center gap-2 text-base sm:text-lg mb-4">
-            <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+        <div className="border rounded-lg p-3 sm:p-4">
+          <h2 className="flex items-center gap-2 text-sm mb-3">
+            <Filter className="h-3 w-3" />
             Filtres
           </h2>
-          <div className="p-0">
-            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="relative sm:col-span-2 lg:col-span-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Rechercher..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-10 h-10 sm:h-9 text-base sm:text-sm"
-                />
-              </div>
-              
-              <Select value={typeFilter} onValueChange={(value) => handleFilterChange("type", value)}>
-                <SelectTrigger className="h-10 sm:h-9 text-base sm:text-sm">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les types</SelectItem>
-                  <SelectItem value="deposit">Dépôts</SelectItem>
-                  <SelectItem value="withdrawal">Retraits</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Select value={statusFilter} onValueChange={(value) => handleFilterChange("status", value)}>
-                <SelectTrigger className="h-10 sm:h-9 text-base sm:text-sm">
-                  <SelectValue placeholder="Statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="accept">Accepté</SelectItem>
-                  <SelectItem value="reject">Rejeté</SelectItem>
-                  <SelectItem value="timeout">Expiré</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button variant="outline" onClick={clearFilters} className="h-10 sm:h-9 text-sm">
-                Effacer
-              </Button>
+          <div className="grid gap-2 grid-cols-2 sm:grid-cols-4">
+            <div className="relative col-span-2 sm:col-span-1">
+              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-muted-foreground h-3 w-3" />
+              <Input
+                placeholder="Rechercher..."
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pl-8 h-8 text-xs"
+              />
             </div>
-          </CardContent>
-        </Card>
+            
+            <Select value={typeFilter} onValueChange={(value) => handleFilterChange("type", value)}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="deposit">Dépôts</SelectItem>
+                <SelectItem value="withdrawal">Retraits</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={statusFilter} onValueChange={(value) => handleFilterChange("status", value)}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="accept">Accepté</SelectItem>
+                <SelectItem value="reject">Rejeté</SelectItem>
+                <SelectItem value="timeout">Expiré</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Button variant="outline" onClick={clearFilters} className="h-8 text-xs">
+              Effacer
+            </Button>
+          </div>
+        </div>
 
         {/* Transactions List */}
-        <div className="border rounded-lg p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 text-base sm:text-lg">
-            <span>Transactions ({totalCount})</span>
+        <div className="border rounded-lg p-3 sm:p-4">
+          <div className="flex items-center justify-between mb-3 text-sm">
+            <span>{totalCount} transactions</span>
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm"
                 onClick={fetchTransactions}
                 disabled={isLoading}
-                className="h-8 w-8 sm:h-9 sm:w-auto p-0 sm:px-3 self-start sm:self-auto"
+                className="h-7 px-2 text-xs"
               >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline ml-2">Actualiser</span>
+                <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
+          </div>
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin" />
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="h-5 w-5 animate-spin" />
               </div>
             ) : transactions.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Aucune transaction trouvée</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Vos transactions apparaîtront ici une fois effectuées
-                </p>
+              <div className="text-center py-6">
+                <p className="text-xs text-muted-foreground">Aucune transaction</p>
               </div>
             ) : (
-              <div className="space-y-2 sm:space-y-3">
+              <div className="space-y-2">
                 {transactions.map((transaction) => {
                   const network = networks.find(n=> n.id == transaction.network)
                   return(
@@ -222,30 +214,28 @@ export default function TransactionHistoryPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mt-4 sm:mt-6">
-                <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
-                  Page {currentPage} sur {totalPages} ({totalCount} transactions)
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="h-9 text-xs sm:text-sm"
-                  >
-                    Précédent
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="h-9 text-xs sm:text-sm"
-                  >
-                    Suivant
-                  </Button>
-                </div>
+              <div className="flex items-center justify-center gap-2 mt-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="h-7 text-xs px-2"
+                >
+                  Précédent
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  {currentPage}/{totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="h-7 text-xs px-2"
+                >
+                  Suivant
+                </Button>
               </div>
             )}
           </div>

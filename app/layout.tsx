@@ -34,9 +34,28 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="relative min-h-screen flex flex-col overflow-hidden">
+            {/* Enhanced gradient background */}
             <div className="pointer-events-none absolute inset-0 -z-10">
-              <div className="absolute inset-0 opacity-60 blur-3xl" style={{ background: "radial-gradient(120% 60% at 20% 0%, rgba(50, 251, 255, 0.35) 0%, transparent 55%)" }} />
-              <div className="absolute inset-0 opacity-70 blur-[120px]" style={{ background: "radial-gradient(80% 70% at 80% 10%, rgba(23, 161, 255, 0.24) 0%, transparent 55%)" }} />
+              {/* Primary gradient - top left */}
+              <div className="absolute inset-0 opacity-40 blur-3xl" 
+                style={{ background: "radial-gradient(circle at 20% 10%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)" }} 
+              />
+              {/* Secondary gradient - top right */}
+              <div className="absolute inset-0 opacity-35 blur-3xl" 
+                style={{ background: "radial-gradient(circle at 80% 5%, rgba(139, 92, 246, 0.25) 0%, transparent 50%)" }} 
+              />
+              {/* Accent gradient - center */}
+              <div className="absolute inset-0 opacity-30 blur-[100px]" 
+                style={{ background: "radial-gradient(circle at 50% 40%, rgba(16, 185, 129, 0.2) 0%, transparent 60%)" }} 
+              />
+              {/* Bottom gradient */}
+              <div className="absolute inset-0 opacity-25 blur-3xl" 
+                style={{ background: "radial-gradient(circle at 30% 90%, rgba(236, 72, 153, 0.2) 0%, transparent 50%)" }} 
+              />
+              {/* Mesh overlay for texture */}
+              <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
+                style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} 
+              />
             </div>
             <div className="flex-1 flex flex-col relative">
               <AuthProvider>
