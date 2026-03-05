@@ -6,7 +6,6 @@ import { useAuth } from "@/lib/auth-context"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,6 +16,7 @@ import type { User as UserType } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { cn } from "@/lib/utils"
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "Le prénom est requis"),
@@ -171,416 +171,413 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-5xl mx-auto space-y-4">
       {/* Back Button */}
       <div className="flex items-center justify-start">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => router.push("/dashboard")}
-          className="flex items-center gap-2 h-10 px-4  hover:bg-primary/10 text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-2 h-8 px-3 hover:bg-primary/10 text-muted-foreground hover:text-foreground text-xs"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Retour au tableau de bord
+          <ArrowLeft className="h-3 w-3" />
+          Retour
         </Button>
       </div>
 
       {/* Hero Section */}
-      <Card className="border-0 floating-card overflow-hidden  sm:rounded-3xl">
-        <CardContent className="p-5 sm:p-6 relative z-10">
-          <div className="absolute -top-10 right-2 h-28 w-28 rounded-full bg-primary/20 blur-3xl" />
-          <div className="flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold leading-tight flex items-center gap-3">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14  bg-primary/15 text-primary glow-primary">
-                    <User className="h-6 w-6 sm:h-7 sm:w-7" />
-                  </div>
-                  Mon profil
-                </h1>
-                <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
-                  Gérez vos informations personnelles et mettez à jour vos paramètres de sécurité
-                </p>
-              </div>
+      <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-primary/10 via-primary/5 to-background border backdrop-blur-sm shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50" />
+        <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-20 bg-primary" />
+        
+        <div className="relative">
+          <h1 className="text-xl font-bold leading-tight flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg">
+              <User className="h-5 w-5" />
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            Mon profil
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1.5 max-w-md">
+            Gérez vos informations personnelles et sécurisez votre compte
+          </p>
+        </div>
+      </div>
 
       {/* Account Summary */}
-      <Card className="glass-panel border-primary/15  sm:rounded-3xl">
-        <CardContent className="p-5 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-16 h-16 sm:w-20 sm:h-20  bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/20">
-                  <User className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                </div>
+      <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-background via-muted/20 to-background border backdrop-blur-sm shadow-lg">
+        <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-10 bg-primary" />
+        
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/20">
+                <User className="w-7 h-7 text-primary" />
               </div>
-              <div className="space-y-1">
-                <h3 className="text-lg sm:text-xl font-bold text-foreground">
-                  {profile?.first_name} {profile?.last_name}
-                </h3>
-                <p className="text-sm text-muted-foreground">{profile?.email}</p>
-                <p className="text-sm text-muted-foreground">
-                  Membre depuis {profile?.created_at ? format(new Date(profile.created_at), 'MMMM yyyy', { locale: fr }) : ''}
-                </p>
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10  border border-green-500/20">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm font-medium text-green-700">Compte actif</span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10  border border-blue-500/20">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-sm font-medium text-blue-700">Vérifié</span>
-              </div>
+            <div className="space-y-0.5">
+              <h3 className="text-base font-bold text-foreground">
+                {profile?.first_name} {profile?.last_name}
+              </h3>
+              <p className="text-xs text-muted-foreground">{profile?.email}</p>
+              <p className="text-xs text-muted-foreground">
+                Membre depuis {profile?.created_at ? format(new Date(profile.created_at), 'MMMM yyyy', { locale: fr }) : ''}
+              </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+              <span className="text-[10px] font-medium text-green-700 dark:text-green-300">Actif</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              <span className="text-[10px] font-medium text-blue-700 dark:text-blue-300">Vérifié</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Profile Information Card */}
-      <Card className="glass-panel border-primary/15  sm:rounded-3xl">
-        <CardHeader className="p-5 sm:p-6">
-          <CardTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8  bg-primary/15 text-primary">
-              <User className="h-4 w-4" />
+      {/* Profile Information */}
+      <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-background via-muted/20 to-background border backdrop-blur-sm shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50" />
+        <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-10 bg-primary" />
+        
+        <div className="relative mb-4">
+          <h2 className="text-base font-bold flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+              <User className="h-4 w-4 text-primary" />
             </div>
             Informations personnelles
-          </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground mt-2">
-            Modifiez vos informations de profil pour les maintenir à jour
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 sm:p-8 pt-0">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-7">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="first_name" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
-                  👤 Prénom complet
-                </Label>
-                <Input
-                  id="first_name"
-                  type="text"
-                  placeholder="Saisissez votre prénom officiel"
-                  {...register("first_name")}
-                  disabled={isSubmitting}
-                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
-                />
-                {errors.first_name && (
-                  <p className="text-xs sm:text-sm text-destructive font-medium">
-                    {errors.first_name.message}
-                  </p>
-                )}
-              </div>
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Modifiez vos informations de profil
+          </p>
+        </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="last_name" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
-                  👤 Nom de famille
-                </Label>
-                <Input
-                  id="last_name"
-                  type="text"
-                  placeholder="Saisissez votre nom de famille"
-                  {...register("last_name")}
-                  disabled={isSubmitting}
-                  className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
-                />
-                {errors.last_name && (
-                  <p className="text-xs sm:text-sm text-destructive font-medium">
-                    {errors.last_name.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
-                📧 Adresse e-mail
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="first_name" className="text-xs font-medium text-foreground">
+                Prénom
               </Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="votre.adresse.email@exemple.com"
-                {...register("email")}
+                id="first_name"
+                type="text"
+                placeholder="Prénom"
+                {...register("first_name")}
                 disabled={isSubmitting}
-                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                className="h-10 text-xs border-border focus:border-primary bg-background/50 transition-all"
               />
-              {errors.email && (
-                <p className="text-xs sm:text-sm text-destructive font-medium">{errors.email.message}</p>
+              {errors.first_name && (
+                <p className="text-[10px] text-destructive font-medium">
+                  {errors.first_name.message}
+                </p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
-                📱 Numéro de téléphone
+            <div className="space-y-1.5">
+              <Label htmlFor="last_name" className="text-xs font-medium text-foreground">
+                Nom
               </Label>
               <Input
-                id="phone"
-                type="tel"
-                placeholder="+225 XX XX XX XX XX"
-                {...register("phone")}
+                id="last_name"
+                type="text"
+                placeholder="Nom"
+                {...register("last_name")}
                 disabled={isSubmitting}
-                className="h-12 sm:h-11 text-base sm:text-sm border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
+                className="h-10 text-xs border-border focus:border-primary bg-background/50 transition-all"
               />
-              {errors.phone && (
-                <p className="text-xs sm:text-sm text-destructive font-medium">{errors.phone.message}</p>
+              {errors.last_name && (
+                <p className="text-[10px] text-destructive font-medium">
+                  {errors.last_name.message}
+                </p>
               )}
             </div>
+          </div>
 
-            <div className="flex gap-3 pt-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-xs font-medium text-foreground">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="Email"
+              {...register("email")}
+              disabled={isSubmitting}
+              className="h-10 text-xs border-border focus:border-primary bg-background/50 transition-all"
+            />
+            {errors.email && (
+              <p className="text-[10px] text-destructive font-medium">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="phone" className="text-xs font-medium text-foreground">
+              Téléphone
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="Téléphone"
+              {...register("phone")}
+              disabled={isSubmitting}
+              className="h-10 text-xs border-border focus:border-primary bg-background/50 transition-all"
+            />
+            {errors.phone && (
+              <p className="text-[10px] text-destructive font-medium">{errors.phone.message}</p>
+            )}
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              disabled={isSubmitting}
+              className="flex-1 h-10 text-xs rounded-xl"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 h-10 text-xs rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-1.5 h-3 w-3" />
+                  Enregistrer
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
+
+      {/* Change Password */}
+      <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-background via-muted/20 to-background border backdrop-blur-sm shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-400/5 to-transparent opacity-50" />
+        <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-10 bg-amber-400" />
+        
+        <div className="relative mb-4">
+          <h2 className="text-base font-bold flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10">
+              <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            Mot de passe
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Modifiez votre mot de passe
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="old_password" className="text-xs font-medium text-foreground">
+              Ancien mot de passe
+            </Label>
+            <div className="relative">
+              <Input
+                id="old_password"
+                type={showOldPassword ? "text" : "password"}
+                placeholder="Mot de passe actuel"
+                {...registerPassword("old_password")}
+                disabled={isChangingPassword}
+                className="h-10 text-xs pr-10 border-border focus:border-primary bg-background/50 transition-all"
+              />
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => router.back()}
-                disabled={isSubmitting}
-                className="flex-1 sm:flex-initial h-12 sm:h-11 text-sm border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10  "
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-10 w-10 hover:bg-primary/5"
+                onClick={() => setShowOldPassword(!showOldPassword)}
+                disabled={isChangingPassword}
               >
-                Annuler
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 sm:flex-initial h-12 sm:h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg glow-primary  "
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Enregistrement...
-                  </>
+                {showOldPassword ? (
+                  <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
                 ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Enregistrer
-                  </>
+                  <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                 )}
               </Button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+            {passwordErrors.old_password && (
+              <p className="text-[10px] text-destructive font-medium">
+                {passwordErrors.old_password.message}
+              </p>
+            )}
+          </div>
 
-      {/* Change Password Card */}
-      <Card className="glass-panel border-primary/15  sm:rounded-3xl">
-        <CardHeader className="p-5 sm:p-6">
-          <CardTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8  bg-primary/15 text-primary">
-              <Lock className="h-4 w-4" />
-            </div>
-            Changer le mot de passe
-          </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground mt-2">
-            Modifiez votre mot de passe pour sécuriser votre compte
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 sm:p-8 pt-0">
-          <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-6 sm:space-y-7">
-            <div className="space-y-2">
-              <Label htmlFor="old_password" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
-                🔒 Ancien mot de passe
-              </Label>
-              <div className="relative">
-                <Input
-                  id="old_password"
-                  type={showOldPassword ? "text" : "password"}
-                  placeholder="Saisissez votre mot de passe actuel"
-                  {...registerPassword("old_password")}
-                  disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 "
-                  onClick={() => setShowOldPassword(!showOldPassword)}
-                  disabled={isChangingPassword}
-                >
-                  {showOldPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
-              {passwordErrors.old_password && (
-                <p className="text-xs sm:text-sm text-destructive font-medium">
-                  {passwordErrors.old_password.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="new_password" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
-                🛡️ Nouveau mot de passe sécurisé
-              </Label>
-              <div className="relative">
-                <Input
-                  id="new_password"
-                  type={showNewPassword ? "text" : "password"}
-                  placeholder="Au moins 6 caractères avec majuscules et chiffres"
-                  {...registerPassword("new_password")}
-                  disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 "
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  disabled={isChangingPassword}
-                >
-                  {showNewPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
-              {passwordErrors.new_password && (
-                <p className="text-xs sm:text-sm text-destructive font-medium">
-                  {passwordErrors.new_password.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirm_new_password" className="text-sm sm:text-base font-medium text-foreground flex items-center gap-2">
-                ✅ Confirmer le nouveau mot de passe
-              </Label>
-              <div className="relative">
-                <Input
-                  id="confirm_new_password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Répétez exactement le nouveau mot de passe"
-                  {...registerPassword("confirm_new_password")}
-                  disabled={isChangingPassword}
-                  className="h-12 sm:h-11 text-base sm:text-sm pr-12 border-primary/20 focus:border-primary/40 bg-background/50  transition-all duration-200 focus:ring-2 focus:ring-primary/10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-12 sm:h-11 w-11 hover:bg-primary/5 "
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  disabled={isChangingPassword}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
-              {passwordErrors.confirm_new_password && (
-                <p className="text-xs sm:text-sm text-destructive font-medium">
-                  {passwordErrors.confirm_new_password.message}
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="new_password" className="text-xs font-medium text-foreground">
+              Nouveau mot de passe
+            </Label>
+            <div className="relative">
+              <Input
+                id="new_password"
+                type={showNewPassword ? "text" : "password"}
+                placeholder="Nouveau mot de passe"
+                {...registerPassword("new_password")}
+                disabled={isChangingPassword}
+                className="h-10 text-xs pr-10 border-border focus:border-primary bg-background/50 transition-all"
+              />
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => {
-                  resetPassword()
-                  setShowOldPassword(false)
-                  setShowNewPassword(false)
-                  setShowConfirmPassword(false)
-                }}
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-10 w-10 hover:bg-primary/5"
+                onClick={() => setShowNewPassword(!showNewPassword)}
                 disabled={isChangingPassword}
-                className="w-full sm:flex-initial h-12 sm:h-11 text-sm border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10  "
               >
-                Annuler
-              </Button>
-              <Button
-                type="submit"
-                disabled={isChangingPassword}
-                className="w-full sm:flex-initial h-12 sm:h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg glow-primary  "
-              >
-                {isChangingPassword ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Modification...
-                  </>
+                {showNewPassword ? (
+                  <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
                 ) : (
-                  <>
-                    <Lock className="mr-2 h-4 w-4" />
-                    <span className="hidden sm:inline">Modifier le mot de passe</span>
-                    <span className="sm:hidden">Modifier</span>
-                  </>
+                  <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                 )}
               </Button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+            {passwordErrors.new_password && (
+              <p className="text-[10px] text-destructive font-medium">
+                {passwordErrors.new_password.message}
+              </p>
+            )}
+          </div>
 
-      {/* Account Information Card */}
+          <div className="space-y-1.5">
+            <Label htmlFor="confirm_new_password" className="text-xs font-medium text-foreground">
+              Confirmer
+            </Label>
+            <div className="relative">
+              <Input
+                id="confirm_new_password"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Répéter le mot de passe"
+                {...registerPassword("confirm_new_password")}
+                disabled={isChangingPassword}
+                className="h-10 text-xs pr-10 border-border focus:border-primary bg-background/50 transition-all"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-10 w-10 hover:bg-primary/5"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={isChangingPassword}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                ) : (
+                  <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                )}
+              </Button>
+            </div>
+            {passwordErrors.confirm_new_password && (
+              <p className="text-[10px] text-destructive font-medium">
+                {passwordErrors.confirm_new_password.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                resetPassword()
+                setShowOldPassword(false)
+                setShowNewPassword(false)
+                setShowConfirmPassword(false)
+              }}
+              disabled={isChangingPassword}
+              className="flex-1 h-10 text-xs rounded-xl"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              disabled={isChangingPassword}
+              className="flex-1 h-10 text-xs rounded-xl bg-amber-500 text-white hover:bg-amber-600"
+            >
+              {isChangingPassword ? (
+                <>
+                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                  Modification...
+                </>
+              ) : (
+                <>
+                  <Lock className="mr-1.5 h-3 w-3" />
+                  Modifier
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
+
+      {/* Account Information */}
       {profile && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base sm:text-lg">Informations du compte</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
-              Informations en lecture seule
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs sm:text-sm text-muted-foreground">Nom d'utilisateur</Label>
-                <p className="text-sm sm:text-base font-medium mt-1">{profile.username}</p>
-              </div>
-              <div>
-                <Label className="text-xs sm:text-sm text-muted-foreground">ID utilisateur</Label>
-                <p className="text-sm sm:text-base font-medium mt-1 font-mono text-xs">
-                  {profile.id}
-                </p>
-              </div>
-              <div>
-                <Label className="text-xs sm:text-sm text-muted-foreground">Date d'inscription</Label>
-                <p className="text-sm sm:text-base font-medium mt-1">
-                  {format(new Date(profile.date_joined), "dd MMMM yyyy", { locale: fr })}
-                </p>
-              </div>
-              <div>
-                <Label className="text-xs sm:text-sm text-muted-foreground">Dernière connexion</Label>
-                <p className="text-sm sm:text-base font-medium mt-1">
-                  {profile.last_login
-                    ? format(new Date(profile.last_login), "dd MMMM yyyy à HH:mm", { locale: fr })
-                    : "Jamais"}
-                </p>
-              </div>
-              {referralBonusEnabled && profile.referral_code && (
-                <div>
-                  <Label className="text-xs sm:text-sm text-muted-foreground">Code de parrainage</Label>
-                  <p className="text-sm sm:text-base font-medium mt-1 font-mono">
-                    {profile.referral_code}
-                  </p>
-                </div>
-              )}
-              {referralBonusEnabled && profile.bonus_available !== undefined && (
-                <div>
-                  <Label className="text-xs sm:text-sm text-muted-foreground">Bonus disponible</Label>
-                  <p className="text-sm sm:text-base font-medium mt-1">
-                    {profile.bonus_available.toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "XOF",
-                      minimumFractionDigits: 0,
-                    })}
-                  </p>
-                </div>
-              )}
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-background via-muted/20 to-background border backdrop-blur-sm shadow-lg">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50" />
+          <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-10 bg-primary" />
+          
+          <div className="relative mb-4">
+            <h2 className="text-base font-bold">Informations du compte</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Lecture seule
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-[10px] text-muted-foreground">Nom d'utilisateur</p>
+              <p className="text-xs font-medium">{profile.username}</p>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-[10px] text-muted-foreground">ID</p>
+              <p className="text-xs font-mono">{profile.id}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground">Inscription</p>
+              <p className="text-xs font-medium">
+                {format(new Date(profile.date_joined), "dd MMM yyyy", { locale: fr })}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground">Dernière connexion</p>
+              <p className="text-xs font-medium">
+                {profile.last_login
+                  ? format(new Date(profile.last_login), "dd MMM, HH:mm", { locale: fr })
+                  : "Jamais"}
+              </p>
+            </div>
+            {referralBonusEnabled && profile.referral_code && (
+              <div>
+                <p className="text-[10px] text-muted-foreground">Code de parrainage</p>
+                <p className="text-xs font-mono">{profile.referral_code}</p>
+              </div>
+            )}
+            {referralBonusEnabled && profile.bonus_available !== undefined && (
+              <div>
+                <p className="text-[10px] text-muted-foreground">Bonus</p>
+                <p className="text-xs font-bold text-green-600 dark:text-green-400">
+                  {profile.bonus_available.toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "XOF",
+                    minimumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )
