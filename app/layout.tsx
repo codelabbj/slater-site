@@ -33,7 +33,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative min-h-screen flex flex-col overflow-hidden">
+          <div className="relative flex flex-col overflow-hidden">
             {/* Enhanced animated gradient background */}
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
               {/* Primary gradient - top left */}

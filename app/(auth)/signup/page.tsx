@@ -311,7 +311,7 @@ export default function SignupPage() {
       <CardFooter className="flex flex-col space-y-3 px-6 sm:px-8 pb-8 sm:pb-10">
         <div className="text-sm sm:text-base text-muted-foreground text-center font-medium">
           Déjà membre de la communauté Slater ?{" "}
-          <Link href="/login" className="text-primary hover:text-primary/80 font-bold hover:underline transition-colors">
+          <Link href="/loginv2" className="text-primary hover:text-primary/80 font-bold hover:underline transition-colors">
             Se connecter à mon compte →
           </Link>
         </div>

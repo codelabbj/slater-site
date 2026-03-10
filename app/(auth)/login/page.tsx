@@ -115,7 +115,7 @@ export default function LoginPage() {
       // Step 4: Redirect to dashboard
       // Wait a bit more to ensure notification prompt completes if shown
       await new Promise(resolve => setTimeout(resolve, 300))
-      router.push("/dashboard")
+      router.push("/dashboardv2")
     } catch (error: any) {
       console.error("Login error:", error)
 
@@ -569,7 +569,7 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col space-y-2 px-4 sm:px-6 pb-6 sm:pb-6">
           <div className="text-xs sm:text-sm text-muted-foreground text-center">
             Pas encore de compte?{" "}
-            <Link href="/signup" className="text-primary hover:underline font-medium">
+            <Link href="/registerv2" className="text-primary hover:underline font-medium">
               Créer un compte
             </Link>
           </div>

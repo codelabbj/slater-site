@@ -13,9 +13,9 @@ export default function HomePage() {
   useEffect(() => {
     if (!isLoading) {
       if (user) {
-        router.push("/dashboard")
+        router.push("/dashboardv2")
       } else {
-        router.push("/login")
+        router.push("/loginv2")
       }
     }
   }, [user, isLoading, router])
