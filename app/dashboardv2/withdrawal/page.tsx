@@ -11,12 +11,15 @@ import { BetIdStep } from "@/components/transaction/steps/bet-id-step"
 import { NetworkStep } from "@/components/transaction/steps/network-step"
 import { PhoneStep } from "@/components/transaction/steps/phone-step"
 import { AmountStep } from "@/components/transaction/steps/amount-step"
+import { TutoStep } from "@/components/transaction/steps/tuto-step"
 import { ConfirmationDialog } from "@/components/transaction/confirmation-dialog"
 import { transactionApi, settingsApi } from "@/lib/api-client"
 import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { extractTimeErrorMessage } from "@/lib/utils"
 import { ArrowLeft, Copy, Loader2 } from "lucide-react"
+import { useLastPendingTransaction } from "@/hooks/use-last-pending-transaction"
+import { LastTransactionSummary } from "@/components/transaction/last-transaction-summary"
 import {
   Dialog,
   DialogContent,
@@ -25,13 +28,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { TransactionProgressBar } from "@/components/transaction/progress-bar"
 
 export default function WithdrawalV2Page() {
   const router = useRouter()
   const { user } = useAuth()
-
-  const [currentStep, setCurrentStep] = useState(1)
-  const totalSteps = 5
+  const { lastTransaction, actionType, cancel, finalize } = useLastPendingTransaction()
 
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
   const [selectedBetId, setSelectedBetId] = useState<UserAppId | null>(null)
@@ -39,6 +41,11 @@ export default function WithdrawalV2Page() {
   const [selectedPhone, setSelectedPhone] = useState<UserPhone | null>(null)
   const [amount, setAmount] = useState(0)
   const [withdriwalCode, setWithdriwalCode] = useState("")
+
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1)
+  const hasHelpStep = !!(selectedPlatform?.withdrawal_tuto_link || selectedPlatform?.why_withdrawal_fail)
+  const totalSteps = hasHelpStep ? 6 : 5
 
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -56,6 +63,31 @@ export default function WithdrawalV2Page() {
   }
 
   const handleNext = () => {
+    if (lastTransaction) {
+      toast.error(
+        `Vous avez déjà une transaction de ${lastTransaction.type_trans === "deposit" ? "dépôt" : "retrait"} en cours. Veuillez la finaliser ou l'annuler avant d'en créer une nouvelle.`,
+      )
+      return
+    }
+
+    if (currentStep === 4) {
+      if (!selectedPhone) {
+        toast.error("Veuillez sélectionner un numéro de téléphone")
+        return
+      }
+      if (hasHelpStep) {
+        setCurrentStep(5)
+      } else {
+        setCurrentStep(6) // Set to amount step (final step)
+      }
+      return
+    }
+
+    if (currentStep === 5) {
+      setCurrentStep(6)
+      return
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     } else {
@@ -64,6 +96,10 @@ export default function WithdrawalV2Page() {
   }
 
   const handlePrevious = () => {
+    if (currentStep === 6 && !hasHelpStep) {
+      setCurrentStep(4)
+      return
+    }
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
@@ -220,12 +256,12 @@ export default function WithdrawalV2Page() {
 
     setIsSubmitting(true)
     try {
-      await transactionApi.createWithdrawal({
+      const response = await transactionApi.createWithdrawal({
         amount,
-        phone_number: selectedPhone.phone,
-        app: selectedPlatform.id,
-        user_app_id: selectedBetId.user_app_id,
-        network: selectedNetwork.id,
+        phone_number: selectedPhone!.phone,
+        app: selectedPlatform!.id,
+        user_app_id: selectedBetId!.user_app_id,
+        network: selectedNetwork!.id,
         withdriwal_code: withdriwalCode,
         source: "web"
       })
@@ -237,14 +273,32 @@ export default function WithdrawalV2Page() {
         if (selectedNetwork.payment_by_link === false) {
           const handled = await handleMtnUssdFlow()
           if (!handled) {
-            router.push("/dashboardv2")
+             if (response && response.id) {
+              router.push(`/dashboard/history/${response.id}`)
+            } else {
+              router.push("/dashboardv2")
+            }
           }
         } else {
-          router.push("/dashboardv2")
+          if (response && response.id) {
+            router.push(`/dashboard/history/${response.id}`)
+          } else {
+            router.push("/dashboardv2")
+          }
         }
-      } else {
+      } else if (selectedNetwork?.name?.toLowerCase() === "moov") {
         const handled = await handleMoovUssdFlow()
         if (!handled) {
+          if (response && response.id) {
+            router.push(`/dashboard/history/${response.id}`)
+          } else {
+            router.push("/dashboardv2")
+          }
+        }
+      } else {
+        if (response && response.id) {
+          router.push(`/dashboard/history/${response.id}`)
+        } else {
           router.push("/dashboardv2")
         }
       }
@@ -271,6 +325,12 @@ export default function WithdrawalV2Page() {
       case 4:
         return selectedPhone !== null
       case 5:
+        if (hasHelpStep) return true
+        return amount > 0 && selectedPlatform &&
+          withdriwalCode.length >= 4 &&
+          amount >= selectedPlatform.minimun_with &&
+          amount <= selectedPlatform.max_win
+      case 6:
         return amount > 0 && selectedPlatform &&
           withdriwalCode.length >= 4 &&
           amount >= selectedPlatform.minimun_with &&
@@ -319,6 +379,30 @@ export default function WithdrawalV2Page() {
           />
         )
       case 5:
+        if (hasHelpStep) {
+          return (
+            <TutoStep
+              selectedPlatform={selectedPlatform}
+              onNext={handleNext}
+              type="withdrawal"
+            />
+          )
+        }
+        return (
+          <AmountStep
+            amount={amount}
+            setAmount={setAmount}
+            withdriwalCode={withdriwalCode}
+            setWithdriwalCode={setWithdriwalCode}
+            selectedPlatform={selectedPlatform}
+            selectedBetId={selectedBetId}
+            selectedNetwork={selectedNetwork}
+            selectedPhone={selectedPhone}
+            type="withdrawal"
+            onNext={handleNext}
+          />
+        )
+      case 6:
         return (
           <AmountStep
             amount={amount}
@@ -343,29 +427,39 @@ export default function WithdrawalV2Page() {
       <AppBar />
       <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 sm:pt-8 pb-8 sm:pb-4">
         <div className="w-full max-w-md">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/dashboardv2")}
-                  className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white">Retrait</h1>
-              </div>
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                Étape {currentStep}/{totalSteps}
-              </span>
-            </div>
-            <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-300"
-                style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+          {lastTransaction ? (
+            <div className="mb-6">
+              <LastTransactionSummary
+                transaction={lastTransaction}
+                expectedType="withdrawal"
+                actionType={actionType}
+                onCancel={cancel}
+                onFinalize={async (reference) => {
+                  await finalize(reference)
+                }}
+                afterFinalizeHref="/dashboardv2/history"
               />
             </div>
+          ) : null}
+
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/dashboardv2")}
+                className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 rounded-full"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">Retrait</h1>
+            </div>
+            
+            <TransactionProgressBar 
+              currentStep={currentStep} 
+              totalSteps={totalSteps} 
+              type="withdrawal" 
+            />
           </div>
 
           <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-background via-muted/20 to-background border backdrop-blur-sm shadow-lg mb-6">

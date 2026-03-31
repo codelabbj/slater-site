@@ -11,12 +11,15 @@ import { BetIdStep } from "@/components/transaction/steps/bet-id-step"
 import { NetworkStep } from "@/components/transaction/steps/network-step"
 import { PhoneStep } from "@/components/transaction/steps/phone-step"
 import { AmountStep } from "@/components/transaction/steps/amount-step"
+import { TutoStep } from "@/components/transaction/steps/tuto-step"
 import { ConfirmationDialog } from "@/components/transaction/confirmation-dialog"
 import { transactionApi, settingsApi } from "@/lib/api-client"
 import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { extractTimeErrorMessage } from "@/lib/utils"
 import { ArrowLeft, Copy, Loader2 } from "lucide-react"
+import { useLastPendingTransaction } from "@/hooks/use-last-pending-transaction"
+import { LastTransactionSummary } from "@/components/transaction/last-transaction-summary"
 import {
   Dialog,
   DialogContent,
@@ -25,14 +28,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { TransactionProgressBar } from "@/components/transaction/progress-bar"
 
 export default function DepositV2Page() {
   const router = useRouter()
   const { user } = useAuth()
-
-  // Step management
-  const [currentStep, setCurrentStep] = useState(1)
-  const totalSteps = 5
+  const { lastTransaction, actionType, cancel, finalize } = useLastPendingTransaction()
 
   // Form data
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
@@ -40,6 +41,11 @@ export default function DepositV2Page() {
   const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null)
   const [selectedPhone, setSelectedPhone] = useState<UserPhone | null>(null)
   const [amount, setAmount] = useState(0)
+
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1)
+  const hasHelpStep = !!(selectedPlatform?.deposit_tuto_link)
+  const totalSteps = hasHelpStep ? 6 : 5
 
   // Confirmation dialog
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
@@ -62,6 +68,31 @@ export default function DepositV2Page() {
   }
 
   const handleNext = () => {
+    if (lastTransaction) {
+      toast.error(
+        `Vous avez déjà une transaction de ${lastTransaction.type_trans === "deposit" ? "dépôt" : "retrait"} en cours. Veuillez la finaliser ou l'annuler avant d'en créer une nouvelle.`,
+      )
+      return
+    }
+
+    if (currentStep === 4) {
+      if (!selectedPhone) {
+        toast.error("Veuillez sélectionner un numéro de téléphone")
+        return
+      }
+      if (hasHelpStep) {
+        setCurrentStep(5)
+      } else {
+        setCurrentStep(6) // Set to amount step (final step)
+      }
+      return
+    }
+
+    if (currentStep === 5) {
+      setCurrentStep(6)
+      return
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     } else {
@@ -70,6 +101,10 @@ export default function DepositV2Page() {
   }
 
   const handlePrevious = () => {
+    if (currentStep === 6 && !hasHelpStep) {
+      setCurrentStep(4)
+      return
+    }
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
@@ -200,19 +235,27 @@ export default function DepositV2Page() {
     }
   }
 
-  const handleMoovModalClose = (open: boolean) => {
+  const handleMoovModalClose = (open: boolean, transactionId?: string | number) => {
     if (!open) {
       setIsMoovUssdModalOpen(false)
-      router.push("/dashboardv2")
+      if (transactionId) {
+        router.push(`/dashboardv2/history/${transactionId}`)
+      } else {
+        router.push("/dashboardv2")
+      }
     } else {
       setIsMoovUssdModalOpen(true)
     }
   }
 
-  const handleMtnModalClose = (open: boolean) => {
+  const handleMtnModalClose = (open: boolean, transactionId?: string | number) => {
     if (!open) {
       setIsMtnUssdModalOpen(false)
-      router.push("/dashboardv2")
+      if (transactionId) {
+        router.push(`/dashboardv2/history/${transactionId}`)
+      } else {
+        router.push("/dashboardv2")
+      }
     } else {
       setIsMtnUssdModalOpen(true)
     }
@@ -247,15 +290,27 @@ export default function DepositV2Page() {
           if (selectedNetwork.payment_by_link === false) {
             const handled = await handleMtnUssdFlow(amount)
             if (!handled) {
-              router.push("/dashboardv2")
+              if (response && response.id) {
+                router.push(`/dashboard/history/${response.id}`)
+              } else {
+                router.push("/dashboardv2")
+              }
             }
           } else {
-            router.push("/dashboardv2")
+            if (response && response.id) {
+              router.push(`/dashboard/history/${response.id}`)
+            } else {
+              router.push("/dashboardv2")
+            }
           }
         } else {
           const handled = await handleMoovUssdFlow(amount)
           if (!handled) {
-            router.push("/dashboardv2")
+            if (response && response.id) {
+              router.push(`/dashboard/history/${response.id}`)
+            } else {
+              router.push("/dashboardv2")
+            }
           }
         }
       }
@@ -342,6 +397,29 @@ export default function DepositV2Page() {
           />
         )
       case 5:
+        if (hasHelpStep) {
+          return (
+            <TutoStep
+              selectedPlatform={selectedPlatform}
+              onNext={handleNext}
+            />
+          )
+        }
+        return (
+          <AmountStep
+            amount={amount}
+            setAmount={setAmount}
+            withdriwalCode=""
+            setWithdriwalCode={() => { }}
+            selectedPlatform={selectedPlatform}
+            selectedBetId={selectedBetId}
+            selectedNetwork={selectedNetwork}
+            selectedPhone={selectedPhone}
+            type="deposit"
+            onNext={handleNext}
+          />
+        )
+      case 6:
         return (
           <AmountStep
             amount={amount}
@@ -366,30 +444,40 @@ export default function DepositV2Page() {
       <AppBar />
       <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 sm:pt-8 pb-8 sm:pb-4">
         <div className="w-full max-w-md">
-          {/* Progress Indicator */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/dashboardv2")}
-                  className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white">Dépôt</h1>
-              </div>
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                Étape {currentStep}/{totalSteps}
-              </span>
-            </div>
-            <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
-                style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+          {lastTransaction ? (
+            <div className="mb-6">
+              <LastTransactionSummary
+                transaction={lastTransaction}
+                expectedType="deposit"
+                actionType={actionType}
+                onCancel={cancel}
+                onFinalize={async (reference) => {
+                  await finalize(reference)
+                }}
+                afterFinalizeHref="/dashboardv2/history"
               />
             </div>
+          ) : null}
+
+          {/* Progress Indicator */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/dashboardv2")}
+                className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 rounded-full"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">Dépôt</h1>
+            </div>
+            
+            <TransactionProgressBar 
+              currentStep={currentStep} 
+              totalSteps={totalSteps} 
+              type="deposit" 
+            />
           </div>
 
           {/* Step Content */}
@@ -488,7 +576,7 @@ export default function DepositV2Page() {
           </Dialog>
 
           {/* Moov USSD Modal */}
-          <Dialog open={isMoovUssdModalOpen} onOpenChange={handleMoovModalClose}>
+          <Dialog open={isMoovUssdModalOpen} onOpenChange={(open) => handleMoovModalClose(open)}>
             <DialogContent className="rounded-2xl">
               <DialogHeader>
                 <DialogTitle>Finaliser la transaction Moov</DialogTitle>
@@ -542,7 +630,7 @@ export default function DepositV2Page() {
           </Dialog>
 
           {/* MTN USSD Modal */}
-          <Dialog open={isMtnUssdModalOpen} onOpenChange={handleMtnModalClose}>
+          <Dialog open={isMtnUssdModalOpen} onOpenChange={(open) => handleMtnModalClose(open)}>
             <DialogContent className="rounded-2xl">
               <DialogHeader>
                 <DialogTitle>Finaliser la transaction MTN</DialogTitle>

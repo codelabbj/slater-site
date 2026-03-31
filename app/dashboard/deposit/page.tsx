@@ -10,6 +10,7 @@ import { BetIdStep } from "@/components/transaction/steps/bet-id-step"
 import { NetworkStep } from "@/components/transaction/steps/network-step"
 import { PhoneStep } from "@/components/transaction/steps/phone-step"
 import { AmountStep } from "@/components/transaction/steps/amount-step"
+import { TutoStep } from "@/components/transaction/steps/tuto-step"
 import { transactionApi, settingsApi } from "@/lib/api-client"
 import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { toast } from "react-hot-toast"
@@ -18,6 +19,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ChevronLeft, Copy, ArrowDownToLine, ArrowLeft } from "lucide-react"
+import { useLastPendingTransaction } from "@/hooks/use-last-pending-transaction"
+import { LastTransactionSummary } from "@/components/transaction/last-transaction-summary"
 import {
   Dialog,
   DialogContent,
@@ -30,10 +33,7 @@ import {
 export default function DepositPage() {
   const router = useRouter()
   const { user } = useAuth()
-
-  // Step management
-  const [currentStep, setCurrentStep] = useState(1)
-  const totalSteps = 5
+  const { lastTransaction, actionType, cancel, finalize } = useLastPendingTransaction()
 
   // Form data
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
@@ -41,6 +41,11 @@ export default function DepositPage() {
   const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null)
   const [selectedPhone, setSelectedPhone] = useState<UserPhone | null>(null)
   const [amount, setAmount] = useState(0)
+
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1)
+  const hasHelpStep = !!(selectedPlatform?.deposit_tuto_link)
+  const totalSteps = hasHelpStep ? 6 : 5
 
   // Confirmation dialog
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
@@ -66,6 +71,31 @@ export default function DepositPage() {
   }
 
   const handleNext = () => {
+    if (lastTransaction) {
+      toast.error(
+        `Vous avez déjà une transaction de ${lastTransaction.type_trans === "deposit" ? "dépôt" : "retrait"} en cours. Veuillez la finaliser ou l'annuler avant d'en créer une nouvelle.`,
+      )
+      return
+    }
+
+    if (currentStep === 4) {
+      if (!selectedPhone) {
+        toast.error("Veuillez sélectionner un numéro de téléphone")
+        return
+      }
+      if (hasHelpStep) {
+        setCurrentStep(5)
+      } else {
+        setCurrentStep(6) // Set to amount step (final step)
+      }
+      return
+    }
+
+    if (currentStep === 5) {
+      setCurrentStep(6)
+      return
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     } else {
@@ -74,6 +104,10 @@ export default function DepositPage() {
   }
 
   const handlePrevious = () => {
+    if (currentStep === 6 && !hasHelpStep) {
+      setCurrentStep(4)
+      return
+    }
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
@@ -256,11 +290,15 @@ export default function DepositPage() {
     }
   }
 
-  const handleMoovModalClose = (open: boolean) => {
+  const handleMoovModalClose = (open: boolean, transactionId?: string | number) => {
     if (!open) {
       // Only navigate to dashboard when user closes the modal
       setIsMoovUssdModalOpen(false)
-      router.push("/dashboard")
+      if (transactionId) {
+        router.push(`/dashboard/history/${transactionId}`)
+      } else {
+        router.push("/dashboard")
+      }
     } else {
       setIsMoovUssdModalOpen(true)
     }
@@ -276,11 +314,15 @@ export default function DepositPage() {
   //   }
   // }
 
-  const handleMtnModalClose = (open: boolean) => {
+  const handleMtnModalClose = (open: boolean, transactionId?: string | number) => {
     if (!open) {
       // Only navigate to dashboard when user closes the modal
       setIsMtnUssdModalOpen(false)
-      router.push("/dashboard")
+      if (transactionId) {
+        router.push(`/dashboard/history/${transactionId}`)
+      } else {
+        router.push("/dashboard")
+      }
     } else {
       setIsMtnUssdModalOpen(true)
     }
@@ -305,43 +347,39 @@ export default function DepositPage() {
 
       toast.success("Dépôt initié avec succès!")
 
-      // Check if transaction_link exists in the response
       if (response.transaction_link) {
         setTransactionLink(response.transaction_link)
         setIsTransactionLinkModalOpen(true)
         setIsConfirmationOpen(false)
       } else {
-        // Handle Orange network logic - COMMENTED OUT
-        // if (selectedNetwork?.name?.toLowerCase() === "orange" &&
-        //     selectedNetwork.deposit_api?.toLowerCase() === "connect") {
-        //   if (selectedNetwork.payment_by_link === false) {
-        //     // Use USSD code for Orange when payment_by_link is false
-        //     const handled = await handleOrangeUssdFlow(amount)
-        //     if (!handled) {
-        //       router.push("/dashboard")
-        //     }
-        //   } else {
-        //     // payment_by_link is true, but no transaction_link in response, redirect to dashboard
-        //     router.push("/dashboard")
-        //   }
-        // } else
         if (selectedNetwork?.name?.toLowerCase() === "mtn" &&
           selectedNetwork.deposit_api?.toLowerCase() === "connect") {
           if (selectedNetwork.payment_by_link === false) {
             // Use USSD code for MTN when payment_by_link is false
             const handled = await handleMtnUssdFlow(amount)
             if (!handled) {
-              router.push("/dashboard")
+              if (response && response.id) {
+                router.push(`/dashboard/history/${response.id}`)
+              } else {
+                router.push("/dashboard")
+              }
             }
           } else {
-            // payment_by_link is true, but no transaction_link in response, redirect to dashboard
-            router.push("/dashboard")
+            if (response && response.id) {
+              router.push(`/dashboard/history/${response.id}`)
+            } else {
+              router.push("/dashboard")
+            }
           }
         } else {
           // Handle Moov network or other networks
           const handled = await handleMoovUssdFlow(amount)
           if (!handled) {
-            router.push("/dashboard")
+            if (response && response.id) {
+              router.push(`/dashboard/history/${response.id}`)
+            } else {
+              router.push("/dashboard")
+            }
           }
         }
       }
@@ -429,6 +467,29 @@ export default function DepositPage() {
           />
         )
       case 5:
+        if (hasHelpStep) {
+          return (
+            <TutoStep
+              selectedPlatform={selectedPlatform}
+              onNext={handleNext}
+            />
+          )
+        }
+        return (
+          <AmountStep
+            amount={amount}
+            setAmount={setAmount}
+            withdriwalCode=""
+            setWithdriwalCode={() => { }}
+            selectedPlatform={selectedPlatform}
+            selectedBetId={selectedBetId}
+            selectedNetwork={selectedNetwork}
+            selectedPhone={selectedPhone}
+            type="deposit"
+            onNext={handleNext}
+          />
+        )
+      case 6:
         return (
           <AmountStep
             amount={amount}
@@ -450,6 +511,19 @@ export default function DepositPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      {lastTransaction ? (
+        <LastTransactionSummary
+          transaction={lastTransaction}
+          expectedType="deposit"
+          actionType={actionType}
+          onCancel={cancel}
+          onFinalize={async (reference) => {
+            await finalize(reference)
+          }}
+          afterFinalizeHref="/dashboard/history"
+        />
+      ) : null}
+
       {/* Back Button */}
       <div className="flex items-center justify-start">
         <Button
@@ -539,7 +613,7 @@ export default function DepositPage() {
       </Dialog>
 
       {/* Moov USSD fallback modal */}
-      <Dialog open={isMoovUssdModalOpen} onOpenChange={handleMoovModalClose}>
+      <Dialog open={isMoovUssdModalOpen} onOpenChange={(open) => handleMoovModalClose(open)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Finaliser la transaction Moov</DialogTitle>
@@ -625,7 +699,7 @@ export default function DepositPage() {
         </Dialog> */}
 
       {/* MTN USSD fallback modal */}
-      <Dialog open={isMtnUssdModalOpen} onOpenChange={handleMtnModalClose}>
+      <Dialog open={isMtnUssdModalOpen} onOpenChange={(open) => handleMtnModalClose(open)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Finaliser la transaction MTN</DialogTitle>

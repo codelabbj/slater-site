@@ -250,6 +250,54 @@ export const transactionApi = {
     })
     return data
   },
+
+  getLastPendingTransaction: async () => {
+    try {
+      const { data } = await api.get<
+        | Transaction
+        | Transaction[]
+        | { results?: Transaction[] }
+        | null
+      >("/mobcash/last-transaction")
+
+      const list: Transaction[] = Array.isArray(data)
+        ? data
+        : data && typeof data === "object" && "results" in data && Array.isArray((data as any).results)
+          ? ((data as any).results as Transaction[])
+          : data
+            ? [data as Transaction]
+            : []
+
+      const pending = list.find((t) => {
+        const s = t?.status?.toLowerCase()
+        return s === "pending"
+      })
+      return pending ?? null
+    } catch {
+      return null
+    }
+  },
+
+  getById: async (id: string | number) => {
+    const response = await api.get<Transaction>(`/mobcash/transaction-history/${id}/`)
+    return response.data
+  },
+
+  getByReference: async (reference: string) => {
+    const response = await api.get<{ results: Transaction[] }>("/mobcash/transaction-history", {
+      params: { search: reference }
+    })
+    return response.data.results[0] ?? null
+  },
+
+  cancelTransaction: async (reference: string) => {
+    await api.post("/mobcash/cancel-transaction", { reference })
+  },
+
+  finalizeTransactionUser: async (reference: string) => {
+    const { data } = await api.post<Transaction>("/mobcash/finalize-transaction-user", { reference })
+    return data
+  },
 }
 
 export const notificationApi = {

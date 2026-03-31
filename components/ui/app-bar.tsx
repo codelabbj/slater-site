@@ -41,6 +41,11 @@ export function AppBar() {
   const { user, logout } = useAuth()
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -101,7 +106,7 @@ export function AppBar() {
 
             {/* Desktop User Profile */}
             <div className="items-center gap-3">
-              {user ? (
+              {mounted && user ? (
                 <DropdownMenu open={isProfileMenuOpen} onOpenChange={setIsProfileMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-10 px-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-2">
@@ -137,7 +142,13 @@ export function AppBar() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <span className="text-sm text-slate-500">No user</span>
+                <Button
+                  variant="ghost"
+                  className="h-10 px-3 rounded-xl text-slate-500 dark:text-slate-400"
+                  disabled
+                >
+                  <User className="h-5 w-5" />
+                </Button>
               )}
             </div>
           </div>

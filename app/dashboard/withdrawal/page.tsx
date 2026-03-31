@@ -10,6 +10,7 @@ import { BetIdStep } from "@/components/transaction/steps/bet-id-step"
 import { NetworkStep } from "@/components/transaction/steps/network-step"
 import { PhoneStep } from "@/components/transaction/steps/phone-step"
 import { AmountStep } from "@/components/transaction/steps/amount-step"
+import { TutoStep } from "@/components/transaction/steps/tuto-step"
 import { transactionApi } from "@/lib/api-client"
 import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { toast } from "react-hot-toast"
@@ -17,14 +18,13 @@ import { extractTimeErrorMessage } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ArrowUpFromLine, ArrowLeft } from "lucide-react"
+import { useLastPendingTransaction } from "@/hooks/use-last-pending-transaction"
+import { LastTransactionSummary } from "@/components/transaction/last-transaction-summary"
 
 export default function WithdrawalPage() {
   const router = useRouter()
   const { user } = useAuth()
-
-  // Step management
-  const [currentStep, setCurrentStep] = useState(1)
-  const totalSteps = 5
+  const { lastTransaction, actionType, cancel, finalize } = useLastPendingTransaction()
 
   // Form data
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null)
@@ -33,6 +33,11 @@ export default function WithdrawalPage() {
   const [selectedPhone, setSelectedPhone] = useState<UserPhone | null>(null)
   const [amount, setAmount] = useState(0)
   const [withdriwalCode, setWithdriwalCode] = useState("")
+
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1)
+  const hasHelpStep = !!(selectedPlatform?.withdrawal_tuto_link || selectedPlatform?.why_withdrawal_fail)
+  const totalSteps = hasHelpStep ? 6 : 5
 
   // Confirmation dialog
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
@@ -45,6 +50,31 @@ export default function WithdrawalPage() {
   }
 
   const handleNext = () => {
+    if (lastTransaction) {
+      toast.error(
+        `Vous avez déjà une transaction de ${lastTransaction.type_trans === "deposit" ? "dépôt" : "retrait"} en cours. Veuillez la finaliser ou l'annuler avant d'en créer une nouvelle.`,
+      )
+      return
+    }
+
+    if (currentStep === 4) {
+      if (!selectedPhone) {
+        toast.error("Veuillez sélectionner un numéro de téléphone")
+        return
+      }
+      if (hasHelpStep) {
+        setCurrentStep(5)
+      } else {
+        setCurrentStep(6) // Set to amount step (final step)
+      }
+      return
+    }
+
+    if (currentStep === 5) {
+      setCurrentStep(6)
+      return
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     } else {
@@ -53,6 +83,10 @@ export default function WithdrawalPage() {
   }
 
   const handlePrevious = () => {
+    if (currentStep === 6 && !hasHelpStep) {
+      setCurrentStep(4)
+      return
+    }
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
@@ -66,7 +100,7 @@ export default function WithdrawalPage() {
 
     setIsSubmitting(true)
     try {
-      await transactionApi.createWithdrawal({
+      const response = await transactionApi.createWithdrawal({
         amount,
         phone_number: selectedPhone.phone,
         app: selectedPlatform.id,
@@ -78,7 +112,12 @@ export default function WithdrawalPage() {
 
       toast.success("Retrait initié avec succès!")
 
-      router.push("/dashboard")
+      // Navigate to the transaction detail page if we have an ID
+      if (response && response.id) {
+        router.push(`/dashboard/history/${response.id}`)
+      } else {
+        router.push("/dashboard")
+      }
     } catch (error: any) {
       // Check for rate limit error (error_time_message)
       const timeErrorMessage = extractTimeErrorMessage(error)
@@ -151,6 +190,30 @@ export default function WithdrawalPage() {
           />
         )
       case 5:
+        if (hasHelpStep) {
+          return (
+            <TutoStep
+              selectedPlatform={selectedPlatform}
+              onNext={handleNext}
+              type="withdrawal"
+            />
+          )
+        }
+        return (
+          <AmountStep
+            amount={amount}
+            setAmount={setAmount}
+            withdriwalCode={withdriwalCode}
+            setWithdriwalCode={setWithdriwalCode}
+            selectedPlatform={selectedPlatform}
+            selectedBetId={selectedBetId}
+            selectedNetwork={selectedNetwork}
+            selectedPhone={selectedPhone}
+            type="withdrawal"
+            onNext={handleNext}
+          />
+        )
+      case 6:
         return (
           <AmountStep
             amount={amount}
@@ -172,6 +235,19 @@ export default function WithdrawalPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      {lastTransaction ? (
+        <LastTransactionSummary
+          transaction={lastTransaction}
+          expectedType="withdrawal"
+          actionType={actionType}
+          onCancel={cancel}
+          onFinalize={async (reference) => {
+            await finalize(reference)
+          }}
+          afterFinalizeHref="/dashboard/history"
+        />
+      ) : null}
+
       {/* Back Button */}
       <div className="flex items-center justify-start">
         <Button

@@ -1,57 +1,58 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-interface ProgressBarProps {
+interface TransactionProgressBarProps {
   currentStep: number
   totalSteps: number
   type?: "deposit" | "withdrawal"
   className?: string
 }
 
-export function TransactionProgressBar({ currentStep, totalSteps, type, className }: ProgressBarProps) {
-  const progress = (currentStep / totalSteps) * 100
-
-  const getStepIcon = (stepNumber: number) => {
-    if (stepNumber < currentStep) {
-      return <Check className="h-3 w-3" />
-    }
-    return <span className="text-[10px] font-semibold">{stepNumber}</span>
-  }
-
-  const getStepColor = (stepNumber: number) => {
-    if (stepNumber < currentStep) {
-      return "bg-primary text-primary-foreground border-primary"
-    } else if (stepNumber === currentStep) {
-      return "bg-primary text-primary-foreground border-primary ring-2 ring-primary/30"
-    } else {
-      return "bg-background text-muted-foreground border-border"
-    }
-  }
+export function TransactionProgressBar({
+  currentStep,
+  totalSteps,
+  type,
+  className,
+}: TransactionProgressBarProps) {
+  const safeTotal = Math.max(totalSteps, 1)
+  const clampedStep = Math.min(Math.max(currentStep, 1), safeTotal)
+  const progress = (clampedStep / safeTotal) * 100
+  const stepsArray = Array.from({ length: safeTotal }, (_, i) => i + 1)
 
   return (
     <div className={cn("w-full", className)}>
-      {/* Step indicators */}
-      <div className="flex items-center justify-between mb-3">
-        {Array.from({ length: totalSteps }, (_, index) => {
-          const stepNumber = index + 1
-          const isCompleted = stepNumber < currentStep
-          const isCurrent = stepNumber === currentStep
+      {/* Steps Row */}
+      <div className="flex items-center justify-between mb-4">
+        {stepsArray.map((stepNumber) => {
+          const isCompleted = stepNumber < clampedStep
+          const isCurrent = stepNumber === clampedStep
 
           return (
             <div key={stepNumber} className="flex flex-col items-center flex-1">
-              <div className={cn(
-                "flex items-center justify-center w-7 h-7 rounded-full border-2 transition-all duration-300",
-                getStepColor(stepNumber)
-              )}>
-                {getStepIcon(stepNumber)}
+              <div
+                className={cn(
+                  "w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300",
+                  isCompleted && "bg-primary text-primary-foreground border-primary",
+                  isCurrent &&
+                    "bg-primary text-primary-foreground border-primary ring-2 ring-primary/30",
+                  !isCompleted &&
+                    !isCurrent &&
+                    "bg-background text-muted-foreground border-border",
+                )}
+              >
+                {isCompleted ? (
+                  <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+                ) : (
+                  <span className="text-xs sm:text-sm font-semibold">{stepNumber}</span>
+                )}
               </div>
+
+              {/* Current step text & percentage */}
               {isCurrent && (
-                <div className="mt-1.5 text-center">
-                  <p className="text-[10px] font-medium text-foreground">
-                    Étape {currentStep}/{totalSteps}
-                  </p>
+                <div className="mt-2 text-center absolute -bottom-1">
+                   {/* We use absolute positioning if needed or just let it flow if flex-1 handles it */}
                 </div>
               )}
             </div>
@@ -59,14 +60,28 @@ export function TransactionProgressBar({ currentStep, totalSteps, type, classNam
         })}
       </div>
 
-      {/* Progress bar */}
-      <div className="relative">
-        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+      {/* Horizontal Progress Bar with pulse overlay */}
+      <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+        {progress > 0 && progress < 100 && (
           <div
-            className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500 ease-out"
+            className="absolute top-0 h-2 bg-primary/50 rounded-full animate-pulse"
             style={{ width: `${progress}%` }}
           />
-        </div>
+        )}
+      </div>
+      
+      {/* Step Info Text below the bar */}
+      <div className="mt-2 flex justify-between items-center px-1">
+        <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-tighter">
+          Étape {clampedStep} sur {safeTotal}
+        </p>
+        <p className="text-[10px] font-bold text-slate-400">
+          {Math.round(progress)}% complété
+        </p>
       </div>
     </div>
   )

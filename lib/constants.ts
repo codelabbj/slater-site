@@ -11,7 +11,7 @@ export const TRANS_STATUS = [
   ["init_payment", "En entente"],
   ["accept", "Accept"],
   ["error", "Erreur"],
-  ["pending", "Pendind"],
+  ["pending", "Pending"],
 ] as const
 
 // Source Choices
