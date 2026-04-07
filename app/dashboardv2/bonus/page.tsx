@@ -24,8 +24,13 @@ export default function BonusV2Page() {
   const [totalPages, setTotalPages] = useState(1)
 
   // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.push("/loginv2")
+    }
+  }, [user, router])
+
   if (!user) {
-    router.push("/loginv2")
     return null
   }
 

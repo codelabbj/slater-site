@@ -87,8 +87,13 @@ export default function ProfileV2Page() {
   })
 
   // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.push("/loginv2")
+    }
+  }, [user, router])
+
   if (!user) {
-    router.push("/loginv2")
     return null
   }
 
@@ -123,7 +128,7 @@ export default function ProfileV2Page() {
   const onProfileSubmit = async (data: ProfileFormData) => {
     try {
       setIsUpdatingProfile(true)
-      const updatedProfile = await authApi.updateProfile(data)
+      const updatedProfile = await authApi.updateProfile(data as any)
       setUserProfile(updatedProfile)
       toast.success("Profil mis à jour avec succès!")
     } catch (error: any) {

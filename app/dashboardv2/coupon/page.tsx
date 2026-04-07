@@ -24,8 +24,13 @@ export default function CouponV2Page() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filteredCoupons, setFilteredCoupons] = useState<Coupon[]>([])
 
+  useEffect(() => {
+    if (!user) {
+      router.push("/loginv2")
+    }
+  }, [user, router])
+
   if (!user) {
-    router.push("/loginv2")
     return null
   }
 

@@ -14,7 +14,7 @@ import { AmountStep } from "@/components/transaction/steps/amount-step"
 import { TutoStep } from "@/components/transaction/steps/tuto-step"
 import { ConfirmationDialog } from "@/components/transaction/confirmation-dialog"
 import { transactionApi, settingsApi, networkApi } from "@/lib/api-client"
-import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
+import type { Platform, UserAppId, Network, UserPhone, Transaction } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { extractTimeErrorMessage } from "@/lib/utils"
 import { ArrowLeft, Copy, Loader2 } from "lucide-react"
@@ -75,8 +75,13 @@ export default function DepositV2Page() {
   const [mtnMerchantPhone, setMtnMerchantPhone] = useState<string | null>(null)
 
   // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.push("/loginv2")
+    }
+  }, [user, router])
+
   if (!user) {
-    router.push("/loginv2")
     return null
   }
 
