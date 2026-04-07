@@ -14,6 +14,7 @@ export function LastTransactionSummary(props: {
   onCancel: (reference: string) => Promise<any>
   onFinalize: (reference: string) => Promise<any>
   afterFinalizeHref: string
+  onContinue?: (transaction: Transaction) => void
 }) {
   const router = useRouter()
 
@@ -87,46 +88,49 @@ export function LastTransactionSummary(props: {
           </div>
         </div>
 
-        <div className="flex gap-3 pt-2">
-          <Button
-            variant="outline"
-            className="flex-1 h-12 rounded-xl border-destructive/20 text-destructive hover:bg-destructive/10"
-            onClick={async () => {
-              try {
-                await onCancel(transaction.reference)
-                toast.success("Transaction annulée")
-              } catch {
-                toast.error("Erreur lors de l'annulation")
-              }
-            }}
-            disabled={actionType !== null}
-          >
-            {actionType === "cancel" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Annuler"}
-          </Button>
-          <Button
-            className="flex-1 h-12 rounded-xl bg-primary shadow-lg shadow-primary/20"
-            onClick={async () => {
-              try {
-                const result = await onFinalize(transaction.reference)
-                
-                // Navigate to the transaction detail page if we have an ID
-                if (result && result.id) {
-                  const path = afterFinalizeHref.startsWith("/dashboardv2") 
-                    ? `/dashboardv2/history/${result.id}` 
-                    : `/dashboard/history/${result.id}`
-                  router.push(path)
-                } else {
-                  router.push(afterFinalizeHref)
+        <div className="flex flex-col gap-3 pt-2">
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 h-12 rounded-xl border-destructive/20 text-destructive hover:bg-destructive/10"
+              onClick={async () => {
+                try {
+                  await onCancel(transaction.reference)
+                  toast.success("Transaction annulée")
+                } catch {
+                  toast.error("Erreur lors de l'annulation")
                 }
-                toast.success("Transaction finalisée")
-              } catch {
-                toast.error("Erreur lors de la finalisation")
-              }
-            }}
-            disabled={actionType !== null}
-          >
-            {actionType === "finalize" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Finaliser"}
-          </Button>
+              }}
+              disabled={actionType !== null}
+            >
+              {actionType === "cancel" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Annuler"}
+            </Button>
+            <Button
+              className="flex-1 h-12 rounded-xl bg-primary shadow-lg shadow-primary/20"
+              onClick={async () => {
+                try {
+                  const result = await onFinalize(transaction.reference)
+                  
+                  // Navigate to the transaction detail page if we have an ID
+                  if (result && result.id) {
+                    const path = afterFinalizeHref.startsWith("/dashboardv2") 
+                      ? `/dashboardv2/history/${result.id}` 
+                      : `/dashboard/history/${result.id}`
+                    router.push(path)
+                  } else {
+                    router.push(afterFinalizeHref)
+                  }
+                  toast.success("Transaction finalisée")
+                } catch {
+                  toast.error("Erreur lors de la finalisation")
+                }
+              }}
+              disabled={actionType !== null}
+            >
+              {actionType === "finalize" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Finaliser"}
+            </Button>
+          </div>
+
         </div>
       </CardContent>
     </Card>

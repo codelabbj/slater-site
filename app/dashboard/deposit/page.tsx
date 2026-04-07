@@ -11,7 +11,7 @@ import { NetworkStep } from "@/components/transaction/steps/network-step"
 import { PhoneStep } from "@/components/transaction/steps/phone-step"
 import { AmountStep } from "@/components/transaction/steps/amount-step"
 import { TutoStep } from "@/components/transaction/steps/tuto-step"
-import { transactionApi, settingsApi } from "@/lib/api-client"
+import { transactionApi, settingsApi, networkApi } from "@/lib/api-client"
 import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { extractTimeErrorMessage } from "@/lib/utils"
@@ -41,6 +41,19 @@ export default function DepositPage() {
   const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null)
   const [selectedPhone, setSelectedPhone] = useState<UserPhone | null>(null)
   const [amount, setAmount] = useState(0)
+  const [networks, setNetworks] = useState<Network[]>([])
+
+  useEffect(() => {
+    const fetchNetworks = async () => {
+      try {
+        const data = await networkApi.getAll("deposit")
+        setNetworks(data)
+      } catch (error) {
+        console.error("Error fetching networks:", error)
+      }
+    }
+    fetchNetworks()
+  }, [])
 
   // Step management
   const [currentStep, setCurrentStep] = useState(1)
@@ -149,13 +162,14 @@ export default function DepositPage() {
     }
   }
 
-  const handleMoovUssdFlow = async (amountValue: number) => {
-    if (!selectedNetwork || selectedNetwork.name?.toLowerCase() !== "moov") {
+  const handleMoovUssdFlow = async (amountValue: number, network?: Network | null) => {
+    const activeNetwork = network || selectedNetwork
+    if (!activeNetwork || activeNetwork.name?.toLowerCase() !== "moov") {
       return false
     }
 
     // Check if deposit_api is "connect"
-    if (!selectedNetwork.deposit_api || selectedNetwork.deposit_api.toLowerCase() !== "connect") {
+    if (!activeNetwork.deposit_api || activeNetwork.deposit_api.toLowerCase() !== "connect") {
       return false
     }
 
@@ -219,13 +233,14 @@ export default function DepositPage() {
   //   }
   // }
 
-  const handleMtnUssdFlow = async (amountValue: number) => {
-    if (!selectedNetwork || selectedNetwork.name?.toLowerCase() !== "mtn") {
+  const handleMtnUssdFlow = async (amountValue: number, network?: Network | null) => {
+    const activeNetwork = network || selectedNetwork
+    if (!activeNetwork || activeNetwork.name?.toLowerCase() !== "mtn") {
       return false
     }
 
     // Check if deposit_api is "connect"
-    if (!selectedNetwork.deposit_api || selectedNetwork.deposit_api.toLowerCase() !== "connect") {
+    if (!activeNetwork.deposit_api || activeNetwork.deposit_api.toLowerCase() !== "connect") {
       return false
     }
 
@@ -521,6 +536,30 @@ export default function DepositPage() {
             await finalize(reference)
           }}
           afterFinalizeHref="/dashboard/history"
+          onContinue={async (tx) => {
+            if (tx.transaction_link) {
+              window.open(tx.transaction_link, "_blank", "noopener,noreferrer")
+              return
+            }
+
+            const txNetwork = networks.find(n => n.id === tx.network)
+            if (!txNetwork) return
+
+            const networkName = txNetwork.name?.toLowerCase() || ""
+            const isMoov = networkName.includes("moov")
+            const isMtn = networkName.includes("mtn")
+            const isOrange = networkName.includes("orange")
+            const isConnect = txNetwork.deposit_api?.toLowerCase() === "connect"
+
+            if (isConnect) {
+              if (isMoov) {
+                await handleMoovUssdFlow(tx.amount, txNetwork)
+              } else if (isMtn) {
+                await handleMtnUssdFlow(tx.amount, txNetwork)
+              }
+              // Add Orange USSD flow if/when implemented
+            }
+          }}
         />
       ) : null}
 

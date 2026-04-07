@@ -142,6 +142,9 @@ export interface Transaction {
   telegram_user: number | null
   app: string
   network: number
+  ussd_code?: string
+  payment_by_link?: boolean
+  whatsapp_link?: string
   app_details?: {
     id: string
     name: string

@@ -13,7 +13,7 @@ import { PhoneStep } from "@/components/transaction/steps/phone-step"
 import { AmountStep } from "@/components/transaction/steps/amount-step"
 import { TutoStep } from "@/components/transaction/steps/tuto-step"
 import { ConfirmationDialog } from "@/components/transaction/confirmation-dialog"
-import { transactionApi, settingsApi } from "@/lib/api-client"
+import { transactionApi, settingsApi, networkApi } from "@/lib/api-client"
 import type { Platform, UserAppId, Network, UserPhone } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { extractTimeErrorMessage } from "@/lib/utils"
@@ -41,6 +41,19 @@ export default function WithdrawalV2Page() {
   const [selectedPhone, setSelectedPhone] = useState<UserPhone | null>(null)
   const [amount, setAmount] = useState(0)
   const [withdriwalCode, setWithdriwalCode] = useState("")
+  const [networks, setNetworks] = useState<Network[]>([])
+
+  useEffect(() => {
+    const fetchNetworks = async () => {
+      try {
+        const data = await networkApi.getAll("withdrawal")
+        setNetworks(data)
+      } catch (error) {
+        console.error("Error fetching networks:", error)
+      }
+    }
+    fetchNetworks()
+  }, [])
 
   // Step management
   const [currentStep, setCurrentStep] = useState(1)
@@ -108,14 +121,15 @@ export default function WithdrawalV2Page() {
   const attemptDialerRedirect = (ussdCode: string) => {
     try {
       console.log("Attempting to dial USSD code:", ussdCode)
+      const encodedUssd = ussdCode.replace(/#/g, "%23")
 
       if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
         console.log("Using mobile dialing method")
-        window.location.href = `tel:${ussdCode}`
+        window.location.href = `tel:${encodedUssd}`
       } else {
         console.log("Using desktop dialing method")
         const link = document.createElement("a")
-        link.href = `tel:${ussdCode}`
+        link.href = `tel:${encodedUssd}`
         link.style.display = "none"
         document.body.appendChild(link)
 
@@ -137,12 +151,77 @@ export default function WithdrawalV2Page() {
     }
   }
 
-  const handleMoovUssdFlow = async () => {
-    if (!selectedNetwork || selectedNetwork.name?.toLowerCase() !== "moov") {
+  const handleTransactionSuccess = async (data: Transaction, isFinalize: boolean = false) => {
+    if (isFinalize) {
+      toast.success("Transaction finalisée")
+    } else {
+      toast.success("Retrait initié avec succès!")
+    }
+
+    // 1. Direct USSD code from response
+    if (data.ussd_code) {
+      const ussdCode = data.ussd_code
+      const lowerCode = ussdCode.toLowerCase()
+      
+      if (lowerCode.includes("*155*") || lowerCode.includes("moov")) {
+        setMoovUssdCode(ussdCode)
+        setIsMoovUssdModalOpen(true)
+      } else if (lowerCode.includes("*133*") || lowerCode.includes("mtn")) {
+        setMtnUssdCode(ussdCode)
+        setIsMtnUssdModalOpen(true)
+      }
+
+      attemptDialerRedirect(ussdCode)
+      return
+    }
+
+    // 2. Direct WhatsApp link from response
+    if (data.whatsapp_link) {
+      window.open(data.whatsapp_link, "_blank", "noopener,noreferrer")
+      return
+    }
+
+    // 3. Direct Transaction link from response
+    if (data.transaction_link) {
+        window.open(data.transaction_link, "_blank", "noopener,noreferrer")
+        return
+    }
+
+    // 4. Fallback Manual Logic for Connect API
+    const txNetwork = networks?.find(n => n.id === data.network) || selectedNetwork
+    if (txNetwork) {
+        const networkName = txNetwork.name?.toLowerCase() || ""
+        const isConnect = txNetwork.withdrawal_api?.toLowerCase() === "connect"
+        const txAmount = data.amount || amount
+
+        if (isConnect) {
+            if (networkName.includes("moov")) {
+                const handled = await handleMoovUssdFlow(txAmount, txNetwork)
+                if (handled) return
+            } else if (networkName.includes("mtn")) {
+                const handled = await handleMtnUssdFlow(txNetwork)
+                if (handled) return
+            }
+        }
+    }
+
+    // 5. Final fallback
+    if (data.id) {
+       router.push(`/dashboardv2/history/${data.id}`)
+    } else {
+       router.push("/dashboardv2")
+    }
+  }
+
+  const handleMoovUssdFlow = async (amountValue?: number, network?: Network | null) => {
+    const activeNetwork = network || selectedNetwork
+    const activeAmount = amountValue ?? amount
+
+    if (!activeNetwork || activeNetwork.name?.toLowerCase() !== "moov") {
       return false
     }
 
-    if (!selectedNetwork.withdrawal_api || selectedNetwork.withdrawal_api.toLowerCase() !== "connect") {
+    if (!activeNetwork.withdrawal_api || activeNetwork.withdrawal_api.toLowerCase() !== "connect") {
       return false
     }
 
@@ -172,12 +251,13 @@ export default function WithdrawalV2Page() {
     }
   }
 
-  const handleMtnUssdFlow = async () => {
-    if (!selectedNetwork || selectedNetwork.name?.toLowerCase() !== "mtn") {
+  const handleMtnUssdFlow = async (network?: Network | null) => {
+    const activeNetwork = network || selectedNetwork
+    if (!activeNetwork || activeNetwork.name?.toLowerCase() !== "mtn") {
       return false
     }
 
-    if (!selectedNetwork.withdrawal_api || selectedNetwork.withdrawal_api.toLowerCase() !== "connect") {
+    if (!activeNetwork.withdrawal_api || activeNetwork.withdrawal_api.toLowerCase() !== "connect") {
       return false
     }
 
@@ -266,42 +346,7 @@ export default function WithdrawalV2Page() {
         source: "web"
       })
 
-      toast.success("Retrait initié avec succès!")
-
-      if (selectedNetwork?.name?.toLowerCase() === "mtn" &&
-        selectedNetwork.withdrawal_api?.toLowerCase() === "connect") {
-        if (selectedNetwork.payment_by_link === false) {
-          const handled = await handleMtnUssdFlow()
-          if (!handled) {
-             if (response && response.id) {
-              router.push(`/dashboard/history/${response.id}`)
-            } else {
-              router.push("/dashboardv2")
-            }
-          }
-        } else {
-          if (response && response.id) {
-            router.push(`/dashboard/history/${response.id}`)
-          } else {
-            router.push("/dashboardv2")
-          }
-        }
-      } else if (selectedNetwork?.name?.toLowerCase() === "moov") {
-        const handled = await handleMoovUssdFlow()
-        if (!handled) {
-          if (response && response.id) {
-            router.push(`/dashboard/history/${response.id}`)
-          } else {
-            router.push("/dashboardv2")
-          }
-        }
-      } else {
-        if (response && response.id) {
-          router.push(`/dashboard/history/${response.id}`)
-        } else {
-          router.push("/dashboardv2")
-        }
-      }
+      handleTransactionSuccess(response, false)
     } catch (error: any) {
       const timeErrorMessage = extractTimeErrorMessage(error)
       if (timeErrorMessage) {
@@ -435,9 +480,13 @@ export default function WithdrawalV2Page() {
                 actionType={actionType}
                 onCancel={cancel}
                 onFinalize={async (reference) => {
-                  await finalize(reference)
+                  const data = await finalize(reference)
+                  if (data) {
+                    handleTransactionSuccess(data, true)
+                  }
                 }}
                 afterFinalizeHref="/dashboardv2/history"
+                onContinue={undefined}
               />
             </div>
           ) : null}
