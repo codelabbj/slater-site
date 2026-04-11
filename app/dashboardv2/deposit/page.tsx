@@ -427,6 +427,7 @@ export default function DepositV2Page() {
             selectedBetId={selectedBetId}
             onSelect={setSelectedBetId}
             onNext={handleNext}
+            type="deposit"
           />
         )
       case 3:
@@ -445,6 +446,7 @@ export default function DepositV2Page() {
             selectedPhone={selectedPhone}
             onSelect={setSelectedPhone}
             onNext={handleNext}
+            type="deposit"
           />
         )
       case 5:

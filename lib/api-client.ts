@@ -111,18 +111,18 @@ export const authApi = {
 
 export const networkApi = {
   getAll: async (type?: "deposit" | "withdrawal") => {
-    const url = type ? `/mobcash/network?type=${type}` : "/mobcash/network"
-    const { data } = await api.get<Network[]>(url)
+    const { data } = await api.get<Network[]>("/mobcash/network", {
+      params: { type }
+    })
     return data
   },
 }
 
 export const phoneApi = {
-  getAll: async (network?: number) => {
-    const url = network
-      ? `/mobcash/user-phone/?network=${network}`
-      : "/mobcash/user-phone/"
-    const { data } = await api.get<UserPhone[]>(url)
+  getAll: async (network?: number, type?: "deposit" | "withdrawal") => {
+    const { data } = await api.get<UserPhone[]>("/mobcash/user-phone/", {
+      params: { network, type }
+    })
     return data
   },
 
@@ -156,13 +156,17 @@ export const platformApi = {
 }
 
 export const userAppIdApi = {
-  getAll: async () => {
-    const { data } = await api.get<UserAppId[]>("/mobcash/user-app-id")
+  getAll: async (type?: "deposit" | "withdrawal") => {
+    const { data } = await api.get<UserAppId[]>("/mobcash/user-app-id", {
+      params: { type }
+    })
     return data
   },
 
-  getByPlatform: async (bet_app: string) => {
-    const { data } = await api.get<UserAppId[]>(`/mobcash/user-app-id?app_name=${bet_app}`)
+  getByPlatform: async (bet_app: string, type?: "deposit" | "withdrawal") => {
+    const { data } = await api.get<UserAppId[]>("/mobcash/user-app-id", {
+      params: { app_name: bet_app, type }
+    })
     return data
   },
 

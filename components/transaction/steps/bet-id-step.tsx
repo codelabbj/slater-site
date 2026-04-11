@@ -25,9 +25,10 @@ interface BetIdStepProps {
   selectedBetId: UserAppId | null
   onSelect: (betId: UserAppId) => void
   onNext: () => void
+  type: "deposit" | "withdrawal"
 }
 
-export function BetIdStep({ selectedPlatform, selectedBetId, onSelect, onNext }: BetIdStepProps) {
+export function BetIdStep({ selectedPlatform, selectedBetId, onSelect, onNext, type }: BetIdStepProps) {
   const [betIds, setBetIds] = useState<UserAppId[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -57,7 +58,7 @@ export function BetIdStep({ selectedPlatform, selectedBetId, onSelect, onNext }:
     
     setIsLoading(true)
     try {
-      const data = await userAppIdApi.getByPlatform(selectedPlatform.id)
+      const data = await userAppIdApi.getByPlatform(selectedPlatform.id, type)
       setBetIds(data)
     } catch (error) {
       toast.error("Erreur lors du chargement des IDs de pari")

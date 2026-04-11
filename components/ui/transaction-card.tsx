@@ -3,25 +3,18 @@
 import {Network, Transaction} from "@/lib/types";
 import {cn, formatPhoneNumberForDisplay} from "@/lib/utils";
 import {ArrowDownToLine, ArrowUpFromLine} from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import {useState} from "react";
+import { useRouter } from "next/navigation";
 import {format} from "date-fns";
 import {fr} from "date-fns/locale";
-import {Badge} from "@/components/ui/badge";
 
 interface TransactionCardProps {
     transaction: Transaction
     network: Network|undefined
+    basePath?: string
 }
 
-export default function TransactionCard({transaction, network}: TransactionCardProps) {
-    const [isOpen, setIsOpen] = useState(false)
+export default function TransactionCard({transaction, network, basePath = '/dashboard/history'}: TransactionCardProps) {
+    const router = useRouter()
     const isDeposit = transaction.type_trans === "deposit"
 
     const getStatusColor = (status: Transaction["status"]) => {
@@ -49,10 +42,12 @@ export default function TransactionCard({transaction, network}: TransactionCardP
     }
 
     return (
-        <>
         <div
             key={transaction.id}
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+                sessionStorage.setItem('cached_transaction', JSON.stringify(transaction))
+                router.push(`${basePath}/${transaction.id}`)
+            }}
             className={cn(
                 "group relative overflow-hidden rounded-2xl p-4 cursor-pointer transition-all duration-300",
                 "bg-gradient-to-br border backdrop-blur-sm",
@@ -140,108 +135,5 @@ export default function TransactionCard({transaction, network}: TransactionCardP
                 </div>
             </div>
         </div>
-
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className="max-w-md m-2 rounded-3xl border-2">
-                <DialogHeader className="space-y-3">
-                    <DialogTitle className="text-xl">Détails de la transaction</DialogTitle>
-                    <DialogDescription className="text-sm">
-                        Informations complètes
-                    </DialogDescription>
-                </DialogHeader>
-
-                <div className="space-y-4 pt-2">
-                    <div className="text-center space-y-3">
-                        <div className={cn(
-                            "inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-2 shadow-lg ring-4 ring-offset-2",
-                            isDeposit 
-                                ? "bg-gradient-to-br from-green-500 to-emerald-600 ring-green-200/50 dark:ring-green-800/30" 
-                                : "bg-gradient-to-br from-blue-500 to-sky-600 ring-blue-200/50 dark:ring-blue-800/30"
-                        )}>
-                            {isDeposit ? (
-                                <ArrowDownToLine className="h-10 w-10 text-white" />
-                            ) : (
-                                <ArrowUpFromLine className="h-10 w-10 text-white" />
-                            )}
-                        </div>
-                        <div>
-                            <p className="text-xs text-muted-foreground mb-2 font-medium">{isDeposit ? "Dépôt" : "Retrait"}</p>
-                            <p className={cn(
-                                "text-4xl font-bold tracking-tight",
-                                isDeposit ? "text-green-600 dark:text-green-400" : "text-blue-600 dark:text-blue-400"
-                            )}>
-                                {isDeposit ? "+" : "-"}{transaction.amount.toLocaleString("fr-FR", {
-                                    minimumFractionDigits: 0,
-                                })}
-                            </p>
-                            <p className="text-sm text-muted-foreground font-semibold mt-1">XOF</p>
-                        </div>
-                        <div>
-                            <Badge 
-                                className={cn("shadow-sm ring-1 ring-inset", getStatusColor(transaction.status))}
-                                variant={transaction.status === "accept" ? "default" : transaction.status === "reject" || transaction.status === "error" ? "destructive" : "secondary"}
-                            >
-                                {getStatusLabel(transaction.status)}
-                            </Badge>
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 border shadow-sm">
-                        {transaction.app_details?.image && (
-                            <img
-                                src={transaction.app_details.image}
-                                alt={transaction.app_details.name}
-                                className="w-14 h-14 rounded-xl object-cover shadow-md ring-2 ring-background"
-                            />
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Application</p>
-                            <p className="text-base font-bold truncate">{transaction.app_details?.name || transaction.app}</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 border shadow-sm">
-                        {network?.image && (
-                            <img
-                                src={network.image}
-                                alt={network.name}
-                                className="w-14 h-14 rounded-xl object-cover shadow-md ring-2 ring-background"
-                            />
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground font-medium mb-0.5">Réseau</p>
-                            <p className="text-base font-bold truncate">{network?.name || `Réseau #${transaction.network}`}</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="p-3 rounded-xl bg-muted/40 border">
-                            <p className="text-[10px] text-muted-foreground font-semibold mb-1.5 uppercase tracking-wide">Référence</p>
-                            <p className="text-xs font-bold font-mono truncate">#{transaction.reference}</p>
-                        </div>
-
-                        <div className="p-3 rounded-xl bg-muted/40 border">
-                            <p className="text-[10px] text-muted-foreground font-semibold mb-1.5 uppercase tracking-wide">Téléphone</p>
-                            <p className="text-xs font-bold truncate">{formatPhoneNumberForDisplay(transaction.phone_number)}</p>
-                        </div>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-muted/40 border">
-                        <p className="text-[10px] text-muted-foreground font-semibold mb-1.5 uppercase tracking-wide">Date et heure</p>
-                        <p className="text-sm font-bold">
-                            {format(new Date(transaction.created_at), "EEEE dd MMMM yyyy 'à' HH:mm", {
-                                locale: fr,
-                            })}
-                        </p>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-muted/40 border">
-                        <p className="text-[10px] text-muted-foreground font-semibold mb-1.5 uppercase tracking-wide">ID Application</p>
-                        <p className="text-xs font-mono break-all text-muted-foreground">{transaction.user_app_id}</p>
-                    </div>
-                </div>
-            </DialogContent>
-        </Dialog>
-        </>
     )
 }

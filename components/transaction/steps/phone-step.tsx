@@ -32,6 +32,7 @@ interface PhoneStepProps {
   selectedPhone: UserPhone | null
   onSelect: (phone: UserPhone) => void
   onNext: () => void
+  type: "deposit" | "withdrawal"
 }
 
 // Country configurations with prefixes
@@ -42,7 +43,7 @@ const COUNTRIES = [
   { code: "CI", name: "Côte d'Ivoire", prefix: "225" },
 ]
 
-export function PhoneStep({ selectedNetwork, selectedPhone, onSelect, onNext }: PhoneStepProps) {
+export function PhoneStep({ selectedNetwork, selectedPhone, onSelect, onNext, type }: PhoneStepProps) {
   const [phones, setPhones] = useState<UserPhone[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -64,7 +65,7 @@ export function PhoneStep({ selectedNetwork, selectedPhone, onSelect, onNext }: 
 
     setIsLoading(true)
     try {
-      const data = await phoneApi.getAll(selectedNetwork.id)
+      const data = await phoneApi.getAll(selectedNetwork.id, type)
       setPhones(data)
     } catch (error) {
       toast.error("Erreur lors du chargement des numéros de téléphone")

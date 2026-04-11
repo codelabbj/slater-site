@@ -45,11 +45,32 @@ function TransactionDetailContent() {
     setIsLoading(true)
     setError(null)
     try {
-      const [transactionData, networksData, settingsData] = await Promise.all([
-        transactionApi.getById(id),
+      let transactionData = null;
+      try {
+        const cached = sessionStorage.getItem('cached_transaction')
+        if (cached) {
+          const parsed = JSON.parse(cached)
+          if (String(parsed.id) === String(id) || String(parsed.reference) === String(id)) {
+            transactionData = parsed
+          }
+        }
+      } catch (e) {}
+
+      if (!transactionData) {
+        const response: any = await transactionApi.getHistory({ page: 1, page_size: 50 })
+        transactionData = response.results?.find?.((t: any) => String(t.id) === String(id) || String(t.reference) === String(id) || String(t.uid) === String(id))
+        if (transactionData) {
+          sessionStorage.setItem('cached_transaction', JSON.stringify(transactionData))
+        } else {
+          throw new Error("Transaction non trouvée dans l'historique.")
+        }
+      }
+
+      const [networksData, settingsData] = await Promise.all([
         networkApi.getAll(),
         settingsApi.get()
       ])
+      
       setTransaction(transactionData)
       setNetworks(networksData)
       setSettings(settingsData)

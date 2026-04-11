@@ -408,6 +408,7 @@ export default function WithdrawalV2Page() {
             selectedBetId={selectedBetId}
             onSelect={setSelectedBetId}
             onNext={handleNext}
+            type="withdrawal"
           />
         )
       case 3:
@@ -426,6 +427,7 @@ export default function WithdrawalV2Page() {
             selectedPhone={selectedPhone}
             onSelect={setSelectedPhone}
             onNext={handleNext}
+            type="withdrawal"
           />
         )
       case 5:

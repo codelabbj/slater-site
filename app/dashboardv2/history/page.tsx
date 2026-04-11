@@ -205,7 +205,7 @@ export default function TransactionHistoryPageV2() {
             <div className="space-y-2">
               {transactions.map((transaction) => {
                 const network = networks.find(n => n.id == transaction.network)
-                return <TransactionCard key={transaction.id} transaction={transaction} network={network} />
+                return <TransactionCard key={transaction.id} transaction={transaction} network={network} basePath="/dashboardv2/history" />
               })}
             </div>
           )}
