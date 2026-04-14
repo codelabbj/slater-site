@@ -112,6 +112,20 @@ export function AmountStep({
             <span className="font-medium text-right break-words">{selectedPlatform.name}</span>
           </div>
 
+          {selectedPlatform.city && (
+            <div className="flex justify-between items-center gap-2">
+              <span className="text-muted-foreground">Ville</span>
+              <span className="font-medium text-right break-words">{selectedPlatform.city}</span>
+            </div>
+          )}
+
+          {selectedPlatform.street && (
+            <div className="flex justify-between items-center gap-2">
+              <span className="text-muted-foreground">Rue</span>
+              <span className="font-medium text-right break-words">{selectedPlatform.street}</span>
+            </div>
+          )}
+
           <div className="flex justify-between items-center gap-2">
             <span className="text-muted-foreground">ID de pari</span>
             <span className="font-medium text-right break-all">{selectedBetId.user_app_id}</span>
