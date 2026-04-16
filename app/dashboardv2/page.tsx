@@ -377,6 +377,7 @@ export default function DashboardPageV2() {
             <Send className="h-5 w-5" />
           </Button>
         </div>
+        </div>
       </div>
     </div>
   )
