@@ -242,5 +242,6 @@ export default function TransactionHistoryPageV2() {
         </div>
       </div>
     </div>
+  </div>
   )
 }
