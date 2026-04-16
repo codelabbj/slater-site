@@ -23,6 +23,9 @@ export interface User {
   last_login: string
   groups: string[]
   user_permissions: string[]
+  can_publish_coupons?: boolean
+  can_rate_coupons?: boolean
+  coupon_points?: number
 }
 
 export interface AuthResponse {
@@ -64,6 +67,7 @@ export interface UserPhone {
 export interface Platform {
   id: string
   name: string
+  public_name: string
   image: string
   enable: boolean
   deposit_tuto_link: string | null
@@ -212,12 +216,46 @@ export interface Advertisement {
 
 export interface Settings {
   referral_bonus?: boolean
+  whatsapp_phone?: string
+  telegram?: string
   [key: string]: any // Allow for flexible response structure
 }
 
+export interface CommentAuthor {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+}
+
+export interface Comment {
+  id: string
+  content: string
+  created_at: string
+  author: CommentAuthor
+  parent_id: string | null
+  replies?: Comment[]
+}
+
 export interface Coupon {
-  id: number
+  id: string
   created_at: string
   code: string
-  bet_app: string
+  bet_app: Platform
+  author: string
+  author_first_name?: string
+  author_last_name?: string
+  author_rating?: number
+  coupon_type: 'combine' | 'single'
+  odds: string
+  match_count: number
+  average_rating: number
+  total_ratings: number
+  likes_count: number
+  dislikes_count: number
+  user_liked: boolean
+  user_disliked: boolean
+  can_rate: boolean
+  total_comments?: number
 }
+

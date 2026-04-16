@@ -501,13 +501,16 @@ export default function LoginPageV2() {
         )}
 
         {/* Footer */}
-        <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200 text-center">
+        <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200 text-center space-y-2">
           <p className="text-xs sm:text-sm text-slate-500">
             Pas encore de compte ?{" "}
             <Link href="/registerv2" className="text-slate-900 font-semibold hover:underline">
               Créer un compte
             </Link>
           </p>
+          <div className="text-[10px] text-slate-300 font-mono">
+            Site Version: TURN 12
+          </div>
         </div>
       </div>
     </div>

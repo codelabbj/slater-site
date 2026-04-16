@@ -15,6 +15,7 @@ import type {
   Settings,
   Coupon,
   User,
+  Comment as CouponComment,
 } from "./types"
 
 export const authApi = {
@@ -333,11 +334,83 @@ export const settingsApi = {
 }
 
 export const couponApi = {
-  getAll: async (page = 1) => {
-    const { data } = await api.get<PaginatedResponse<Coupon>>(`/mobcash/coupon?page=${page}`)
+  getAll: async (params?: { page?: number; page_size?: number; bet_app?: string }) => {
+    const queryParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, String(value))
+        }
+      })
+    }
+    const { data } = await api.get<PaginatedResponse<Coupon>>(`/mobcash/v2/coupons?${queryParams.toString()}`)
+    return data
+  },
+
+  getById: async (id: string) => {
+    const { data } = await api.get<Coupon>(`/mobcash/v2/coupons/${id}`)
+    return data
+  },
+
+  create: async (couponData: {
+    bet_app_id: string
+    code: string
+    odds: string
+    coupon_type: 'single' | 'combine'
+    match_count: number
+    description?: string
+    stake?: string
+    date_expiration?: string
+  }) => {
+    const { data } = await api.post<Coupon>("/mobcash/v2/coupons", {
+      ...couponData,
+      bet_app: couponData.bet_app_id // The API V2 example uses bet_app as ID
+    })
+    return data
+  },
+
+  vote: async (couponId: string, voteType: 'like' | 'dislike') => {
+    const { data } = await api.post(`/mobcash/v2/coupons/${couponId}/vote`, { vote_type: voteType })
+    return data
+  },
+
+  getComments: async (couponAuthorId: string) => {
+    // API V2 returns a plain array for author-comments
+    const { data } = await api.get<any>(`/mobcash/v2/author-comments?coupon_author_id=${couponAuthorId}`)
+    return data
+  },
+
+  postComment: async (commentData: {
+    coupon_id: string
+    content: string
+    parent_id?: string
+  }) => {
+    const { data } = await api.post<CouponComment>("/mobcash/v2/author-comments", commentData)
+    return data
+  },
+
+  getStats: async (userId: string) => {
+    const { data } = await api.get(`/mobcash/v2/author-stats/${userId}`)
+    return data
+  },
+
+  getWallet: async () => {
+    const { data } = await api.get("/mobcash/v2/coupon-wallet")
+    return data
+  },
+
+  withdraw: async (amount: number) => {
+    const { data } = await api.post("/mobcash/v2/coupon-wallet-withdraw", { amount })
+    return data
+  },
+
+  getUserStats: async () => {
+    const { data } = await api.get("/mobcash/v2/user/coupon-stats")
     return data
   },
 }
+
+
 
 export const deviceApi = {
   register: async (registration_id: string, user_id: string) => {

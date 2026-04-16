@@ -14,6 +14,7 @@ import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { formatPhoneNumberForDisplay } from "@/lib/utils"
 import TransactionCard from "@/components/ui/transaction-card"
+import { AppBar } from "@/components/ui/app-bar"
 
 export default function TransactionHistoryPageV2() {
   const router = useRouter()
@@ -106,10 +107,12 @@ export default function TransactionHistoryPageV2() {
       </div>
     )
   }
-
+  
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen">
+      <AppBar />
+      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full max-w-md mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2">

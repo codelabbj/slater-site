@@ -573,6 +573,9 @@ export default function LoginPage() {
               Créer un compte
             </Link>
           </div>
+          <div className="text-[10px] text-slate-300 font-mono text-center">
+            Site Version: TURN 12 | Root Flow
+          </div>
         </CardFooter>
       </Card>
 
