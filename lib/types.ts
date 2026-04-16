@@ -218,6 +218,8 @@ export interface Settings {
   referral_bonus?: boolean
   whatsapp_phone?: string
   telegram?: string
+  requires_deposit_to_view_coupon?: boolean
+  minimun_deposit_before_view_coupon?: number
   [key: string]: any // Allow for flexible response structure
 }
 

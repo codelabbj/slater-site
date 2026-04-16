@@ -21,10 +21,11 @@ import {
   Send,
   Trophy,
   Wallet,
-  X
+  X,
+  Lock
 } from "lucide-react"
 import Link from "next/link"
-import { couponApi, platformApi, authApi } from "@/lib/api-client"
+import { couponApi, platformApi, authApi, settingsApi, transactionApi } from "@/lib/api-client"
 import type { Coupon, Platform, Comment as CouponComment, User } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { format } from "date-fns"
@@ -59,15 +60,48 @@ export default function CouponV2Page() {
   const [commentText, setCommentText] = useState("")
   const [commentsLoading, setCommentsLoading] = useState(false)
 
-  // Error state for inline banner
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [isAccessRestricted, setIsAccessRestricted] = useState(false)
+  const [checkingAccess, setCheckingAccess] = useState(true)
+  const [minDepositRequired, setMinDepositRequired] = useState(0)
 
   useEffect(() => {
     setMounted(true)
     fetchPlatforms()
     fetchUserProfile()
+    checkAccess()
   }, [])
+
+  const checkAccess = async () => {
+    setCheckingAccess(true)
+    try {
+      const settings = await settingsApi.get()
+      if (settings?.requires_deposit_to_view_coupon) {
+        const minReq = settings.minimun_deposit_before_view_coupon || 0
+        setMinDepositRequired(minReq)
+        
+        // Check transaction history for a single accepted deposit >= minReq
+        const history = await transactionApi.getHistory({
+          type_trans: "deposit",
+          status: "accept",
+          page: 1,
+          page_size: 50 // Check last 50 successful deposits
+        })
+        
+        const results = history.results || []
+        const hasValidDeposit = results.some((t: any) => t.amount >= minReq)
+        
+        if (!hasValidDeposit) {
+          setIsAccessRestricted(true)
+        }
+      }
+    } catch (err) {
+      console.error("Error checking coupon access:", err)
+    } finally {
+      setCheckingAccess(false)
+    }
+  }
 
   useEffect(() => {
     fetchCoupons(selectedPlatformId)
@@ -252,6 +286,67 @@ export default function CouponV2Page() {
   }
 
   if (!mounted || !user) return null
+
+  if (checkingAccess) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground animate-pulse">Vérification des accès...</p>
+      </div>
+    )
+  }
+
+  if (isAccessRestricted) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
+        <AppBar showBackButton={true} backHref="/dashboardv2" title="Accès Restreint" />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full rounded-[2.5rem] border-0 shadow-2xl overflow-hidden bg-white dark:bg-slate-900 border-b-8 border-red-100 dark:border-red-900/20">
+            <CardContent className="p-10 flex flex-col items-center text-center space-y-8">
+              <div className="relative">
+                <div className="absolute inset-0 bg-red-100 dark:bg-red-900/30 rounded-[2rem] blur-2xl opacity-50" />
+                <div className="relative h-24 w-24 rounded-[2rem] bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/40 dark:to-red-900/20 flex items-center justify-center border border-red-200 dark:border-red-800 shadow-inner">
+                  <Lock className="h-10 w-10 text-red-500" strokeWidth={2.5} />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Accès Limité</h2>
+                <div className="h-1 w-12 bg-red-500 rounded-full mx-auto" />
+                <p className="text-slate-600 dark:text-slate-400 font-bold leading-relaxed pt-2">
+                  Vous n'êtes pas autorisé à accéder à la page des coupons tant qu'un dépôt minimum de 
+                  <span className="text-red-500 mx-1">
+                    {minDepositRequired.toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "XOF",
+                      minimumFractionDigits: 0,
+                    })}
+                  </span> 
+                  n'a pas été effectué.
+                </p>
+              </div>
+
+              <div className="w-full pt-4 space-y-3">
+                <Button 
+                  onClick={() => router.push("/dashboardv2/deposit")}
+                  className="w-full rounded-2xl h-14 text-base font-black shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all bg-primary hover:bg-primary/90"
+                >
+                  Effectuer un dépôt
+                </Button>
+                <Button 
+                  variant="ghost"
+                  onClick={() => router.push("/dashboardv2")}
+                  className="w-full h-12 rounded-2xl font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all"
+                >
+                  Retour au tableau de bord
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen">
