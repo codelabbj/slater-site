@@ -350,7 +350,7 @@ export default function CouponV2Page() {
 
   return (
     <div className="min-h-screen">
-      <AppBar showBackButton={true} backHref="/dashboardv2" title="Coupons Mobcash" />
+      <AppBar showBackButton={true} backHref="/dashboardv2" title="Coupons" />
       <div className="max-w-6xl mx-auto px-4 pb-10 pt-8 space-y-8">
         {/* Error Banner */}
         {error && (
