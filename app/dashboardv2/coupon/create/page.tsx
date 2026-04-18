@@ -16,7 +16,7 @@ import {
   ChevronRight,
   Zap
 } from "lucide-react"
-import { couponApi, platformApi } from "@/lib/api-client"
+import { couponApi, platformApi, settingsApi, authApi } from "@/lib/api-client"
 import type { Platform } from "@/lib/types"
 import { toast } from "react-hot-toast"
 import { cn } from "@/lib/utils"
@@ -38,11 +38,44 @@ export default function CreateCouponV2Page() {
   const [couponType, setCouponType] = useState<"single" | "combine">("single")
 
   const [mounted, setMounted] = useState(false)
+  const [checkingAccess, setCheckingAccess] = useState(true)
   
   useEffect(() => {
     setMounted(true)
-    fetchPlatforms()
+    checkAccessAndFetchPlatforms()
   }, [])
+
+  const checkAccessAndFetchPlatforms = async () => {
+    try {
+      const [settings, profile] = await Promise.all([
+        settingsApi.get(),
+        authApi.getProfile()
+      ])
+
+      const canPublish = settings?.allow_all_users_publish_coupons || 
+        profile?.can_publish_coupons || 
+        profile?.is_staff || 
+        profile?.is_superuser || 
+        (profile as any)?.is_supperuser ||
+        user?.can_publish_coupons ||
+        user?.is_staff ||
+        user?.is_superuser ||
+        (user as any)?.is_supperuser
+
+      if (!canPublish) {
+        toast.error("Vous n'avez pas l'autorisation de publier des coupons.")
+        router.push("/dashboardv2/coupon")
+        return
+      }
+
+      await fetchPlatforms()
+    } catch (error) {
+      console.error("Error checking access:", error)
+      router.push("/dashboardv2/coupon")
+    } finally {
+      setCheckingAccess(false)
+    }
+  }
 
   useEffect(() => {
     const count = parseInt(matchCount) || 0
@@ -85,6 +118,15 @@ export default function CreateCouponV2Page() {
   }
 
   if (!mounted || !user) return null
+
+  if (checkingAccess) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground animate-pulse">Vérification des accès...</p>
+      </div>
+    )
+  }
 
   return (
     <>
