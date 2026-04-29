@@ -129,8 +129,8 @@ api.interceptors.response.use(
       error.response?.data?.message ||
       (typeof error.response?.data === "string" ? error.response.data : "Une erreur est survenue. Veuillez réessayer.")
 
-    // Only show toast if not a silent request
-    if (!original?._silent) {
+    // Only show toast if not a silent request and not a 401 error
+    if (!original?._silent && status !== 401) {
       toast.error(backendMsg, { style: { direction: "ltr" } })
     }
     return Promise.reject(error)

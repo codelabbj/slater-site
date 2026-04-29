@@ -342,7 +342,6 @@ export default function DepositPage() {
       setIsMtnUssdModalOpen(true)
     }
   }
-
   const handleConfirmTransaction = async () => {
     if (!selectedPlatform || !selectedBetId || !selectedNetwork || !selectedPhone) {
       toast.error("Données manquantes pour la transaction")
@@ -353,53 +352,15 @@ export default function DepositPage() {
     try {
       const response = await transactionApi.createDeposit({
         amount,
-        phone_number: selectedPhone.phone,
-        app: selectedPlatform.id,
-        user_app_id: selectedBetId.user_app_id,
-        network: selectedNetwork.id,
+        phone_number: selectedPhone!.phone,
+        app: selectedPlatform!.id,
+        user_app_id: selectedBetId!.user_app_id,
+        network: selectedNetwork!.id,
         source: "web"
       })
 
-      toast.success("Dépôt initié avec succès!")
-
-      if (response.transaction_link) {
-        setTransactionLink(response.transaction_link)
-        setIsTransactionLinkModalOpen(true)
-        setIsConfirmationOpen(false)
-      } else {
-        if (selectedNetwork?.name?.toLowerCase() === "mtn" &&
-          selectedNetwork.deposit_api?.toLowerCase() === "connect") {
-          if (selectedNetwork.payment_by_link === false) {
-            // Use USSD code for MTN when payment_by_link is false
-            const handled = await handleMtnUssdFlow(amount)
-            if (!handled) {
-              if (response && response.id) {
-                router.push(`/dashboard/history/${response.id}`)
-              } else {
-                router.push("/dashboard")
-              }
-            }
-          } else {
-            if (response && response.id) {
-              router.push(`/dashboard/history/${response.id}`)
-            } else {
-              router.push("/dashboard")
-            }
-          }
-        } else {
-          // Handle Moov network or other networks
-          const handled = await handleMoovUssdFlow(amount)
-          if (!handled) {
-            if (response && response.id) {
-              router.push(`/dashboard/history/${response.id}`)
-            } else {
-              router.push("/dashboard")
-            }
-          }
-        }
-      }
+      handleTransactionSuccess(response, false)
     } catch (error: any) {
-      // Check for rate limit error (error_time_message)
       const timeErrorMessage = extractTimeErrorMessage(error)
       if (timeErrorMessage) {
         toast.error(timeErrorMessage)
@@ -411,16 +372,48 @@ export default function DepositPage() {
     }
   }
 
+  const handleTransactionSuccess = async (data: any, isFinalize: boolean = false) => {
+    if (isFinalize) {
+      toast.success("Transaction finalisée")
+    } else {
+      toast.success("Dépôt initié avec succès!")
+    }
+
+    if (data.transaction_link) {
+      setTransactionLink(data.transaction_link)
+      setIsTransactionLinkModalOpen(true)
+      setIsConfirmationOpen(false)
+      return
+    }
+
+    // Default flow: handle USSD or direct redirect
+    if (selectedNetwork?.name?.toLowerCase() === "mtn" &&
+      selectedNetwork.deposit_api?.toLowerCase() === "connect") {
+      if (selectedNetwork.payment_by_link === false) {
+        const handled = await handleMtnUssdFlow(amount)
+        if (handled) return
+      }
+    } else {
+      const handled = await handleMoovUssdFlow(amount)
+      if (handled) return
+    }
+
+    if (data.id) {
+      router.push(`/dashboard/history/${data.id}`)
+    } else {
+      router.push("/dashboard")
+    }
+  }
+
   const handleContinueTransaction = async () => {
     if (transactionLink) {
       window.open(transactionLink, "_blank", "noopener,noreferrer")
       setIsTransactionLinkModalOpen(false)
       setTransactionLink(null)
 
-      const handled = await handleMoovUssdFlow(amount)
-      if (!handled) {
-        router.push("/dashboard")
-      }
+      // Only attempt USSD if it wasn't already handled in handleTransactionSuccess
+      // usually manual is handled by modals
+      router.push("/dashboard")
     }
   }
 
@@ -535,7 +528,11 @@ export default function DepositPage() {
           actionType={actionType}
           onCancel={cancel}
           onFinalize={async (reference) => {
-            await finalize(reference)
+            const data = await finalize(reference)
+            if (data) {
+              handleTransactionSuccess(data, true)
+            }
+            return { preventRedirect: true }
           }}
           afterFinalizeHref="/dashboard/history"
           onContinue={async (tx) => {

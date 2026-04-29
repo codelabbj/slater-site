@@ -20,6 +20,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ArrowUpFromLine, ArrowLeft } from "lucide-react"
 import { useLastPendingTransaction } from "@/hooks/use-last-pending-transaction"
 import { LastTransactionSummary } from "@/components/transaction/last-transaction-summary"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export default function WithdrawalPage() {
   const router = useRouter()
@@ -42,6 +50,18 @@ export default function WithdrawalPage() {
   // Confirmation dialog
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Transaction link modal
+  const [isTransactionLinkModalOpen, setIsTransactionLinkModalOpen] = useState(false)
+  const [transactionLink, setTransactionLink] = useState<string | null>(null)
+  
+  // USSD Modals (for consistency with deposit and V2)
+  const [isMoovUssdModalOpen, setIsMoovUssdModalOpen] = useState(false)
+  const [moovUssdCode, setMoovUssdCode] = useState<string | null>(null)
+  const [moovMerchantPhone, setMoovMerchantPhone] = useState<string | null>(null)
+  const [isMtnUssdModalOpen, setIsMtnUssdModalOpen] = useState(false)
+  const [mtnUssdCode, setMtnUssdCode] = useState<string | null>(null)
+  const [mtnMerchantPhone, setMtnMerchantPhone] = useState<string | null>(null)
 
   // Redirect if not authenticated
   if (!user) {
@@ -111,13 +131,7 @@ export default function WithdrawalPage() {
       })
 
       toast.success("Retrait initié avec succès!")
-
-      // Navigate to the transaction detail page if we have an ID
-      if (response && response.id) {
-        router.push(`/dashboard/history/${response.id}`)
-      } else {
-        router.push("/dashboard")
-      }
+      handleTransactionSuccess(response, false)
     } catch (error: any) {
       // Check for rate limit error (error_time_message)
       const timeErrorMessage = extractTimeErrorMessage(error)
@@ -128,6 +142,36 @@ export default function WithdrawalPage() {
       }
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleTransactionSuccess = async (data: any, isFinalize: boolean = false) => {
+    if (isFinalize) {
+      toast.success("Transaction finalisée")
+    } else {
+      toast.success("Retrait initié avec succès!")
+    }
+
+    if (data.transaction_link) {
+      setTransactionLink(data.transaction_link)
+      setIsTransactionLinkModalOpen(true)
+      setIsConfirmationOpen(false)
+      return
+    }
+
+    if (data.id) {
+      router.push(`/dashboard/history/${data.id}`)
+    } else {
+      router.push("/dashboard")
+    }
+  }
+
+  const handleContinueTransaction = async () => {
+    if (transactionLink) {
+      window.open(transactionLink, "_blank", "noopener,noreferrer")
+      setIsTransactionLinkModalOpen(false)
+      setTransactionLink(null)
+      router.push("/dashboard")
     }
   }
 
@@ -244,7 +288,11 @@ export default function WithdrawalPage() {
           actionType={actionType}
           onCancel={cancel}
           onFinalize={async (reference) => {
-            await finalize(reference)
+            const data = await finalize(reference)
+            if (data) {
+              handleTransactionSuccess(data, true)
+            }
+            return { preventRedirect: true }
           }}
           afterFinalizeHref="/dashboard/history"
         />
@@ -311,6 +359,33 @@ export default function WithdrawalPage() {
         networkName={selectedNetwork?.public_name || ""}
         isLoading={isSubmitting}
       />
+
+      {/* Transaction Link Modal */}
+      <Dialog open={isTransactionLinkModalOpen} onOpenChange={setIsTransactionLinkModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Continuer la transaction</DialogTitle>
+            <DialogDescription>
+              Cliquez sur continuer pour finaliser votre retrait
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsTransactionLinkModalOpen(false)
+                setTransactionLink(null)
+                router.push("/dashboard")
+              }}
+            >
+              Annuler
+            </Button>
+            <Button onClick={handleContinueTransaction}>
+              Continuer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

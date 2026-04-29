@@ -509,6 +509,7 @@ export default function DepositV2Page() {
                   if (data) {
                     handleTransactionSuccess(data, true)
                   }
+                  return { preventRedirect: true }
                 }}
                 afterFinalizeHref="/dashboardv2/history"
                 onContinue={undefined}

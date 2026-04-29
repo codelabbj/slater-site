@@ -111,6 +111,10 @@ export function LastTransactionSummary(props: {
                 try {
                   const result = await onFinalize(transaction.reference)
                   
+                  if (result?.preventRedirect) {
+                    return
+                  }
+
                   // Navigate to the transaction detail page if we have an ID
                   if (result && result.id) {
                     const path = afterFinalizeHref.startsWith("/dashboardv2") 

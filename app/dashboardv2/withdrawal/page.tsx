@@ -70,6 +70,9 @@ export default function WithdrawalV2Page() {
   const [mtnUssdCode, setMtnUssdCode] = useState<string | null>(null)
   const [mtnMerchantPhone, setMtnMerchantPhone] = useState<string | null>(null)
 
+  const [isTransactionLinkModalOpen, setIsTransactionLinkModalOpen] = useState(false)
+  const [transactionLink, setTransactionLink] = useState<string | null>(null)
+
   useEffect(() => {
     if (!user) {
       router.push("/loginv2")
@@ -188,7 +191,8 @@ export default function WithdrawalV2Page() {
 
     // 3. Direct Transaction link from response
     if (data.transaction_link) {
-        window.open(data.transaction_link, "_blank", "noopener,noreferrer")
+        setTransactionLink(data.transaction_link)
+        setIsTransactionLinkModalOpen(true)
         return
     }
 
@@ -364,6 +368,15 @@ export default function WithdrawalV2Page() {
     }
   }
 
+  const handleContinueTransaction = async () => {
+    if (transactionLink) {
+        window.open(transactionLink, "_blank", "noopener,noreferrer")
+        setIsTransactionLinkModalOpen(false)
+        setTransactionLink(null)
+        router.push("/dashboardv2")
+    }
+  }
+
   const isStepValid = () => {
     switch (currentStep) {
       case 1:
@@ -491,6 +504,7 @@ export default function WithdrawalV2Page() {
                   if (data) {
                     handleTransactionSuccess(data, true)
                   }
+                  return { preventRedirect: true }
                 }}
                 afterFinalizeHref="/dashboardv2/history"
                 onContinue={undefined}
@@ -677,6 +691,37 @@ export default function WithdrawalV2Page() {
                   className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:shadow-lg hover:shadow-emerald-500/50 text-white rounded-xl w-full"
                 >
                   J&apos;ai compris
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Transaction Link Modal */}
+          <Dialog open={isTransactionLinkModalOpen} onOpenChange={setIsTransactionLinkModalOpen}>
+            <DialogContent className="rounded-2xl">
+              <DialogHeader>
+                <DialogTitle>Continuer la transaction</DialogTitle>
+                <DialogDescription>
+                  Cliquez sur continuer pour finaliser votre retrait
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsTransactionLinkModalOpen(false)
+                    setTransactionLink(null)
+                    router.push("/dashboardv2")
+                  }}
+                  className="rounded-xl"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  onClick={handleContinueTransaction}
+                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:shadow-lg hover:shadow-emerald-500/50 text-white rounded-xl"
+                >
+                  Continuer
                 </Button>
               </DialogFooter>
             </DialogContent>
