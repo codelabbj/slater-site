@@ -34,7 +34,7 @@ export default function LoginPage() {
   const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [forgotPasswordStep, setForgotPasswordStep] = useState(1)
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("")
@@ -50,20 +50,27 @@ export default function LoginPage() {
     formState: { errors },
     setValue,
     setError,
+    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   })
 
+  const CREDS_KEY = "slater_remembered_creds"
+
   // Load remembered credentials on mount
   useEffect(() => {
-    const rememberedEmail = localStorage.getItem("remembered_email")
-    const rememberedPassword = localStorage.getItem("remembered_password")
-    const shouldRemember = localStorage.getItem("remember_me") === "true"
-    
-    if (shouldRemember && rememberedEmail && rememberedPassword) {
-      setRememberMe(true)
-      setValue("email_or_phone", rememberedEmail)
-      setValue("password", rememberedPassword)
+    const savedCreds = localStorage.getItem(CREDS_KEY)
+    if (savedCreds) {
+      try {
+        const { email, password } = JSON.parse(savedCreds)
+        if (email && password) {
+          setRememberMe(true)
+          setValue("email_or_phone", email)
+          setValue("password", password)
+        }
+      } catch (e) {
+        console.error("Error parsing saved credentials", e)
+      }
     }
   }, [setValue])
 
@@ -75,16 +82,21 @@ export default function LoginPage() {
       
       // Handle Remember Me
       if (rememberMe) {
-        localStorage.setItem("remembered_email", data.email_or_phone)
-        localStorage.setItem("remembered_password", data.password)
-        localStorage.setItem("remember_me", "true")
+        localStorage.setItem(CREDS_KEY, JSON.stringify({ 
+          email: data.email_or_phone.trim().toLowerCase().replace(/\s+/g, ''), 
+          password: data.password 
+        }))
       } else {
-        localStorage.removeItem("remembered_email")
-        localStorage.removeItem("remembered_password")
-        localStorage.removeItem("remember_me")
+        localStorage.removeItem(CREDS_KEY)
       }
       
       login(response.access, response.refresh, response.data)
+      
+      // Save user ID and email for parity with blaffa-mobile (using slater naming convention)
+      if (response.data?.id) {
+        localStorage.setItem("user_id", response.data.id.toString())
+      }
+      localStorage.setItem("user_email", data.email_or_phone.trim().toLowerCase().replace(/\s+/g, ''))
       
       // Step 2: Show success toast first
       toast.success("Connexion réussie!")
@@ -219,13 +231,22 @@ export default function LoginPage() {
         })
         toast.success("Mot de passe réinitialisé avec succès!")
 
+        // Update remembered credentials if the email matches
+        // Always save the new credentials so the user can log in immediately
+        const normalizedForgotEmail = forgotPasswordEmail.trim().toLowerCase().replace(/\s+/g, '')
+        
+        localStorage.setItem(CREDS_KEY, JSON.stringify({ 
+          email: normalizedForgotEmail, 
+          password: newPassword 
+        }))
+        
+        // Also update user_email to keep it in sync
+        localStorage.setItem("user_email", normalizedForgotEmail)
+
         // Reset forgot password state
-        setIsForgotPassword(false)
-        setForgotPasswordStep(1)
-        setForgotPasswordEmail("")
-        setForgotPasswordOtp("")
-        setNewPassword("")
-        setConfirmNewPassword("")
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
       } catch (error: any) {
         console.error("Reset password error:", error)
         // Handle field-specific errors for password reset
@@ -540,6 +561,11 @@ export default function LoginPage() {
                   onClick={() => {
                     setIsForgotPassword(true)
                     setForgotPasswordStep(1)
+                    // Pre-fill email if available in the login form
+                    const currentEmail = watch("email_or_phone")
+                    if (currentEmail && currentEmail.includes("@")) {
+                      setForgotPasswordEmail(currentEmail)
+                    }
                   }}
                   disabled={isLoading}
                 >

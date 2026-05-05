@@ -130,6 +130,7 @@ export default function ProfileV2Page() {
       setIsUpdatingProfile(true)
       const updatedProfile = await authApi.updateProfile(data as any)
       setUserProfile(updatedProfile)
+      localStorage.setItem("user_email", updatedProfile.email.replace(/\s+/g, ''))
       toast.success("Profil mis à jour avec succès!")
     } catch (error: any) {
       console.error("Error updating profile:", error)
@@ -149,6 +150,25 @@ export default function ProfileV2Page() {
         confirm_new_password: data.confirm_new_password,
       })
       toast.success("Mot de passe changé avec succès!")
+
+      // Update remembered credentials if the email matches
+      const CREDS_KEY = "slater_remembered_creds"
+      const savedCreds = localStorage.getItem(CREDS_KEY)
+      if (savedCreds) {
+        try {
+          const creds = JSON.parse(savedCreds)
+          const userEmail = userProfile?.email || user?.email
+          const normalizedUserEmail = (userEmail || "").trim().toLowerCase().replace(/\s+/g, '')
+          const normalizedSavedEmail = (creds.email || "").trim().toLowerCase().replace(/\s+/g, '')
+
+          if (normalizedSavedEmail === normalizedUserEmail) {
+            localStorage.setItem(CREDS_KEY, JSON.stringify({ ...creds, password: data.new_password }))
+          }
+        } catch (e) {
+          console.error("Error updating saved credentials after password change", e)
+        }
+      }
+
       resetPasswordForm()
     } catch (error: any) {
       console.error("Error changing password:", error)

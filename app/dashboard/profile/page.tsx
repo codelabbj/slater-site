@@ -112,7 +112,12 @@ export default function ProfilePage() {
   const onSubmit = async (data: ProfileFormData) => {
     setIsSubmitting(true)
     try {
-      const updatedUser = await authApi.updateProfile(data)
+      const updatedUser = await authApi.updateProfile({
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+      })
       setProfile(updatedUser)
 
       // Update auth context with new user data
@@ -124,6 +129,7 @@ export default function ProfilePage() {
         )
       }
 
+      localStorage.setItem("user_email", updatedUser.email.replace(/\s+/g, ''))
       toast.success("Profil mis à jour avec succès!")
     } catch (error: any) {
       console.error("Error updating profile:", error)
@@ -144,6 +150,24 @@ export default function ProfilePage() {
         confirm_new_password: data.confirm_new_password,
       })
       toast.success("Mot de passe modifié avec succès!")
+
+      // Update remembered credentials if the email matches
+      const CREDS_KEY = "slater_remembered_creds"
+      const savedCreds = localStorage.getItem(CREDS_KEY)
+      if (savedCreds) {
+        try {
+          const creds = JSON.parse(savedCreds)
+          const normalizedUserEmail = (authUser?.email || "").trim().toLowerCase().replace(/\s+/g, '')
+          const normalizedSavedEmail = (creds.email || "").trim().toLowerCase().replace(/\s+/g, '')
+          
+          if (normalizedSavedEmail === normalizedUserEmail) {
+            localStorage.setItem(CREDS_KEY, JSON.stringify({ ...creds, password: data.new_password }))
+          }
+        } catch (e) {
+          console.error("Error updating saved credentials after password change", e)
+        }
+      }
+
       resetPassword()
       setShowOldPassword(false)
       setShowNewPassword(false)
@@ -223,7 +247,7 @@ export default function ProfilePage() {
               </h3>
               <p className="text-xs text-muted-foreground">{profile?.email}</p>
               <p className="text-xs text-muted-foreground">
-                Membre depuis {profile?.created_at ? format(new Date(profile.created_at), 'MMMM yyyy', { locale: fr }) : ''}
+                Membre depuis {profile?.date_joined ? format(new Date(profile.date_joined), 'MMMM yyyy', { locale: fr }) : ''}
               </p>
             </div>
           </div>

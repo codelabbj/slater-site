@@ -43,8 +43,16 @@ function detectLang(text: string) {
 }
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token")
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  const authEndpoints = ['auth/login', 'auth/register', 'auth/registration', 'auth/refresh', 'auth/send_otp', 'auth/reset_password']
+  const fullUrl = config.url || ''
+  const isAuthEndpoint = authEndpoints.some(endpoint =>
+    fullUrl.includes(endpoint) || fullUrl.includes(`/${endpoint}`)
+  )
+
+  if (!isAuthEndpoint) {
+    const token = localStorage.getItem("access_token")
+    if (token) config.headers.Authorization = `Bearer ${token}`
+  }
   
   // Ensure fresh data with cache busting
   config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
