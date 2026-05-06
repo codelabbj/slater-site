@@ -100,19 +100,16 @@ export default function TransactionHistoryPageV2() {
     setCurrentPage(1)
   }
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Veuillez vous connecter pour voir l'historique</p>
-      </div>
-    )
-  }
-  
   return (
     <div className="min-h-screen">
       <AppBar />
-      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
-        <div className="w-full max-w-md mx-auto">
+      {!user ? (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="text-muted-foreground">Veuillez vous connecter pour voir l'historique</p>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
+          <div className="w-full max-w-md mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2">
@@ -241,7 +238,8 @@ export default function TransactionHistoryPageV2() {
           )}
         </div>
       </div>
+        </div>
+      )}
     </div>
-  </div>
   )
 }

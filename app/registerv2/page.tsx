@@ -138,13 +138,7 @@ export default function SignupPageV2() {
     }
   }
 
-  if (isLoadingSettings) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-900" />
-      </div>
-    )
-  }
+
 
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8">
@@ -457,7 +451,10 @@ export default function SignupPageV2() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md">
+      {isLoadingSettings ? (
+        <Loader2 className="h-8 w-8 animate-spin text-slate-900" />
+      ) : (
+        <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-6 sm:mb-8">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg">
@@ -498,7 +495,8 @@ export default function SignupPageV2() {
             </Link>
           </p>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   )
 }

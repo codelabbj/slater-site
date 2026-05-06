@@ -93,9 +93,7 @@ export default function ProfileV2Page() {
     }
   }, [user, router])
 
-  if (!user) {
-    return null
-  }
+
 
   // Fetch user profile
   const fetchUserProfile = async () => {
@@ -213,8 +211,13 @@ export default function ProfileV2Page() {
   return (
     <>
       <AppBar />
-      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 sm:pt-8 pb-4 sm:pb-2">
-        <div className="w-full max-w-2xl">
+      {!user ? (
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 sm:pt-8 pb-4 sm:pb-2">
+          <div className="w-full max-w-2xl">
           {/* Header Section */}
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-2">
@@ -597,8 +600,9 @@ export default function ProfileV2Page() {
               </div>
             </div>
           )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

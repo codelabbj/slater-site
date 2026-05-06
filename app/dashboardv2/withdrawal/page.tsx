@@ -79,9 +79,7 @@ export default function WithdrawalV2Page() {
     }
   }, [user, router])
 
-  if (!user) {
-    return null
-  }
+
 
   const handleNext = () => {
     if (lastTransaction) {
@@ -490,8 +488,13 @@ export default function WithdrawalV2Page() {
   return (
     <>
       <AppBar />
-      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 sm:pt-8 pb-8 sm:pb-4">
-        <div className="w-full max-w-md">
+      {!user ? (
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 sm:pt-8 pb-8 sm:pb-4">
+          <div className="w-full max-w-md">
           {lastTransaction ? (
             <div className="mb-6">
               <LastTransactionSummary
@@ -726,8 +729,9 @@ export default function WithdrawalV2Page() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }
