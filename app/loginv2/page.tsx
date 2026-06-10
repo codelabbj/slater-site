@@ -17,6 +17,7 @@ import { toast } from "react-hot-toast"
 import { Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react"
 import Image from "next/image"
 import { setupNotifications } from "@/lib/fcm-helper"
+import { GoogleButton } from "@/components/google-button"
 
 const loginSchema = z.object({
   email_or_phone: z.string().min(1, "Adresse e-mail ou numéro de téléphone requis"),
@@ -524,6 +525,9 @@ export default function LoginPageV2() {
                 "Se connecter"
               )}
             </Button>
+
+            {/* Bouton Google */}
+            <GoogleButton mode="login" />
           </form>
         )}
 

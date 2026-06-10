@@ -4,11 +4,10 @@ import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { ThemeProvider } from "@/components/theme-provider"
-// import { DevTools } from "@/components/dev-tools"
 import { Toaster } from "react-hot-toast"
-// import { ErudaLoader } from "@/components/eruda-loader"
 import { Suspense } from "react"
 import { NotificationInitializer } from "@/components/notification-initializer"
+import { GoogleOAuthProvider } from "@react-oauth/google"
 
 
 const inter = Inter({ subsets: ["latin"] })
@@ -27,6 +26,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -63,16 +63,15 @@ export default function RootLayout({
             <div className="flex-1 flex flex-col relative">
               <AuthProvider>
                 <NotificationInitializer />
-                {/* <ErudaLoader /> */}
                 <Suspense fallback={null}>
                   {children}
                 </Suspense>
                 <Toaster position="top-right" />
-                {/* <DevTools /> */}
               </AuthProvider>
             </div>
           </div>
         </ThemeProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   )

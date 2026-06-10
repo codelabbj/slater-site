@@ -15,6 +15,7 @@ import { handleFieldErrors } from "@/lib/utils"
 import { toast } from "react-hot-toast"
 import { Loader2, Eye, EyeOff, User, Mail, Lock, Phone, CheckCircle2 } from "lucide-react"
 import Image from "next/image"
+import { GoogleButton } from "@/components/google-button"
 
 const step1Schema = z.object({
   first_name: z.string().min(2, "Le prénom doit contenir au minimum 2 caractères"),
@@ -494,6 +495,11 @@ export default function SignupPageV2() {
               Se connecter
             </Link>
           </p>
+        </div>
+
+        {/* Bouton Google */}
+        <div className="mt-4">
+          <GoogleButton mode="register" />
         </div>
         </div>
       )}
