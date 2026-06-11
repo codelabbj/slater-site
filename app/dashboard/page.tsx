@@ -427,7 +427,7 @@ export default function DashboardPage() {
               <p className="text-xs opacity-90">Version 1.0.2</p>
             </div>
             <Button asChild variant="secondary" className="shrink-0 h-9 sm:h-10 text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all">
-              <a href="https://slaterci-mobile-app.vercel.app/releases/app-v1.0.2.apk" target="_blank" rel="noopener noreferrer">
+              <a href="/app-v1.0.2.apk" download="Slater-v1.0.2.apk">
                 Télécharger
               </a>
             </Button>

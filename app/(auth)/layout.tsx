@@ -3,7 +3,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 
-const APK_DOWNLOAD_URL = "https://slaterci-mobile-app.vercel.app/releases/app-v1.0.2.apk"
+const APK_DOWNLOAD_URL = "/app-v1.0.2.apk"
 const APK_FILE_NAME = "Slater-v1.0.2.apk"
 
 export default function AuthLayout({
