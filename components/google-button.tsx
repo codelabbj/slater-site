@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { toast } from "react-hot-toast"
-import { useGoogleLogin } from "@react-oauth/google"
+import { GoogleLogin } from "@react-oauth/google"
 import api from "@/lib/api"
 import { Loader2 } from "lucide-react"
 
@@ -30,38 +30,20 @@ export function GoogleButton({ mode = "login" }: GoogleButtonProps) {
 
   const label = mode === "register" ? "S'inscrire avec Google" : "Continuer avec Google"
 
-  // useGoogleLogin avec flow implicit retourne un access_token
-  // On l'échange contre les infos user puis on envoie l'id_token au backend
-  // Pour avoir l'id_token directement on utilise le popup via GoogleLogin credential flow
-  const handleGoogleLogin = useGoogleLogin({
-    flow: "implicit",
-    onSuccess: async (tokenResponse) => {
-      setIsLoading(true)
-      try {
-        // Récupère les infos user avec l'access_token Google
-        const userInfo = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        }).then((r) => r.json())
-
-        // Construit un id_token-like payload et l'envoie au backend
-        // On passe l'access_token dans un champ dédié
-        const response = await api.post("/auth/google", {
-          access_token: tokenResponse.access_token,
-        })
-        const { access, refresh, data } = response.data
-        login(access, refresh, data)
-        toast.success(mode === "register" ? "Compte créé avec succès!" : "Connexion réussie!")
-        router.push("/dashboardv2")
-      } catch (error) {
-        console.error("Google auth error:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    onError: () => {
-      toast.error("Erreur lors de la connexion avec Google")
-    },
-  })
+  const handleCredential = async (credential: string) => {
+    setIsLoading(true)
+    try {
+      const response = await api.post("/auth/google", { id_token: credential })
+      const { access, refresh, data } = response.data
+      login(access, refresh, data)
+      toast.success(mode === "register" ? "Compte créé avec succès!" : "Connexion réussie!")
+      router.push("/dashboardv2")
+    } catch (error) {
+      console.error("Google auth error:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="w-full space-y-4">
@@ -75,34 +57,39 @@ export function GoogleButton({ mode = "login" }: GoogleButtonProps) {
         </div>
       </div>
 
-      {/* Bouton pleine largeur, même style que les boutons login/register */}
-      <button
-        type="button"
-        onClick={() => handleGoogleLogin()}
-        disabled={isLoading}
-        className="
-          w-full flex items-center justify-center gap-3
-          h-10 sm:h-11 px-4
-          rounded-md
-          border border-slate-200
-          bg-white
-          text-slate-700 font-semibold text-sm sm:text-base
-          shadow-lg
-          hover:bg-slate-50
-          active:scale-[0.98]
-          transition-all duration-200
-          disabled:opacity-60 disabled:cursor-not-allowed
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400
-        "
-        aria-label={label}
-      >
-        {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-slate-400 shrink-0" />
-        ) : (
-          <GoogleIcon />
-        )}
-        <span>{isLoading ? "Chargement..." : label}</span>
-      </button>
+      {isLoading ? (
+        /* Placeholder même taille que le bouton Google pour éviter le saut */
+        <div className="w-full h-10 sm:h-11 flex items-center justify-center gap-3 border border-slate-200 rounded-md bg-white text-slate-500 text-sm font-semibold">
+          <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+          Chargement...
+        </div>
+      ) : (
+        /* GoogleLogin rendu invisible — on superpose notre bouton custom */
+        <div className="relative w-full">
+          {/* Bouton custom visible — même style que login/register */}
+          <div className="w-full h-10 sm:h-11 flex items-center justify-center gap-3 border border-slate-200 rounded-md bg-white text-slate-700 font-semibold text-sm sm:text-base shadow-lg pointer-events-none select-none">
+            <GoogleIcon />
+            <span>{label}</span>
+          </div>
+
+          {/* GoogleLogin invisible par-dessus — capte le clic et gère le popup */}
+          <div className="absolute inset-0 opacity-0 overflow-hidden">
+            <GoogleLogin
+              onSuccess={(res) => {
+                if (res.credential) handleCredential(res.credential)
+              }}
+              onError={() => toast.error("Erreur lors de la connexion avec Google")}
+              text={mode === "register" ? "signup_with" : "continue_with"}
+              shape="rectangular"
+              theme="outline"
+              size="large"
+              width="800"
+              locale="fr"
+              useOneTap={false}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
