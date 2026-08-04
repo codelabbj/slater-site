@@ -263,7 +263,7 @@ export const transactionApi = {
         | Transaction[]
         | { results?: Transaction[] }
         | null
-      >("/mobcash/last-transaction")
+      >("/mobcash/last-transaction", { _silent: true } as any)
 
       const list: Transaction[] = Array.isArray(data)
         ? data

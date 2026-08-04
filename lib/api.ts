@@ -74,11 +74,14 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config
 
+    const isLastTransaction = original?.url?.includes("last-transaction")
+    const isSilent = original?._silent || isLastTransaction
+
     // Handle network errors (no response from server)
     if (!error.response) {
       const networkErrorMsg = "Erreur de connexion. Vérifiez votre connexion internet et réessayez."
       // Only show toast for network errors if it's not a silent request
-      if (!original?._silent) {
+      if (!isSilent) {
         toast.error(networkErrorMsg)
       }
       return Promise.reject(error)
@@ -124,7 +127,7 @@ api.interceptors.response.use(
     }
 
     // If we have a default message for this status code, use it
-    if (defaultErrorMsg && !original?._silent) {
+    if (defaultErrorMsg && !isSilent) {
       toast.error(defaultErrorMsg, { style: { direction: "ltr" } })
       return Promise.reject(error)
     }
@@ -138,7 +141,7 @@ api.interceptors.response.use(
       (typeof error.response?.data === "string" ? error.response.data : "Une erreur est survenue. Veuillez réessayer.")
 
     // Only show toast if not a silent request and not a 401 error
-    if (!original?._silent && status !== 401) {
+    if (!isSilent && status !== 401) {
       toast.error(backendMsg, { style: { direction: "ltr" } })
     }
     return Promise.reject(error)
